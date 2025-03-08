@@ -1,0 +1,17 @@
+{
+	"id": "PokermonGymBlinds",
+	"name": "Pokermon Gym Blinds",
+	"author": ["Hwang#2760"],
+	"description": "Added Blinds for Respective gym leaders for Pokermon.",
+	"prefix": "pkrm_gym",
+	"main_file": "main.lua",
+	"priority": 20,
+	"badge_colour": "87b320",
+	"badge_text_colour": "FFFFFF",
+	"version": "0.0.1",
+	"dependencies": [
+		"Steamodded (>=1.0.0~ALPHA-1303a)",
+		"Lovely (>=0.6)",
+		"Pokermon (>=2.6.0)"
+	],
+}
