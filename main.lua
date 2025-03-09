@@ -1,21 +1,3 @@
-SMODS.Atlas { 
-	key = 'blinds_kanto', 
-	atlas_table = 'ANIMATION_ATLAS', 
-	path = 'blinds_kanto.png', 
-	px = 34, 
-	py = 34, 
-	frames = 21 
-}
-
-goose_disable = function(card, btype)
-	if (card.ability and card.ability.extra and type(card.ability.extra) == "table" and card.ability.extra.ptype and card.ability.extra.ptype == btype) then
-	return true
-	elseif btype and card.ability[string.lower(btype).."_sticker"] then
-	return true
-	end
-	return false
-end
-
 GYM_BLINDS_TYPE_CLR = {
 	fire = HEX('E62829'),
 	grass = HEX('3FA129'),
@@ -41,6 +23,34 @@ GYM_BLINDS_TYPE_CLR = {
 -- Psychic too intense, suitable for Will but not anyone else
 --  Maybe darken normal
 
+-- Extra blind functionalities
+EXTRA_BL = {
+	after_scoring = function(scoring_hand) end,
+}
+
+function RESET_EXTRA_BL()
+	EXTRA_BL = {
+		after_scoring = function(scoring_hand) end,
+	}
+end
+
+local smods_calculate_destroying_cards = SMODS.calculate_destroying_cards
+function SMODS.calculate_destroying_cards(context, cards_destroyed, scoring_hand)
+	smods_calculate_destroying_cards(context, cards_destroyed, scoring_hand)
+
+	if scoring_hand and not G.GAME.blind.disabled then
+		if EXTRA_BL.after_scoring and type(EXTRA_BL.after_scoring) == 'function' then
+			EXTRA_BL.after_scoring(scoring_hand)
+		end
+	end
+end
+
+local blind_defeat = Blind.defeat
+function Blind:defeat()
+	blind_defeat(self)
+	RESET_EXTRA_BL()
+end
+
 -- Loading blinds
 local kanto_load, load_error = SMODS.load_file('blinds/kanto.lua')
 if load_error then sendDebugMessage ("The error is: "..load_error)
@@ -60,42 +70,58 @@ end
 
 
 -- TODO: Testing
-local success, dpAPI = pcall(require, "debugplus-api")
+-- local success, dpAPI = pcall(require, "debugplus-api")
 
-if success and dpAPI.isVersionCompatible(1) then -- Make sure DebugPlus is available and compatible
-    local debugplus = dpAPI.registerID("GGGG")
+-- if success and dpAPI.isVersionCompatible(1) then -- Make sure DebugPlus is available and compatible
+--     local debugplus = dpAPI.registerID("GGGG")
 
-	debugplus.addCommand({
-	    name = "test1",
-	    shortDesc = "Testing command",
-	    desc = "This command is an example from the docs.",
-	    exec = function (args, rawArgs, dp)
-				UIBox{
-                    definition = 
-                      {n=G.UIT.ROOT, config = {align = 'cm', colour = G.C.CLEAR, padding = 0.2}, nodes={
-                        {n=G.UIT.R, config = {align = 'cm', maxw = 1}, nodes={
-                            {n=G.UIT.O, config={object = DynaText({scale = 0.7, string = localize('ph_unscored_hand'), maxw = 9, colours = {G.C.WHITE},float = true, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6})}},
-                        }},
-                        {n=G.UIT.R, config = {align = 'cm', maxw = 1}, nodes={
-                            {n=G.UIT.O, config={object = DynaText({scale = 0.65, string = localize('ph_unscored_hand'), maxw = 9, colours = {G.C.WHITE},float = true, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6})}},
-                        }},
-                        {n=G.UIT.R, config = {align = 'cm', maxw = 1}, nodes={
-                            {n=G.UIT.O, config={object = DynaText({scale = 0.6, string = localize('ph_unscored_hand'), maxw = 9, colours = {G.C.WHITE},float = true, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6})}},
-                        }},
-                        {n=G.UIT.R, config = {align = 'cm', maxw = 1}, nodes={
-                            {n=G.UIT.O, config={object = DynaText({scale = 0.5, string = localize('ph_unscored_hand'), maxw = 9, colours = {G.C.WHITE},float = true, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6})}},
-                        }},
-                    }}, 
-                    config = {
-                        align = 'cm',
-                        offset ={x=0,y=-3.1}, 
-                        major = G.play,
-                      }
-                  }
-	    end
-	})
+-- 	debugplus.addCommand({
+-- 	    name = "test1",
+-- 	    shortDesc = "Testing command",
+-- 	    desc = "This command is an example from the docs.",
+-- 	    exec = function (args, rawArgs, dp)
+-- 				-- UIBox{
+--                 --     definition = 
+--                 --       {n=G.UIT.ROOT, config = {align = 'cm', colour = G.C.CLEAR, padding = 0.2}, nodes={
+--                 --         {n=G.UIT.R, config = {align = 'cm', maxw = 1}, nodes={
+--                 --             {n=G.UIT.O, config={object = DynaText({scale = 0.7, string = localize('ph_unscored_hand'), maxw = 9, colours = {G.C.WHITE},float = true, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6})}},
+--                 --         }},
+--                 --         {n=G.UIT.R, config = {align = 'cm', maxw = 1}, nodes={
+--                 --             {n=G.UIT.O, config={object = DynaText({scale = 0.65, string = localize('ph_unscored_hand'), maxw = 9, colours = {G.C.WHITE},float = true, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6})}},
+--                 --         }},
+--                 --         {n=G.UIT.R, config = {align = 'cm', maxw = 1}, nodes={
+--                 --             {n=G.UIT.O, config={object = DynaText({scale = 0.6, string = localize('ph_unscored_hand'), maxw = 9, colours = {G.C.WHITE},float = true, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6})}},
+--                 --         }},
+--                 --         {n=G.UIT.R, config = {align = 'cm', maxw = 1}, nodes={
+--                 --             {n=G.UIT.O, config={object = DynaText({scale = 0.5, string = localize('ph_unscored_hand'), maxw = 9, colours = {G.C.WHITE},float = true, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6})}},
+--                 --         }},
+--                 --     }}, 
+--                 --     config = {
+--                 --         align = 'cm',
+--                 --         offset ={x=0,y=-3.1}, 
+--                 --         major = G.play,
+--                 --       }
+--                 --   }
 
-end
+-- 		G.GAME.blind.chips = G.GAME.blind.chips * (120/100)
+-- 		G.GAME.blind.chip_text = number_format(G.GAME.blind.chips)
+
+-- 		local chip_text_UI = G.HUD_blind:get_UIE_by_ID("HUD_blind_count")
+-- 		attention_text({
+--           text = G.GAME.blind.chip_text,
+--           scale = 0.8, 
+--           hold = 0.7,
+--           cover = chip_text_UI,
+--           cover_colour = G.C.GOLD,
+--           align = 'cm',
+--         })
+
+-- 		-- self.triggered = true
+-- 		G.GAME.blind:wiggle()
+-- 	    end
+-- 	})
+
+-- end
 
 
 local kanto_league = {
@@ -246,31 +272,6 @@ function table_to_string(tbl)
 	end
 	return result .. "}"
 end
-
-local fundeck = {
-	name = "fundeck",
-	key = "testdeck",  
-	order = 17,
-	unlocked = true,
-	discovered = true,
-	pos = { x = 0, y = 0 },
-	apply = function(self)
-		G.GAME.perscribed_bosses = {}
-		G.GAME.win_ante = (G.GAME.win_ante or 1) + 2
-		-- Copy table
-
-		G.GAME.perscribed_bosses[1] = "bl_pkrm_gym_cascade"
-	end,
-	loc_txt = {
-		name = "CCD Deck",
-		text = {
-			"Every card is dead"
-		}
-	}
-}
-
-SMODS.Back(fundeck)
-
 
 
 -- UI Config stuff

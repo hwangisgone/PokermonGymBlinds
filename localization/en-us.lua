@@ -37,7 +37,7 @@ return {
 			bl_pkrm_gym_heat    = {name = 'The Heat'   ,text = {"Giovanni's Gym"}},
 			bl_pkrm_gym_balance = {name = 'The Balance',text = {"Each hand only scores", "after 1 discard"}},
 			bl_pkrm_gym_feather = {name = 'The Feather',text = {"Giovanni's Gym"}},
-			bl_pkrm_gym_mind    = {name = 'The Mind'   ,text = {"Hand must contains a Pair"}},
+			bl_pkrm_gym_mind    = {name = 'The Mind'   ,text = {"Hand must contains Pair"}},
 			bl_pkrm_gym_rain    = {name = 'The Rain'   ,text = {"Giovanni's Gym"}},
 			bl_pkrm_gym_e4_sidney = {name = 'Temp Bruno', text = {"Elite Four - 1"}},
 			bl_pkrm_gym_e4_phoebe = {name = 'Temp Bruno', text = {"Elite Four - 2"}},

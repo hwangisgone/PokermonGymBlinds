@@ -1,6 +1,15 @@
 -- KANTO
 local TYPE_CLR = GYM_BLINDS_TYPE_CLR
 
+SMODS.Atlas { 
+	key = 'blinds_kanto', 
+	atlas_table = 'ANIMATION_ATLAS', 
+	path = 'blinds_kanto.png', 
+	px = 34, 
+	py = 34, 
+	frames = 21 
+}
+
 SMODS.Blind {
 	key = 'boulder',
 	atlas = 'blinds_kanto',
@@ -11,7 +20,7 @@ SMODS.Blind {
 	dollars = 5,
 	mult = 2,
 	boss = {min = 1, max = 10},
-	config = {},
+	config = { disabled = false },
 	vars = {},
 	
 	drawn_to_hand = function(self)
@@ -28,6 +37,10 @@ SMODS.Blind {
 			end
 		end
 	end,
+
+	disable = function(self)
+		self.config.disabled = true
+  	end
 }
 
 SMODS.Blind {
