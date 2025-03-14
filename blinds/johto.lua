@@ -24,6 +24,21 @@ SMODS.Blind {
 	vars = {},
 }
 
+BL_FUNCTION_TABLE['hive_after_scoring'] = function(scoring_hand)
+	local rightmost_card = scoring_hand[#scoring_hand]
+
+	G.E_MANAGER:add_event(Event({ trigger = 'after', func = function()
+		-- Scyther effect
+		rightmost_card:juice_up()
+		rightmost_card:start_dissolve({HEX("57ecab")}, nil, 1.6)
+		play_sound('slice1', 0.96+math.random()*0.08)
+
+		G.GAME.blind:wiggle()
+
+		return true
+	end }))
+end
+
 SMODS.Blind {
 	key = 'hive',
 	atlas = 'blinds_johto',
@@ -37,19 +52,8 @@ SMODS.Blind {
 	config = {},
 	vars = {},
 	set_blind = function(self)
-		EXTRA_BL.after_scoring = function(scoring_hand)
-			local rightmost_card = scoring_hand[#scoring_hand]
-
-			G.E_MANAGER:add_event(Event({ trigger = 'after', func = function()
-				-- Scyther effect
-	            rightmost_card:juice_up()
-	            rightmost_card:start_dissolve({HEX("57ecab")}, nil, 1.6)
-	            play_sound('slice1', 0.96+math.random()*0.08)
-	            return true
-	        end }))
-
-	        G.GAME.blind:wiggle()
-		end
+		print("CONFIGURED")
+		G.GAME.BL_EXTRA.after_scoring = 'hive_after_scoring'
 	end,
 
 	press_play = function(self)
@@ -76,15 +80,14 @@ SMODS.Blind {
 		G.GAME.blind.chips = G.GAME.blind.chips * (self.config.rollout/100)
 		G.GAME.blind.chip_text = number_format(G.GAME.blind.chips)
 
-		local chip_text_UI = G.HUD_blind:get_UIE_by_ID("HUD_blind_count")
 		attention_text({
-          text = G.GAME.blind.chip_text,
-          scale = 0.8, 
-          hold = 0.7,
-          cover = chip_text_UI,
-          cover_colour = G.C.GOLD,
-          align = 'cm',
-        })
+		  text = 'X'..(self.config.rollout/100),
+		  scale = 0.8, 
+		  hold = 1.5,
+		  cover = G.HUD_blind:get_UIE_by_ID("HUD_blind_count").parent,
+		  cover_colour = G.C.GOLD,
+		  align = 'cm',
+		})
 
 		G.GAME.blind.triggered = true
 		G.GAME.blind:wiggle()
@@ -201,21 +204,21 @@ SMODS.Blind {
 	vars = {},
 
 	debuff_hand = function(self, cards, hand, handname, check)
-        if not G.GAME.blind.disabled then
-            local face_count = 0
-            for i = 1, #cards do
-                if cards[i]:is_face() and (cards[i].facing == 'front' or not check) then
-                	face_count = face_count + 1
-                end
-            end
+		if not G.GAME.blind.disabled then
+			local face_count = 0
+			for i = 1, #cards do
+				if cards[i]:is_face() and (cards[i].facing == 'front' or not check) then
+					face_count = face_count + 1
+				end
+			end
 
-            if face_count < 2 then
-            	return true
-            else
-            	return false
-            end
-        end
-    end,
+			if face_count < 2 then
+				return true
+			else
+				return false
+			end
+		end
+	end,
 }
 
 SMODS.Blind {

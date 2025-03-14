@@ -18,38 +18,79 @@ GYM_BLINDS_TYPE_CLR = {
 	rock = HEX('AFA981'),
 	steel = HEX('60A1B8'),
 }
-
 -- TODO: Note: green needs to be brighter
 -- Psychic too intense, suitable for Will but not anyone else
 --  Maybe darken normal
 
--- Extra blind functionalities
-EXTRA_BL = {
-	after_scoring = function(scoring_hand) end,
-}
+-- TODO: Use this??? SMODS.juice_up_blind()
 
-function RESET_EXTRA_BL()
-	EXTRA_BL = {
-		after_scoring = function(scoring_hand) end,
+
+
+
+-- Utilities:
+function get_current_dollars()
+	if (SMODS.Mods["Talisman"] or {}).can_load then
+		return to_number(G.GAME.dollars)
+	else
+		return G.GAME.dollars
+	end
+end
+
+-- Extra blind functionalities, set by setting the name to look for in BL_FUNCTION_TABLE
+-- Blind:
+-- after_scoring = function(scoring_hand) end,
+-- redraw_UI = function() end,
+
+-- For persistent variables between run, e.g. Blaine's quizzes, use G.GAME.BL_PERSISTENCE
+
+
+BL_FUNCTION_TABLE = {}
+
+-- For saving/loading blinds
+local blind_set_blind = Blind.set_blind
+function Blind:set_blind(blind, reset, silent)
+	G.GAME.BL_EXTRA = {
+		pre_discard = nil,
+		after_scoring = nil,
+		reload = nil,
+		temp_table = {},
 	}
+
+	blind_set_blind(self, blind, reset, silent)
 end
 
 local smods_calculate_destroying_cards = SMODS.calculate_destroying_cards
 function SMODS.calculate_destroying_cards(context, cards_destroyed, scoring_hand)
 	smods_calculate_destroying_cards(context, cards_destroyed, scoring_hand)
 
+
 	if scoring_hand and not G.GAME.blind.disabled then
-		if EXTRA_BL.after_scoring and type(EXTRA_BL.after_scoring) == 'function' then
-			EXTRA_BL.after_scoring(scoring_hand)
+		print("After scoring is: ")
+		print(G.GAME.BL_EXTRA.after_scoring)
+		if G.GAME.BL_EXTRA.after_scoring then
+			local after_scoring_func = BL_FUNCTION_TABLE[G.GAME.BL_EXTRA.after_scoring]
+			if type(after_scoring_func) == 'function' then
+				after_scoring_func(scoring_hand)
+				print("AFTER SCORING CALCULATED")
+			end
 		end
 	end
 end
 
-local blind_defeat = Blind.defeat
-function Blind:defeat()
-	blind_defeat(self)
-	RESET_EXTRA_BL()
+local blind_load = Blind.load
+function Blind:load(blindTable)
+	blind_load(self, blindTable)
+
+	if G.GAME.BL_EXTRA.reload then
+		local reload_func = BL_FUNCTION_TABLE[G.GAME.BL_EXTRA.reload]
+		if type(reload_func) == 'function' then
+			reload_func(G.GAME.BL_EXTRA.temp_table)
+			print("RELOAD CALCULATED")
+		end
+	end
 end
+
+
 
 -- Loading blinds
 local kanto_load, load_error = SMODS.load_file('blinds/kanto.lua')
@@ -69,59 +110,43 @@ end
 
 
 
+
 -- TODO: Testing
--- local success, dpAPI = pcall(require, "debugplus-api")
+local success, dpAPI = pcall(require, "debugplus-api")
 
--- if success and dpAPI.isVersionCompatible(1) then -- Make sure DebugPlus is available and compatible
---     local debugplus = dpAPI.registerID("GGGG")
+if success and dpAPI.isVersionCompatible(1) then -- Make sure DebugPlus is available and compatible
+	local debugplus = dpAPI.registerID("GGGG")
 
--- 	debugplus.addCommand({
--- 	    name = "test1",
--- 	    shortDesc = "Testing command",
--- 	    desc = "This command is an example from the docs.",
--- 	    exec = function (args, rawArgs, dp)
--- 				-- UIBox{
---                 --     definition = 
---                 --       {n=G.UIT.ROOT, config = {align = 'cm', colour = G.C.CLEAR, padding = 0.2}, nodes={
---                 --         {n=G.UIT.R, config = {align = 'cm', maxw = 1}, nodes={
---                 --             {n=G.UIT.O, config={object = DynaText({scale = 0.7, string = localize('ph_unscored_hand'), maxw = 9, colours = {G.C.WHITE},float = true, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6})}},
---                 --         }},
---                 --         {n=G.UIT.R, config = {align = 'cm', maxw = 1}, nodes={
---                 --             {n=G.UIT.O, config={object = DynaText({scale = 0.65, string = localize('ph_unscored_hand'), maxw = 9, colours = {G.C.WHITE},float = true, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6})}},
---                 --         }},
---                 --         {n=G.UIT.R, config = {align = 'cm', maxw = 1}, nodes={
---                 --             {n=G.UIT.O, config={object = DynaText({scale = 0.6, string = localize('ph_unscored_hand'), maxw = 9, colours = {G.C.WHITE},float = true, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6})}},
---                 --         }},
---                 --         {n=G.UIT.R, config = {align = 'cm', maxw = 1}, nodes={
---                 --             {n=G.UIT.O, config={object = DynaText({scale = 0.5, string = localize('ph_unscored_hand'), maxw = 9, colours = {G.C.WHITE},float = true, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6})}},
---                 --         }},
---                 --     }}, 
---                 --     config = {
---                 --         align = 'cm',
---                 --         offset ={x=0,y=-3.1}, 
---                 --         major = G.play,
---                 --       }
---                 --   }
+	debugplus.addCommand({
+		name = "test1",
+		shortDesc = "Testing command",
+		desc = "This command is an example from the docs.",
+		exec = function (args, rawArgs, dp)
+				-- UIBox{
+				--     definition = 
+				--       {n=G.UIT.ROOT, config = {align = 'cm', colour = G.C.CLEAR, padding = 0.2}, nodes={
+				--         {n=G.UIT.R, config = {align = 'cm', maxw = 1}, nodes={
+				--             {n=G.UIT.O, config={object = DynaText({scale = 0.7, string = localize('ph_unscored_hand'), maxw = 9, colours = {G.C.WHITE},float = true, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6})}},
+				--         }},
+				--         {n=G.UIT.R, config = {align = 'cm', maxw = 1}, nodes={
+				--             {n=G.UIT.O, config={object = DynaText({scale = 0.65, string = localize('ph_unscored_hand'), maxw = 9, colours = {G.C.WHITE},float = true, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6})}},
+				--         }},
+				--         {n=G.UIT.R, config = {align = 'cm', maxw = 1}, nodes={
+				--             {n=G.UIT.O, config={object = DynaText({scale = 0.6, string = localize('ph_unscored_hand'), maxw = 9, colours = {G.C.WHITE},float = true, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6})}},
+				--         }},
+				--         {n=G.UIT.R, config = {align = 'cm', maxw = 1}, nodes={
+				--             {n=G.UIT.O, config={object = DynaText({scale = 0.5, string = localize('ph_unscored_hand'), maxw = 9, colours = {G.C.WHITE},float = true, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6})}},
+				--         }},
+				--     }}, 
 
--- 		G.GAME.blind.chips = G.GAME.blind.chips * (120/100)
--- 		G.GAME.blind.chip_text = number_format(G.GAME.blind.chips)
+				--   }
+				print(BL_FUNCTION_TABLE)
+				print(BL_FUNCTION_TABLE['test'])
+				print(G.GAME.BL_EXTRA)
+		end
+	})
 
--- 		local chip_text_UI = G.HUD_blind:get_UIE_by_ID("HUD_blind_count")
--- 		attention_text({
---           text = G.GAME.blind.chip_text,
---           scale = 0.8, 
---           hold = 0.7,
---           cover = chip_text_UI,
---           cover_colour = G.C.GOLD,
---           align = 'cm',
---         })
-
--- 		-- self.triggered = true
--- 		G.GAME.blind:wiggle()
--- 	    end
--- 	})
-
--- end
+end
 
 
 local kanto_league = {

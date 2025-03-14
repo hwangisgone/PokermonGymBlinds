@@ -109,12 +109,12 @@ SMODS.Blind {
 	vars = {},
 
 	debuff_hand = function(self, cards, hand, handname, check)
-        if not G.GAME.blind.disabled then
-        	-- TODO: what the hell is check?
-        	-- if not check then
-        	return not next(hand['Pair'])
-        end
-    end,
+		if not G.GAME.blind.disabled then
+			-- TODO: what the hell is check?
+			-- if not check then
+			return not next(hand['Pair'])
+		end
+	end,
 }
 
 SMODS.Blind {
