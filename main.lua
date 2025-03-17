@@ -65,8 +65,6 @@ function SMODS.calculate_destroying_cards(context, cards_destroyed, scoring_hand
 
 
 	if scoring_hand and not G.GAME.blind.disabled then
-		print("After scoring is: ")
-		print(G.GAME.BL_EXTRA.after_scoring)
 		if G.GAME.BL_EXTRA.after_scoring then
 			local after_scoring_func = BL_FUNCTION_TABLE[G.GAME.BL_EXTRA.after_scoring]
 			if type(after_scoring_func) == 'function' then
@@ -339,3 +337,11 @@ else
 	util_hooks()
 end
 
+-- Mod icon
+SMODS.Atlas {
+	key = 'modicon',
+	px = 34,
+	py = 34,
+	path = 'modicon.png',
+}
+-- TODO: Edit this icon, make it bigger and remove outline (because outline blends with bg)

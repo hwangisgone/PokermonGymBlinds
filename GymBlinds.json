@@ -1,7 +1,7 @@
 {
 	"id": "PokermonGymBlinds",
 	"name": "Pokermon Gym Blinds",
-	"author": ["Hwang#2760"],
+	"author": ["Hwang2760"],
 	"description": "Added Blinds for Respective gym leaders for Pokermon.",
 	"prefix": "pkrm_gym",
 	"main_file": "main.lua",

@@ -52,15 +52,16 @@ SMODS.Blind {
 	config = {},
 	vars = {},
 	set_blind = function(self)
-		print("CONFIGURED")
 		G.GAME.BL_EXTRA.after_scoring = 'hive_after_scoring'
 	end,
 
 	press_play = function(self)
-		-- Always trigger
-		-- Why does it not work?
 		G.GAME.blind.triggered = true
 	end
+
+	disabled = function(self)
+		G.GAME.BL_EXTRA.after_scoring = nil
+	end,
 }
 
 SMODS.Blind {
