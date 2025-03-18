@@ -25,7 +25,7 @@ SMODS.Blind {
 }
 
 BL_FUNCTION_TABLE['hive_after_scoring'] = function(scoring_hand)
-	local rightmost_card = scoring_hand[#scoring_hand]
+	local rightmost_card = G.play.cards[#G.play.cards]
 
 	G.E_MANAGER:add_event(Event({ trigger = 'after', func = function()
 		-- Scyther effect
@@ -57,7 +57,7 @@ SMODS.Blind {
 
 	press_play = function(self)
 		G.GAME.blind.triggered = true
-	end
+	end,
 
 	disabled = function(self)
 		G.GAME.BL_EXTRA.after_scoring = nil

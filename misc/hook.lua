@@ -1,9 +1,9 @@
 local league_length = 10
 
-local _get_new_boss = get_new_boss
+local hook_get_new_boss = get_new_boss
 function get_new_boss(blind)
 	if not pkrm_gym_config.setting_only_gym or G.GAME.round_resets.ante < 1 then
-		return _get_new_boss()
+		return hook_get_new_boss()
 	end
 
 	-- Get new league
@@ -38,20 +38,18 @@ function get_new_boss(blind)
 		G.GAME.league = nil
 	end
 
-	-- sendTraceMessage("Getting new boss", "AAAAAAAAAAAA")
-
 	return selected_boss
 end
 
-local _reset_blinds = reset_blinds
+-- Override for Elite Four blinds at ante 9 and 10
+local hook_reset_blinds = reset_blinds
 function reset_blinds()
-	_reset_blinds()
+	hook_reset_blinds()
 
 	if pkrm_gym_config.setting_only_gym then 
 		local league_index = G.GAME.round_resets.ante % league_length
 
 		if league_index == 9 then
-			-- G.GAME.round_resets.blind_choices.Small = 'bl_small'
 			G.GAME.round_resets.blind_type_override = { Big = true }
 
 			G.GAME.round_resets.blind_tags.Big = nil
@@ -73,7 +71,8 @@ function reset_blinds()
 	end
 end
 
-local _blind_get_type = Blind.get_type
+
+local hook_blind_get_type = Blind.get_type
 function Blind:get_type()
 	local valid_types = { Small = true, Big = true, Boss = true }
 
@@ -83,5 +82,5 @@ function Blind:get_type()
 		return G.GAME.blind_on_deck
 	end
 
-	return _blind_get_type(self)
+	return hook_blind_get_type(self)
 end

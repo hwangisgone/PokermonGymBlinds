@@ -3,20 +3,20 @@ return {
 		Blind = {
 			-- Kanto
 			bl_pkrm_gym_boulder = {name = 'The Boulder', text = {"{X:fire,C:white}Fire{} Jokers","are debuffed"}},
-			bl_pkrm_gym_cascade = {name = 'The Cascade', text = {"After Play, #1# in #2# chance","for a Water Joker", "to lose Energy"}},
+			bl_pkrm_gym_cascade = {name = 'The Cascade', text = {"After Play, #1# in #2# chance","to lose Energy", "in one Water Joker"}},
 			bl_pkrm_gym_thunder = {name = 'The Thunder', text = {"Lose $5 every Discard", "that does not contain #1#"}},
 			bl_pkrm_gym_rainbow = {name = 'The Rainbow', text = {"Wild and Polychrome cards", "are debuffed"}},
 			bl_pkrm_gym_soul    = {name = 'The Soul'   , text = {"After Play, 3 leftmost cards", "held in hand get Poisoned"}},
 			-- bl_pkrm_gym_soul_janine = {name = 'The Soul'   , text = {"1 in 6 cards drawn", "gets Poisoned"}},
 			-- TODO: Soul with Janine instead of Koga
 			bl_pkrm_gym_marsh   = {name = 'The Marsh'  , text = {"Cards played are debuffed", "until 1 tarot card used"}},
-			bl_pkrm_gym_volcano = {name = 'The Volcano', text = {"POKERMON QUIZ","Answer 3 correctly to win!"}},
+			bl_pkrm_gym_volcano = {name = 'The Volcano', text = {"Pokermon Trivia","Answer 3 correctly to win!"}},
 			bl_pkrm_gym_earth   = {name = 'The Earth'  , text = {"Lose $#1#.", "Add X1 for every {C:red}-$#2#{}","in current debt"}},
-			bl_pkrm_gym_e4_lorelei = {name = 'Temp Bruno', text = {"Elite Four - 1"}},
+			bl_pkrm_gym_e4_lorelei = {name = 'Seaglass Song', text = {"Elite Four - 1"}},
 			bl_pkrm_gym_e4_bruno   = {name = 'Saffron Belt', text = {"Discarded poker hand", "will no longer score"}},
 			bl_pkrm_gym_e4_agatha  = {name = 'Temp Bruno', text = {"Add 3 curse cards to deck", "every hand"}},
-			bl_pkrm_gym_e4_lance   = {name = 'Temp Bruno', text = {"Elite Four - 4"}},
-			bl_pkrm_gym_champion_kanto = {name = 'Temp Blue', text = {"-1 hand size", "-1 consumable slot", "Rightmost joker is debuffed"}},
+			bl_pkrm_gym_e4_lance   = {name = 'Sunset Scale', text = {"Elite Four - 4"}},
+			bl_pkrm_gym_champion_kanto = {name = 'The Blue Chip', text = {"-1 hand size", "-1 consumable slot", "Rightmost joker is debuffed"}},
 			-- Johto
 			bl_pkrm_gym_zephyr  = {name = 'The Zephyr' , text = {"Discards 2 random", "extra cards"}},
 			bl_pkrm_gym_hive    = {name = 'The Hive'   , text = {"Destroy rightmost card", "after scoring"}},
@@ -29,7 +29,7 @@ return {
 			bl_pkrm_gym_e4_will  = {name = 'Violet Mask', text = {"Must play at least", "2 face cards"}},
 			bl_pkrm_gym_e4_koga  = {name = 'Fuchsia Poison', text = {"After Play, cards played", "and held in hand get Poisoned"}},
 			bl_pkrm_gym_e4_karen = {name = 'Temp Bruno', text = {"Elite Four - 4"}},
-			bl_pkrm_gym_champion_johto = {name = 'Temp Blue', text = {"Champion"}},
+			bl_pkrm_gym_champion_johto = {name = 'Scarlet Scale', text = {"Champion"}},
 			-- Hoenn
 			bl_pkrm_gym_stone   = {name = 'The Stone'  ,text = {"Sabrina's Gym"}},
 			bl_pkrm_gym_knuckle = {name = 'The Knuckle',text = {"Giovanni's Gym"}},

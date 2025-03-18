@@ -55,6 +55,9 @@ SMODS.Blind {
 	boss = {min = 1, max = 10}, 
 	config = {odd = 2},
 	vars = {1,2},
+	loc_vars = function(self)
+		return {vars = {math.max(G.GAME.probabilities.normal, 1), self.config.odd}}
+	end,
 	collection_loc_vars = function(self)
 		return {vars = {(G.GAME and G.GAME.probabilities.normal or 1), self.config.odd}}
 	end,
@@ -81,7 +84,7 @@ SMODS.Blind {
 				play_sound('whoosh1', 0.55, 0.62)
 				chosen_joker:juice_up(0.1, 1)
 			else
-				self:juice_up()
+				G.GAME.blind:wiggle()
 				play_sound('cancel')
 			end
 		end
@@ -360,6 +363,11 @@ SMODS.Blind {
 	defeat = function(self)
 		self.custom_UI:remove()
 	end,
+
+	-- Remove debuff text at the start
+	get_loc_debuff_text = function(self)
+		return ""
+	end,
 }
 
 
@@ -415,7 +423,7 @@ SMODS.Blind {
 	dollars = 10,
 	mult = 2,
 	boss = {min = 1, max = 10}, 
-	config = {lose = 50, every_debt = 5},
+	config = {lose = 80, every_debt = 5},
 	vars = {},
 	loc_vars = function(self)
 		return {vars = {self.config.lose, self.config.every_debt}}
