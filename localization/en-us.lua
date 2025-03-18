@@ -48,10 +48,10 @@ return {
 	},
 	misc = {
 		dictionary = {
-			pkrm_gym_setting_only_gym          = "Only gym boss blinds",
-			pkrm_gym_setting_random_gym        = "Randomize gym boss blinds",
-			pkrm_gym_setting_random_elite4     = "Randomize elite four order",
-			pkrm_gym_setting_reduce_scaling_a8 = "Reduce scaling after Ante 8",
+			pkrm_gym_setting_only_gym       = "Only gym boss blinds",
+			pkrm_gym_setting_random_gym     = "Randomize gym boss blinds",
+			pkrm_gym_setting_random_elite4  = "Randomize elite four order",
+			pkrm_gym_setting_reduce_scaling = "Reduce scaling at Ante 9, 10",
 
 			pkrm_gym_blaine_quizzes_loc = {
 				single = "Choose one answer (Only the leftmost card in hand count)",

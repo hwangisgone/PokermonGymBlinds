@@ -44,7 +44,6 @@ function Blind:load(blindTable)
 		local reload_func = BL_FUNCTION_TABLE[G.GAME.BL_EXTRA.reload]
 		if type(reload_func) == 'function' then
 			reload_func(G.GAME.BL_EXTRA.temp_table)
-			print("RELOAD CALCULATED")
 		end
 	end
 end

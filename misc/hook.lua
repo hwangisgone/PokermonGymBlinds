@@ -2,13 +2,15 @@ local league_length = 10
 
 local hook_get_new_boss = get_new_boss
 function get_new_boss(blind)
+	-- TODO: Special blind for ante < 1?
 	if not pkrm_gym_config.setting_only_gym or G.GAME.round_resets.ante < 1 then
 		return hook_get_new_boss()
 	end
 
-	-- Get new league
+	-- Get new league and set up winning ante
 	if not G.GAME.pkrm_league then
 		G.GAME.pkrm_league = generate_league()
+		G.GAME.win_ante = 10
 	end
 
 	local league_index = G.GAME.round_resets.ante % league_length
@@ -83,4 +85,24 @@ function Blind:get_type()
 	end
 
 	return hook_blind_get_type(self)
+end
+
+
+-- Change ante stuffs
+local hook_get_blind_amount = get_blind_amount 
+function get_blind_amount(ante)
+	if pkrm_gym_config.setting_reduce_scaling and (ante == 9 or ante == 10) then
+		if not G.GAME.modifiers.scaling or G.GAME.modifiers.scaling == 1 then 
+			local amounts = {100000, 250000}
+			return amounts[ante-8]
+		elseif G.GAME.modifiers.scaling == 2 then 
+			local amounts = {200000, 500000}
+			return amounts[ante-8]
+		elseif G.GAME.modifiers.scaling == 3 then 
+			local amounts = {500000, 1000000}
+			return amounts[ante-8]
+		end
+	end
+
+	return hook_get_blind_amount(ante)
 end

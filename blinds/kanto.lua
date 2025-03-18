@@ -16,7 +16,7 @@ SMODS.Blind {
 	pos = { y = 0 },
 	boss_colour = TYPE_CLR['rock'],
 	
-	discovered = true,
+	discovered = false,
 	dollars = 5,
 	mult = 2,
 	boss = {min = 1, max = 10},
@@ -49,7 +49,7 @@ SMODS.Blind {
 	pos = { x = 0, y = 1 },
 	boss_colour = TYPE_CLR['water'],
 
-	discovered = true,
+	discovered = false,
 	dollars = 5,
 	mult = 2,
 	boss = {min = 1, max = 10}, 
@@ -74,7 +74,6 @@ SMODS.Blind {
 			end
 
 			if #water_list > 0 then
-				print(#water_list)
 				local chosen_joker = pseudorandom_element(water_list, pseudoseed('misty'))
 
 				chosen_joker.ability.extra.energy_count = chosen_joker.ability.extra.energy_count - 1
@@ -103,7 +102,7 @@ SMODS.Blind {
 	-- boss_colour = HEX('dab700'),
 	boss_colour = TYPE_CLR['electric'],
 
-	discovered = true,
+	discovered = false,
 	dollars = 5,
 	mult = 2,
 	boss = {min = 1, max = 10}, 
@@ -117,7 +116,7 @@ SMODS.Blind {
 	pos = { x = 0, y = 3 },
 	boss_colour = TYPE_CLR['grass'],
 
-	discovered = true,
+	discovered = false,
 	dollars = 5,
 	mult = 2,
 	boss = {min = 1, max = 10}, 
@@ -151,7 +150,7 @@ SMODS.Blind {
 	pos = { x = 0, y = 4 },
 	boss_colour = TYPE_CLR['poison'],
 
-	discovered = true,
+	discovered = false,
 	dollars = 5,
 	mult = 2,
 	boss = {min = 1, max = 10}, 
@@ -165,7 +164,7 @@ SMODS.Blind {
 	pos = { x = 0, y = 5 },
 	boss_colour = TYPE_CLR['psychic'],
 
-	discovered = true,
+	discovered = false,
 	dollars = 5,
 	mult = 2,
 	boss = {min = 1, max = 10}, 
@@ -272,8 +271,8 @@ local function blaine_get_quiz()
 	end
 	local quiz_table, key = pseudorandom_element(G.GAME.BL_PERSISTENCE, pseudoseed('blaine'))
 	table.remove(G.GAME.BL_PERSISTENCE, key)
-	print(#G.localization.misc.dictionary.pkrm_gym_blaine_quizzes)
-	print(#G.GAME.BL_PERSISTENCE)
+	-- print(#G.localization.misc.dictionary.pkrm_gym_blaine_quizzes)
+	-- print(#G.GAME.BL_PERSISTENCE)
 
 	return quiz_table
 end
@@ -288,7 +287,7 @@ SMODS.Blind {
 	pos = { x = 0, y = 6 },
 	boss_colour = TYPE_CLR['fire'],
 
-	discovered = true,
+	discovered = false,
 	dollars = 5,
 	mult = 3,
 	boss = {min = 1, max = 10}, 
@@ -419,8 +418,8 @@ SMODS.Blind {
 	-- Used giovanni color
 	boss_colour = G.C.BLACK,	
 
-	discovered = true,
-	dollars = 10,
+	discovered = false,
+	dollars = 8,
 	mult = 2,
 	boss = {min = 1, max = 10}, 
 	config = {lose = 80, every_debt = 5},
@@ -459,7 +458,7 @@ SMODS.Blind {
 	pos = { x = 0, y = 8 },
 	boss_colour = TYPE_CLR['ice'],
 
-	discovered = true,
+	discovered = false,
 	dollars = 8,
 	mult = 2,
 	boss = {min = 8, max = 10, showdown = true}, 
@@ -485,7 +484,7 @@ SMODS.Blind {
 	pos = { x = 0, y = 9 },
 	boss_colour = TYPE_CLR['fighting'],
 
-	discovered = true,
+	discovered = false,
 	dollars = 8,
 	mult = 2,
 	boss = {min = 8, max = 10, showdown = true}, 
@@ -547,7 +546,7 @@ SMODS.Blind {
 	pos = { x = 0, y = 10 },
 	boss_colour = TYPE_CLR['ghost'],
 
-	discovered = true,
+	discovered = false,
 	dollars = 8,
 	mult = 2,
 	boss = {min = 8, max = 10, showdown = true}, 
@@ -561,7 +560,7 @@ SMODS.Blind {
 	pos = { x = 0, y = 11 },
 	boss_colour = TYPE_CLR['dragon'],
 
-	discovered = true,
+	discovered = false,
 	dollars = 8,
 	mult = 2,
 	boss = {min = 8, max = 10, showdown = true}, 
@@ -575,8 +574,8 @@ SMODS.Blind {
 	pos = { x = 0, y = 12 },
 	boss_colour = G.C.UI_CHIPS,
 
-	discovered = true,
-	dollars = 16,
+	discovered = false,
+	dollars = 12,
 	mult = 4,
 	boss = {min = 10, max = 10, showdown = true}, 
 	config = {},

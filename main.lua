@@ -272,7 +272,7 @@ local pkrm_gym_config_ui_nodes = function()
 		create_menu_checkbox("setting_only_gym",           {"Testing 1", ''..tostring(pkrm_gym_config.setting_only_gym)}),
 		create_menu_checkbox("setting_random_gym",         {"Testing 2"}),
 		create_menu_checkbox("setting_random_elite4",      {"Testing 3"}),
-		create_menu_checkbox("setting_reduce_scaling_a8",  {"Testing 4"}),
+		create_menu_checkbox("setting_reduce_scaling",  {"Testing 4"}),
 	}}}
 end
 
