@@ -76,6 +76,8 @@ SMODS.Blind {
 	boss = {min = 1, max = 10}, 
 	config = { rollout = 120 },
 	vars = {},
+	-- TODO: reework config stuffs to use extra? https://github.com/Steamodded/smods/wiki/API-Documentation#common-parameters
+
 
 	press_play = function(self)
 		G.GAME.blind.chips = G.GAME.blind.chips * (self.config.rollout/100)
@@ -254,7 +256,7 @@ SMODS.Blind {
 	key = 'champion_johto',
 	atlas = 'blinds_johto',
 	pos = { x = 0, y = 11 },
-	boss_colour = TYPE_CLR['dragon'],
+	boss_colour = GYM_SHOWDOWN_CLR['lance'],
 
 	discovered = false,
 	dollars = 12,

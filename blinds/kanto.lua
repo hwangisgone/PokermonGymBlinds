@@ -64,6 +64,7 @@ SMODS.Blind {
 	
 	press_play = function(self)
 		if pseudorandom(pseudoseed('misty')) < G.GAME.probabilities.normal / self.config.odd then
+
 			local water_list = {}
 
 			-- Remove jokers without energy
@@ -75,9 +76,14 @@ SMODS.Blind {
 
 			if #water_list > 0 then
 				local chosen_joker = pseudorandom_element(water_list, pseudoseed('misty'))
-
+				
+				local original_escale = chosen_joker.ability.extra.escale
 				chosen_joker.ability.extra.energy_count = chosen_joker.ability.extra.energy_count - 1
-				energize(chosen_joker, false)
+				chosen_joker.ability.extra.escale = -1
+				energize(chosen_joker, false, nil, true) -- energize(card, etype, evolving, silent)
+				chosen_joker.ability.extra.escale = original_escale
+
+				card_eval_status_text(chosen_joker, 'extra', nil, nil, nil, {message = localize("poke_reverse_energized_ex"), colour = TYPE_CLR['water']})
 
 				G.GAME.blind:wiggle()
 				play_sound('whoosh1', 0.55, 0.62)
@@ -88,9 +94,6 @@ SMODS.Blind {
 			end
 		end
 	end
-
-	-- Vulpix: Chance
-	-- Mewtwo: Energy
 }
 
 
@@ -108,7 +111,49 @@ SMODS.Blind {
 	boss = {min = 1, max = 10}, 
 	config = {},
 	vars = {},
+	config = {lose = 5, need_ranks = nil},
+	loc_vars = function(self)
+		local ranks_text = "(2 random ranks)"
+
+		if self.config.need_ranks then
+			ranks_text = self.config.need_ranks[1].rank.." or "..self.config.need_ranks[2].rank
+		end
+
+		return {vars = {self.config.lose, ranks_text}}
+	end,
+	collection_loc_vars = function(self)
+		return {vars = {self.config.lose, "(2 random ranks)"}}
+	end,
+
+	set_blind = function(self)
+		self.config.need_ranks = gymblind_get_random_ranks(2, pseudoseed('ltsurge'))
+		G.GAME.blind:set_text()
+	end,
+
+	calculate = function(self, card, context)
+		-- TODO: just context.pre_discard Might be buggy??
+		if context.pre_discard and not G.GAME.blind.disabled then
+			local rank1 = self.config.need_ranks[1].id
+			local rank2 = self.config.need_ranks[2].id
+
+			for k, v in ipairs(G.hand.highlighted) do
+				if v:get_id() == rank1 or v:get_id() == rank2 then
+
+					return
+				end
+			end
+
+			G.GAME.blind.triggered = true
+			G.GAME.blind:wiggle()
+			ease_dollars(-self.config.lose)
+		end
+	end,
+
+	defeat = function(self)
+		self.config.need_ranks = nil
+	end
 }
+
 
 SMODS.Blind {
 	key = 'rainbow',
@@ -140,7 +185,7 @@ SMODS.Blind {
 				card.debuffed_by_erika = nil
 			end
 		end
-		self.triggered = false
+		G.GAME.blind.triggered = false
 	end,
 }
 
@@ -558,7 +603,7 @@ SMODS.Blind {
 	key = 'e4_lance',
 	atlas = 'blinds_kanto',
 	pos = { x = 0, y = 11 },
-	boss_colour = TYPE_CLR['dragon'],
+	boss_colour = GYM_SHOWDOWN_CLR['lance'],
 
 	discovered = false,
 	dollars = 8,
@@ -572,7 +617,7 @@ SMODS.Blind {
 	key = 'champion_kanto',
 	atlas = 'blinds_kanto',
 	pos = { x = 0, y = 12 },
-	boss_colour = G.C.UI_CHIPS,
+	boss_colour = GYM_SHOWDOWN_CLR['blue'],
 
 	discovered = false,
 	dollars = 12,

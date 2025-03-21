@@ -18,6 +18,13 @@ GYM_BLINDS_TYPE_CLR = {
 	rock = HEX('AFA981'),
 	steel = HEX('60A1B8'),
 }
+
+GYM_SHOWDOWN_CLR = {
+	blue = G.C.UI_CHIPS,
+	will = HEX('EF4179'),
+	lance = HEX('AC3C26'),
+	-- 'steven'
+}
 -- TODO: Note: green needs to be brighter
 -- Psychic too intense, suitable for Will but not anyone else
 --  Maybe darken normal
@@ -34,6 +41,33 @@ function get_current_dollars()
 	else
 		return G.GAME.dollars
 	end
+end
+
+function gymblind_get_random_ranks(count, seed)
+	local rank_ids = {
+		{rank = '2', id = 2},
+		{rank = '3', id = 3},
+		{rank = '4', id = 4},
+		{rank = '5', id = 5},
+		{rank = '6', id = 6},
+		{rank = '7', id = 7},
+		{rank = '8', id = 8},
+	    {rank = '9', id = 9},
+	    {rank = '10', id = 10},
+	    {rank = 'Jack', id = 11},
+	    {rank = 'Queen', id = 12},
+	    {rank = 'King', id = 13},
+	    {rank = 'Ace', id = 14},
+	}
+
+	pseudoshuffle(rank_ids, seed)
+
+	local to_return = {}
+	for i = 1, count do
+		table.insert(to_return, rank_ids[i])
+	end
+
+	return to_return
 end
 
 
