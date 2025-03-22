@@ -234,8 +234,73 @@ SMODS.Blind {
 	dollars = 8,
 	mult = 2,
 	boss = {min = 8, max = 10, showdown = true}, 
-	config = {},
+	config = {poison_chips = 10},
 	vars = {},
+	loc_vars = function(self)
+		return {vars = {self.config.poison_chips}}
+	end,
+	collection_loc_vars = function(self)
+		return {vars = {self.config.poison_chips}}
+	end,
+
+	calculate = function(self, card, context)
+		-- TODO: just context.pre_discard Might be buggy??
+		if context.before and not G.GAME.blind.disabled then
+			for i = 1, #G.hand.cards do
+				local percent = 1.15 - (i-0.999)/(#G.hand.cards-0.998)*0.3
+				local this_card = G.hand.cards[i]
+
+				if not this_card.highlighted then
+					G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.15,func = function() 
+						this_card:flip();
+
+						this_card.ability.perma_bonus = this_card.ability.perma_bonus - self.config.poison_chips
+						this_card.ability.koga_poison_bonus = (this_card.ability.koga_poison_bonus or 0) - self.config.poison_chips
+
+						attention_text({
+			                text = localize("pkrm_gym_e4_koga_poisoned"),
+			                scale = 0.5, 
+			                hold = 1,
+			                backdrop_colour = TYPE_CLR['poison'],
+			                align = 'tm',
+			                major = this_card,
+			                offset = {x = 0, y = -0.05*G.CARD_H}
+			            })
+
+						play_sound('cancel', percent);
+						G.GAME.blind:wiggle()
+						G.GAME.blind.triggered = true
+						return true
+					end}))
+				end
+			end
+		end
+	end,
+
+	disable = function(self)
+		for _, card in pairs(G.hand.cards) do
+			if card.facing == 'back' then 
+				card:flip();
+			end
+		end
+		
+		-- Remove poison negative bonus chips
+		for _, card in pairs(G.playing_cards) do
+			if card.ability.koga_poison_bonus and card.ability.koga_poison_bonus < 0 then
+				card.ability.perma_bonus = card.ability.perma_bonus - card.ability.koga_poison_bonus
+				card.ability.koga_poison_bonus = nil
+				card:juice_up()
+			end
+		end
+	end,
+
+	defeat = function(self)
+		for _, card in pairs(G.playing_cards) do
+			if card.koga_poison_bonus and card.koga_poison_bonus < 0 then
+				card.ability.perma_bonus = card.ability.perma_bonus - card.koga_poison_bonus
+			end
+		end
+	end,
 }
 
 SMODS.Blind {

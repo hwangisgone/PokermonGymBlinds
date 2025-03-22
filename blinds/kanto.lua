@@ -136,7 +136,7 @@ SMODS.Blind {
 			local rank1 = self.config.need_ranks[1].id
 			local rank2 = self.config.need_ranks[2].id
 
-			for k, v in ipairs(G.hand.highlighted) do
+			for k, v in pairs(G.hand.highlighted) do
 				if v:get_id() == rank1 or v:get_id() == rank2 then
 
 					return
@@ -170,7 +170,7 @@ SMODS.Blind {
 	recalc_debuff = function(self, card, from_blind)
 		if card.area ~= G.jokers then 
 			if (card.edition and card.edition.polychrome) or card.ability.name == 'Wild Card' then
-				card.debuffed_by_erika = true
+				card.ability.erika_debuff = true
 				return true
 			end
 		end
@@ -180,9 +180,9 @@ SMODS.Blind {
 
 	disable = function(self)
 		for _, card in pairs(G.playing_cards) do
-			if card.debuffed_by_erika then 
+			if card.ability.erika_debuff then 
 				card:set_debuff()
-				card.debuffed_by_erika = nil
+				card.ability.erika_debuff = nil
 			end
 		end
 		G.GAME.blind.triggered = false
@@ -201,6 +201,35 @@ SMODS.Blind {
 	boss = {min = 1, max = 10}, 
 	config = {},
 	vars = {},
+
+	calculate = function(self, card, context)
+		-- TODO: just context.pre_discard Might be buggy??
+		if (context.pre_discard or context.before) and not G.GAME.blind.disabled then
+			for i = 1, #G.hand.cards do
+				local percent = 1.15 - (i-0.999)/(#G.hand.cards-0.998)*0.3
+				local this_card = G.hand.cards[i]
+
+				if this_card.facing == 'front' and not this_card.highlighted then
+					G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.15,func = function() 
+						this_card:flip();
+						play_sound('card1', percent);
+						G.GAME.blind:wiggle()
+						G.GAME.blind.triggered = true
+						return true
+					end}))
+				end
+			end
+		end
+	end,
+
+	disable = function(self)
+		for _, card in pairs(G.hand.cards) do
+			if card.facing == 'back' then 
+				card:flip();
+			end
+		end
+		G.GAME.blind.triggered = false
+	end,
 }
 
 SMODS.Blind {

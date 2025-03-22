@@ -27,7 +27,7 @@ return {
 			bl_pkrm_gym_glacier = {name = 'The Glacier', text = {"Giovanni's Gym"}},
 			bl_pkrm_gym_rising  = {name = 'The Rising' , text = {"Card ranks increase", "before scoring"}},
 			bl_pkrm_gym_e4_will  = {name = 'Violet Mask'   , text = {"Must play at least", "2 face cards"}},
-			bl_pkrm_gym_e4_koga  = {name = 'Fuchsia Poison', text = {"After Play,", "flip cards held in hand", "and give them -10 chips"}},
+			bl_pkrm_gym_e4_koga  = {name = 'Fuchsia Poison', text = {"After Play,", "flip cards held in hand", "and they lose -#1# chips"}},
 			bl_pkrm_gym_e4_karen = {name = 'Temp Bruno'    , text = {"Elite Four - 4"}},
 			bl_pkrm_gym_champion_johto = {name = 'Scarlet Scale', text = {"Champion"}},
 			-- Hoenn
@@ -37,13 +37,15 @@ return {
 			bl_pkrm_gym_heat    = {name = 'The Heat'   ,text = {"Increase Requirement by X1.1 whenever a card score past requirement"}},
 			bl_pkrm_gym_balance = {name = 'The Balance',text = {"Each hand only scores", "after discard"}},
 			bl_pkrm_gym_feather = {name = 'The Feather',text = {"Giovanni's Gym"}},
-			bl_pkrm_gym_mind    = {name = 'The Mind'   ,text = {"Hand must contains Pair"}},
+			bl_pkrm_gym_mind    = {name = 'The Mind'   ,text = {"Hand must contains a Pair"}},
 			bl_pkrm_gym_rain    = {name = 'The Rain'   ,text = {"Giovanni's Gym"}},
+			-- TODO: Alt The Rain with Juan
 			bl_pkrm_gym_e4_sidney = {name = 'Temp Bruno',text = {"Elite Four - 1"}},
 			bl_pkrm_gym_e4_phoebe = {name = 'Temp Bruno',text = {"Elite Four - 2"}},
 			bl_pkrm_gym_e4_glacia = {name = 'Temp Bruno',text = {"Elite Four - 3"}},
 			bl_pkrm_gym_e4_drake  = {name = 'Temp Bruno',text = {"Elite Four - 4"}},
-			bl_pkrm_gym_champion_hoenn = {name = 'Temp Blue', text = {"Champion"}},
+			bl_pkrm_gym_champion_hoenn = {name = 'Temp Steven', text = {"Champion"}},
+			-- TODO: Alt Champion with Wallace
 			-- Sinnoh
 			bl_pkrm_gym_coal   = {name = 'The Coal'  ,text = {"Nothing yet"}},
 			bl_pkrm_gym_forest = {name = 'The Forest',text = {"Nothing yet"}},
@@ -68,6 +70,7 @@ return {
 			pkrm_gym_setting_reduce_scaling = "Reduce scaling at Ante 9, 10",
 
 			poke_reverse_energized_ex = "Lose energy!",
+			pkrm_gym_e4_koga_poisoned = "Poisoned",
 
 			pkrm_gym_blaine_quizzes_loc = {
 				single = "Choose one answer (Only the leftmost card in hand count)",

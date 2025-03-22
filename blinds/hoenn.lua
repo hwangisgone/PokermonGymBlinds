@@ -79,6 +79,23 @@ SMODS.Blind {
 	boss = {min = 1, max = 10}, 
 	config = {},
 	vars = {},
+
+	calculate = function(self, card, context)
+		-- TODO: just context.pre_discard Might be buggy??\
+		-- Also context.after? context.cardarea == G.play
+		if not G.GAME.blind.disabled then
+			if context.pre_discard then
+				G.GAME.blind:wiggle()
+				G.GAME.blind.has_discarded = true
+			elseif context.after then
+				G.GAME.blind.has_discarded = false
+			end
+		end
+	end,
+
+	debuff_hand = function(self, cards, hand, handname, check)
+		return not G.GAME.blind.has_discarded
+	end,
 }
 
 SMODS.Blind {
@@ -110,8 +127,7 @@ SMODS.Blind {
 
 	debuff_hand = function(self, cards, hand, handname, check)
 		if not G.GAME.blind.disabled then
-			-- TODO: what the hell is check?
-			-- if not check then
+			-- TODO: what the hell is check? "if not check then"
 			return not next(hand['Pair'])
 		end
 	end,
