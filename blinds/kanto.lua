@@ -25,13 +25,9 @@ SMODS.Blind {
 	
 	drawn_to_hand = function(self)
 		if G.GAME.blind.prepped then
-			for x,y in pairs(G.jokers.cards) do
-				y:set_debuff(false)
-			end
-			for l,v in pairs(G.jokers.cards) do
-				if goose_disable(v, 'Fire') then
-					v:set_debuff(true)
-					v:juice_up()
+			for _, card in pairs(G.jokers.cards) do
+				if goose_disable(G.GAME.blind.disabled, card, {'Fire'}) then
+					SMODS.debuff_card(card, true, 'brock_boulder_debuff')
 					G.GAME.blind:wiggle()
 				end
 			end
@@ -39,8 +35,11 @@ SMODS.Blind {
 	end,
 
 	disable = function(self)
-		self.config.disabled = true
-	end
+		for _, card in pairs(G.jokers.cards) do
+			SMODS.debuff_card(card, false, 'brock_boulder_debuff')
+		end
+		G.GAME.blind.triggered = false
+	end,
 }
 
 SMODS.Blind {
@@ -113,7 +112,7 @@ SMODS.Blind {
 	vars = {},
 	config = {lose = 5, need_ranks = nil},
 	loc_vars = function(self)
-		local ranks_text = "(2 random ranks)"
+		local ranks_text = localize("pkrm_gym_thunder_collection_note")
 
 		if self.config.need_ranks then
 			ranks_text = self.config.need_ranks[1].rank.." or "..self.config.need_ranks[2].rank
@@ -122,7 +121,7 @@ SMODS.Blind {
 		return {vars = {self.config.lose, ranks_text}}
 	end,
 	collection_loc_vars = function(self)
-		return {vars = {self.config.lose, "(2 random ranks)"}}
+		return {vars = {self.config.lose, localize("pkrm_gym_thunder_collection_note")}}
 	end,
 
 	set_blind = function(self)
@@ -170,8 +169,8 @@ SMODS.Blind {
 	recalc_debuff = function(self, card, from_blind)
 		if card.area ~= G.jokers then 
 			if (card.edition and card.edition.polychrome) or card.ability.name == 'Wild Card' then
-				card.ability.erika_debuff = true
-				return true
+				SMODS.debuff_card(card, true, 'erika_rainbow_debuff')
+				return false
 			end
 		end
 
@@ -180,10 +179,7 @@ SMODS.Blind {
 
 	disable = function(self)
 		for _, card in pairs(G.playing_cards) do
-			if card.ability.erika_debuff then 
-				card:set_debuff()
-				card.ability.erika_debuff = nil
-			end
+			SMODS.debuff_card(card, false, 'erika_rainbow_debuff')
 		end
 		G.GAME.blind.triggered = false
 	end,
@@ -242,8 +238,41 @@ SMODS.Blind {
 	dollars = 5,
 	mult = 2,
 	boss = {min = 1, max = 10}, 
-	config = {},
+	config = {extra = { used_consumable = false }},
 	vars = {},
+
+	calculate = function(self, card, context)
+		if context.using_consumeable then
+			print("Used consumable")
+			self.config.extra.used_consumable = true
+
+			-- Recalculate debuffs
+			for _, v in ipairs(G.hand.cards) do
+				if v.debuff then
+					G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.1,func = function() 
+						SMODS.recalc_debuff(v)
+						v.ability.sabrina_debuffed = true
+						play_sound('tarot1', 1);
+						v:juice_up(0.1, 0.1)
+						return true
+					end}))
+				end
+			end
+
+			G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.1,func = function() 
+				self.config.extra.used_consumable = false
+				return true
+			end}))	
+		end
+	end,
+
+	recalc_debuff = function(self, card, from_blind)
+		if card.ability.set ~= 'Joker' and not self.config.extra.used_consumable and not card.ability.sabrina_debuffed then
+			return true
+		else
+			return false
+		end
+	end,
 }
 
 local function displayGUIquiz(quiz_table)
@@ -343,10 +372,9 @@ local function blaine_get_quiz()
 	if not G.GAME.BL_PERSISTENCE or #G.GAME.BL_PERSISTENCE == 0 then
 		G.GAME.BL_PERSISTENCE = copy_table(G.localization.misc.dictionary.pkrm_gym_blaine_quizzes)
 	end
+
 	local quiz_table, key = pseudorandom_element(G.GAME.BL_PERSISTENCE, pseudoseed('blaine'))
 	table.remove(G.GAME.BL_PERSISTENCE, key)
-	-- print(#G.localization.misc.dictionary.pkrm_gym_blaine_quizzes)
-	-- print(#G.GAME.BL_PERSISTENCE)
 
 	return quiz_table
 end
@@ -452,6 +480,9 @@ function update_earth_score(blind, every_debt)
 	if current_money < 0 then
 		calculated_mult = calculated_mult + math.floor((-current_money) / every_debt)
 	end
+	print(current_money)
+	print((-current_money) / every_debt)
+	print(calculated_mult)
 
 	local calculated_chips = original_chips*calculated_mult*G.GAME.starting_params.ante_scaling
 
@@ -480,7 +511,17 @@ function ease_dollars(mod, instant)
 	_ease_dollars(mod, instant)
 
 	if G.GAME.blind.name == 'bl_pkrm_gym_earth' then
-		update_earth_score(G.GAME.blind, G.GAME.blind.config.blind.config.every_debt)
+		if instant then
+			update_earth_score(G.GAME.blind, G.GAME.blind.config.blind.config.every_debt)
+		else
+			G.E_MANAGER:add_event(Event({
+			trigger = 'immediate',
+			func = function()
+				update_earth_score(G.GAME.blind, G.GAME.blind.config.blind.config.every_debt)
+				return true
+			end
+			}))
+		end
 	end
 end
 
@@ -498,25 +539,32 @@ SMODS.Blind {
 	boss = {min = 1, max = 10}, 
 	config = {lose = 80, every_debt = 5},
 	vars = {},
+	
+	set_blind = function(self)
+		self.config.lose = G.GAME.round_resets.ante * 10
+	end,
+
 	loc_vars = function(self)
-		return {vars = {self.config.lose, self.config.every_debt}}
+		return {vars = {G.GAME.round_resets.ante * 10, self.config.every_debt}}
 	end,
 	collection_loc_vars = function(self)
-		return {vars = {self.config.lose, self.config.every_debt}}
+		return {vars = {self.config.lose.." "..localize("pkrm_gym_earth_collection_note"), self.config.every_debt}}
 	end,
 
-	set_blind = function(self)
-		G.E_MANAGER:add_event(Event({trigger = 'after', delay = 1.5*G.SETTINGS.GAMESPEED, blockable = false, blocking = false, func = function()
-			if not G.GAME.blind.disabled then
-				G.ROOM.jiggle = G.ROOM.jiggle + 4
-				ease_dollars(- self.config.lose, true)
+	drawn_to_hand = function(self)
+		if G.GAME.blind.prepped then
+			G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.5, blockable = false, blocking = false, func = function()
+				if not G.GAME.blind.disabled then
+					G.ROOM.jiggle = G.ROOM.jiggle + 4
+					ease_dollars(- self.config.lose, true)
 
-				G.GAME.blind.triggered = true
-				save_run()
-			end
+					G.GAME.blind.triggered = true
+					save_run()
+				end
 
-			return true 
-		end}))
+				return true 
+			end}))
+		end
 	end,
 
 	disable = function(self)
@@ -536,21 +584,44 @@ SMODS.Blind {
 	dollars = 8,
 	mult = 2,
 	boss = {min = 8, max = 10, showdown = true}, 
-	config = {},
-	vars = {},
+	config = {break_turns = 3},
+	vars = {3},
+	loc_vars = function(self)
+		return {vars = {self.config.break_turns}}
+	end,
+
+	set_blind = function(self)
+		G.GAME.BL_EXTRA.temp_table = {
+			break_in = self.config.break_turns
+		}
+	end,
+
+	press_play = function(self)
+		local current_turn = G.GAME.BL_EXTRA.temp_table.break_in
+		if current_turn == 0 then
+			G.GAME.BL_EXTRA.temp_table.break_in = self.config.break_turns - 1
+		else
+			G.GAME.BL_EXTRA.temp_table.break_in = current_turn - 1
+		end
+
+		print(G.GAME.BL_EXTRA.temp_table.break_in)
+	end,
+
+	calculate = function(self, card, context)
+		if context.after then
+			if G.GAME.BL_EXTRA.temp_table.break_in == 0 then
+				for _, card in ipairs(G.hand.cards) do
+					G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.2,func = function() 
+						card:shatter()
+						return true
+					end}))
+				end
+			end
+			print(G.GAME.BL_EXTRA.temp_table.break_in)
+		end
+	end,
+
 }
-
-BL_FUNCTION_TABLE['e4_bruno_pre_discard'] = function()
-	local text = G.FUNCS.get_poker_hand_info(G.hand.highlighted)
-
-	G.GAME.BL_EXTRA.temp_table[text] = true
-	
-	G.GAME.blind:wiggle()
-	G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.06*G.SETTINGS.GAMESPEED, blockable = false, blocking = false, func = function()
-		play_sound('button', 1.1, 0.7);
-		return true 
-	end}))
-end
 
 SMODS.Blind {
 	key = 'e4_bruno',
@@ -566,8 +637,18 @@ SMODS.Blind {
 	vars = {},
 
 	set_blind = function(self)
-		G.GAME.BL_EXTRA.pre_discard = 'e4_bruno_pre_discard'
 		G.GAME.BL_EXTRA.temp_table = {}
+	end,
+
+	calculate = function(self, card, context)
+		if context.pre_discard then
+			local text = G.FUNCS.get_poker_hand_info(G.hand.highlighted)
+
+			G.GAME.BL_EXTRA.temp_table[text] = true
+			
+			G.GAME.blind:wiggle()
+			play_sound('cancel', 2, 0.9);
+		end
 	end,
 
 	debuff_hand = function(self, cards, hand, handname, check)
@@ -600,7 +681,7 @@ SMODS.Blind {
 			local i = 1
 			for k,v in pairs(disabled_hands) do
 				text = text..k
-				if i == (total - 2) then
+				if i < (total - 1) then
 					text = text..', '
 				elseif i == (total - 1) then
 					text = text..' and '

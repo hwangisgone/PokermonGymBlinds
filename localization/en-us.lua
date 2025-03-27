@@ -12,18 +12,18 @@ return {
 			bl_pkrm_gym_marsh   = {name = 'The Marsh'  , text = {"Cards drawn are debuffed", "until 1 Consumable used"}},
 			bl_pkrm_gym_volcano = {name = 'The Volcano', text = {"Pokermon Trivia","Answer 3 correctly to win!"}},
 			bl_pkrm_gym_earth   = {name = 'The Earth'  , text = {"Lose $#1#.", "Add X1 for every {C:red}-$#2#{}","in current debt"}},
-			bl_pkrm_gym_e4_lorelei = {name = 'Seaglass Song' , text = {"Cards held in hand", "are debuffed after triggering"}},
-			bl_pkrm_gym_e4_bruno   = {name = 'Saffron Chains', text = {"Discarded poker hand", "will no longer score"}},
-			bl_pkrm_gym_e4_agatha  = {name = 'Temp Bruno'    , text = {"Discarded cards lose 10 chips", "and return to hand"}},
+			bl_pkrm_gym_e4_lorelei = {name = 'Seaglass Song' , text = {"Cards held in hand", "breaks after #1# hands"}},
+			bl_pkrm_gym_e4_bruno   = {name = 'Saffron Shackles', text = {"Discarded poker hand", "will not score"}},
+			bl_pkrm_gym_e4_agatha  = {name = 'Cursed Cane'    , text = {"Discarded cards", "lose 10 chips", "and return to deck"}},
 			bl_pkrm_gym_e4_lance   = {name = 'Sunset Scale'  , text = {"One card debuffed in played hand", "for each remaining hand"}},
 			bl_pkrm_gym_champion_kanto = {name = 'The Blue Chip', text = {"-1 hand size", "-1 consumable slot", "Rightmost joker is debuffed"}},
 			-- Johto
 			bl_pkrm_gym_zephyr  = {name = 'The Zephyr' , text = {"Discards 2 random", "extra cards"}},
 			bl_pkrm_gym_hive    = {name = 'The Hive'   , text = {"Destroy rightmost card", "after scoring"}},
-			bl_pkrm_gym_plain   = {name = 'The Plain'  , text = {"X1.2 Blind Requirements", "every hand"}},
+			bl_pkrm_gym_plain   = {name = 'The Plain'  , text = {"Blind gets X1.2 bigger", "every hand"}},
 			bl_pkrm_gym_fog     = {name = 'The Fog'    , text = {"Spade and Club cards", " are drawn face down"}},
 			bl_pkrm_gym_storm   = {name = 'The Storm'  , text = {"Giovanni's Gym"}},
-			bl_pkrm_gym_mineral = {name = 'The Mineral', text = {"Giovanni's Gym"}},
+			bl_pkrm_gym_mineral = {name = 'The Mineral', text = {"Enhanced cards held in hand turns into glass"}},
 			bl_pkrm_gym_glacier = {name = 'The Glacier', text = {"Giovanni's Gym"}},
 			bl_pkrm_gym_rising  = {name = 'The Rising' , text = {"Card ranks increase", "before scoring"}},
 			bl_pkrm_gym_e4_will  = {name = 'Violet Mask'   , text = {"Must play at least", "2 face cards"}},
@@ -31,10 +31,10 @@ return {
 			bl_pkrm_gym_e4_karen = {name = 'Temp Bruno'    , text = {"Elite Four - 4"}},
 			bl_pkrm_gym_champion_johto = {name = 'Scarlet Scale', text = {"Champion"}},
 			-- Hoenn
-			bl_pkrm_gym_stone   = {name = 'The Stone'  ,text = {"First 3 selected cards become Stone cards", "Stone cards give no chip"}},
-			bl_pkrm_gym_knuckle = {name = 'The Knuckle',text = {"Cannot move Jokers. After Play, rightmost jokers move to the leftmost position"}},
-			bl_pkrm_gym_dynamo  = {name = 'The Dynamo' ,text = {"Rightmost joker transfers","all energy to leftmost joker"}},
-			bl_pkrm_gym_heat    = {name = 'The Heat'   ,text = {"Increase Requirement by X1.1 whenever a card score past requirement"}},
+			bl_pkrm_gym_stone   = {name = 'The Stone'  ,text = {"First 3 selected cards", "become Stone cards", "Stone cards give no chip"}},
+			bl_pkrm_gym_knuckle = {name = 'The Knuckle',text = {"Cannot move Jokers","After Play, rightmost Joker","shifts to leftmost"}},
+			bl_pkrm_gym_dynamo  = {name = 'The Dynamo' ,text = {"Rightmost joker", "transfers all energy", "to leftmost joker"}},
+			bl_pkrm_gym_heat    = {name = 'The Heat'   ,text = {"Score requirements","increase by #1#% Base","when exceeded"}},
 			bl_pkrm_gym_balance = {name = 'The Balance',text = {"Each hand only scores", "after discard"}},
 			bl_pkrm_gym_feather = {name = 'The Feather',text = {"Giovanni's Gym"}},
 			bl_pkrm_gym_mind    = {name = 'The Mind'   ,text = {"Hand must contains a Pair"}},
@@ -71,6 +71,9 @@ return {
 
 			poke_reverse_energized_ex = "Lose energy!",
 			pkrm_gym_e4_koga_poisoned = "Poisoned",
+
+			pkrm_gym_thunder_collection_note = "(2 random ranks)",
+			pkrm_gym_earth_collection_note = "(ante x 10)",
 
 			pkrm_gym_blaine_quizzes_loc = {
 				single = "Choose one answer (Only the leftmost card in hand count)",

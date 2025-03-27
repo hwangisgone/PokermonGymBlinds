@@ -24,21 +24,6 @@ SMODS.Blind {
 	vars = {},
 }
 
-BL_FUNCTION_TABLE['hive_after_scoring'] = function(scoring_hand)
-	local rightmost_card = G.play.cards[#G.play.cards]
-
-	G.E_MANAGER:add_event(Event({ trigger = 'after', func = function()
-		-- Scyther effect
-		rightmost_card:juice_up()
-		rightmost_card:start_dissolve({HEX("57ecab")}, nil, 1.6)
-		play_sound('slice1', 0.96+math.random()*0.08)
-
-		G.GAME.blind:wiggle()
-
-		return true
-	end }))
-end
-
 SMODS.Blind {
 	key = 'hive',
 	atlas = 'blinds_johto',
@@ -51,16 +36,23 @@ SMODS.Blind {
 	boss = {min = 1, max = 10}, 
 	config = {},
 	vars = {},
-	set_blind = function(self)
-		G.GAME.BL_EXTRA.after_scoring = 'hive_after_scoring'
-	end,
 
-	press_play = function(self)
-		G.GAME.blind.triggered = true
-	end,
+	calculate = function(self, card, context)
+		if context.final_scoring_step then
+			local rightmost_card = G.play.cards[#G.play.cards]
+			
+			-- Scyther effect
+			-- Card:start_dissolve(dissolve_colours, silent, dissolve_time_fac, no_juice)
+			G.E_MANAGER:add_event(Event({ trigger = 'immediate', func = function()
+				rightmost_card:start_dissolve({HEX("57ecab")}, true, 1.6, false)
+				play_sound('slice1', 0.96+math.random()*0.08)
 
-	disabled = function(self)
-		G.GAME.BL_EXTRA.after_scoring = nil
+				G.GAME.blind:wiggle()
+				G.GAME.blind.triggered = true
+
+				return true
+			end}))
+		end
 	end,
 }
 
@@ -258,14 +250,14 @@ SMODS.Blind {
 						this_card.ability.koga_poison_bonus = (this_card.ability.koga_poison_bonus or 0) - self.config.poison_chips
 
 						attention_text({
-			                text = localize("pkrm_gym_e4_koga_poisoned"),
-			                scale = 0.5, 
-			                hold = 1,
-			                backdrop_colour = TYPE_CLR['poison'],
-			                align = 'tm',
-			                major = this_card,
-			                offset = {x = 0, y = -0.05*G.CARD_H}
-			            })
+							text = localize("pkrm_gym_e4_koga_poisoned"),
+							scale = 0.5, 
+							hold = 1,
+							backdrop_colour = TYPE_CLR['poison'],
+							align = 'tm',
+							major = this_card,
+							offset = {x = 0, y = -0.05*G.CARD_H}
+						})
 
 						play_sound('cancel', percent);
 						G.GAME.blind:wiggle()
