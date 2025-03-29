@@ -20,7 +20,7 @@ SMODS.Blind {
 	dollars = 5,
 	mult = 2,
 	boss = {min = 1, max = 10},
-	config = { disabled = false },
+	config = {},
 	vars = {},
 	
 	drawn_to_hand = function(self)
@@ -82,7 +82,10 @@ SMODS.Blind {
 				energize(chosen_joker, false, nil, true) -- energize(card, etype, evolving, silent)
 				chosen_joker.ability.extra.escale = original_escale
 
-				card_eval_status_text(chosen_joker, 'extra', nil, nil, nil, {message = localize("poke_reverse_energized_ex"), colour = TYPE_CLR['water']})
+				card_eval_status_text(chosen_joker, 'extra', nil, nil, nil, {
+					message = localize("poke_reverse_energized_ex"), 
+					colour = TYPE_CLR['water']
+				})
 
 				G.GAME.blind:wiggle()
 				play_sound('whoosh1', 0.55, 0.62)
@@ -251,7 +254,7 @@ SMODS.Blind {
 				if v.debuff then
 					G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.1,func = function() 
 						SMODS.recalc_debuff(v)
-						v.ability.sabrina_debuffed = true
+						v.ability.sabrina_marsh_debuff = true
 						play_sound('tarot1', 1);
 						v:juice_up(0.1, 0.1)
 						return true
@@ -267,7 +270,10 @@ SMODS.Blind {
 	end,
 
 	recalc_debuff = function(self, card, from_blind)
-		if card.ability.set ~= 'Joker' and not self.config.extra.used_consumable and not card.ability.sabrina_debuffed then
+		if card.ability.set ~= 'Joker' 
+		and not self.config.extra.used_consumable
+		and not card.ability.sabrina_marsh_debuff then
+			-- ability is to prevent purified cards from being debuffed again
 			return true
 		else
 			return false
@@ -604,7 +610,7 @@ SMODS.Blind {
 			G.GAME.BL_EXTRA.temp_table.break_in = current_turn - 1
 		end
 
-		print(G.GAME.BL_EXTRA.temp_table.break_in)
+		-- print(G.GAME.BL_EXTRA.temp_table.break_in)
 	end,
 
 	calculate = function(self, card, context)
@@ -617,7 +623,7 @@ SMODS.Blind {
 					end}))
 				end
 			end
-			print(G.GAME.BL_EXTRA.temp_table.break_in)
+			-- print(G.GAME.BL_EXTRA.temp_table.break_in)
 		end
 	end,
 

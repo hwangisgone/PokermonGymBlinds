@@ -31,7 +31,24 @@ GYM_SHOWDOWN_CLR = {
 
 -- TODO: Use this??? SMODS.juice_up_blind()
 
+-- SMODS.Back {
+-- 	key = 'testing1',
+-- 	loc_txt = "TESTING DECK 1",
+-- 	discovered = true,
+-- 	apply = function(self, back)
+-- 		SMODS.create_card({
+-- 			set = 'Joker',
+-- 			area = G.jokers,
+-- 			key = 'j_chicot'
+-- 		})
 
+-- 		SMODS.create_card({
+-- 			set = 'Joker',
+-- 			area = G.jokers,
+-- 			key = 'j_poke_weezing'
+-- 		})
+-- 	end
+-- }
 
 
 -- Utilities:
@@ -70,6 +87,24 @@ function gymblind_get_random_ranks(count, seed)
 	return to_return
 end
 
+
+function card_is_even(card)
+	local id = card:get_id()
+	return id == 2 or 
+			id == 4 or 
+			id == 6 or 
+			id == 8 or 
+			id == 10
+end
+
+function card_is_odd(card)
+	local id = card:get_id()
+	return id == 3 or 
+			id == 5 or 
+			id == 7 or 
+			id == 8 or 
+			id == 14
+end
 
 -- Loading blind hooks
 local blind_hooks, load_error = SMODS.load_file('misc/blind_hook.lua')
@@ -129,6 +164,23 @@ if success and dpAPI.isVersionCompatible(1) then -- Make sure DebugPlus is avail
 				print(BL_FUNCTION_TABLE)
 				print(BL_FUNCTION_TABLE['test'])
 				print(G.GAME.BL_EXTRA)
+		end
+	})
+
+	debugplus.addCommand({
+		name = "test_disable",
+		shortDesc = "Add disabling jokers",
+		desc = "Add disabling jokers",
+		exec = function (args, rawArgs, dp)
+			SMODS.add_card({
+				set = 'Joker',
+				key = 'j_chicot',
+			})
+
+			SMODS.add_card({
+				set = 'Joker',
+				key = 'j_poke_weezing',
+			})
 		end
 	})
 

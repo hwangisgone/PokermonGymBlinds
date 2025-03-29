@@ -1,10 +1,10 @@
 local league_length = 10
 
-local hook_get_new_boss = get_new_boss
+local basegame_get_new_boss = get_new_boss
 function get_new_boss(blind)
 	-- TODO: Special blind for ante < 1?
 	if not pkrm_gym_config.setting_only_gym or G.GAME.round_resets.ante < 1 then
-		return hook_get_new_boss()
+		return basegame_get_new_boss()
 	end
 
 	-- Get new league and set up winning ante
@@ -44,9 +44,9 @@ function get_new_boss(blind)
 end
 
 -- Override for Elite Four blinds at ante 9 and 10
-local hook_reset_blinds = reset_blinds
+local basegame_reset_blinds = reset_blinds
 function reset_blinds()
-	hook_reset_blinds()
+	basegame_reset_blinds()
 
 	if pkrm_gym_config.setting_only_gym then 
 		local league_index = G.GAME.round_resets.ante % league_length
@@ -74,7 +74,7 @@ function reset_blinds()
 end
 
 
-local hook_blind_get_type = Blind.get_type
+local basegame_blind_get_type = Blind.get_type
 function Blind:get_type()
 	local valid_types = { Small = true, Big = true, Boss = true }
 
@@ -84,12 +84,13 @@ function Blind:get_type()
 		return G.GAME.blind_on_deck
 	end
 
-	return hook_blind_get_type(self)
+	return basegame_blind_get_type(self)
 end
 
 
 -- Change ante stuffs
-local hook_get_blind_amount = get_blind_amount 
+-- TODO: Work with SMODS.get_blind_amount
+local basegame_get_blind_amount = get_blind_amount 
 function get_blind_amount(ante)
 	if pkrm_gym_config.setting_reduce_scaling and (ante == 9 or ante == 10) then
 		if not G.GAME.modifiers.scaling or G.GAME.modifiers.scaling == 1 then 
@@ -104,5 +105,5 @@ function get_blind_amount(ante)
 		end
 	end
 
-	return hook_get_blind_amount(ante)
+	return basegame_get_blind_amount(ante)
 end

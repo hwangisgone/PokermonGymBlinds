@@ -22,6 +22,76 @@ SMODS.Blind {
 	boss = {min = 1, max = 10}, 
 	config = {},
 	vars = {},
+	
+	calculate = function(self, card, context)
+		if context.before then
+			local new_scoring_hand = {}
+			local non_scoring_cards = {}
+			local seen_ranks = {}
+
+			for _, card in pairs(context.scoring_hand) do
+				local card_rank = card:get_id()
+				
+				-- Intentional: Stone card is never unscored (Flying weaks to Rock)
+
+				if not seen_ranks[card_rank] or card.config.center.key == 'm_stone' then
+					-- First occurrence of this rank
+					seen_ranks[card_rank] = true
+					table.insert(new_scoring_hand, card)
+				else
+					table.insert(non_scoring_cards, card)
+				end
+			end
+
+			if #non_scoring_cards > 0 then
+				-- Remove original scoring_hand and replace it
+				for i = 1, #context.scoring_hand do
+					table.remove(context.scoring_hand, 1)
+				end
+
+				for i = 1, #new_scoring_hand do
+					table.insert(context.scoring_hand, new_scoring_hand[i])
+				end
+
+				G.E_MANAGER:add_event(Event({
+					trigger = "after",
+					delay = 0.1,
+					func = function() 
+						attention_text({
+							text = localize("pkrm_gym_zephyr_ex"),
+							scale = 1.3, 
+							hold = 0.7,
+							backdrop_colour = TYPE_CLR['flying'],
+							align = 'tm',
+							major = G.play,
+							offset = {x = 0, y = -0.1*G.CARD_H}
+						})
+
+						G.GAME.blind:juice_up(0.3)
+						play_sound('whoosh', 0.7, 0.6)
+						G.GAME.blind.triggered = true 
+
+						return true
+					end
+				}))
+
+				-- Repeated rank, unhighlight
+				for _, card in pairs(non_scoring_cards) do
+					G.E_MANAGER:add_event(Event({
+						trigger = "after",
+						delay = 0.1,
+						func = function() 
+							card:highlight(false)
+							card:juice_up(0.5, 0.2)
+							play_sound('card1', 0.4, 0.5)
+							G.ROOM.jiggle = G.ROOM.jiggle + 0.5
+							return true 
+						end
+					}))
+				end
+			end
+		end
+	end,
 }
 
 SMODS.Blind {
@@ -89,25 +159,6 @@ SMODS.Blind {
 	end
 }
 
-
-function card_is_even(card)
-	local id = card:get_id()
-	return id == 2 or 
-			id == 4 or 
-			id == 6 or 
-			id == 8 or 
-			id == 10
-end
-
-function card_is_odd(card)
-	local id = card:get_id()
-	return id == 3 or 
-			id == 5 or 
-			id == 7 or 
-			id == 8 or 
-			id == 14
-end
-
 SMODS.Blind {
 	key = 'fog',
 	atlas = 'blinds_johto',
@@ -123,10 +174,19 @@ SMODS.Blind {
 
 	stay_flipped = function(self, area, card)
 		if area == G.hand then
-			return card_is_even(card)
+			return not (card:is_suit('Spades') or card:is_suit('Clubs'))
 		end
 		return false
-	end
+	end,
+
+	disable = function(self)
+		for _, card in pairs(G.hand.cards) do
+			if card.facing == 'back' then 
+				card:flip();
+			end
+		end
+		G.GAME.blind.triggered = false
+	end,
 }
 
 SMODS.Blind {
@@ -250,7 +310,7 @@ SMODS.Blind {
 						this_card.ability.koga_poison_bonus = (this_card.ability.koga_poison_bonus or 0) - self.config.poison_chips
 
 						attention_text({
-							text = localize("pkrm_gym_e4_koga_poisoned"),
+							text = localize("pkrm_gym_e4_koga_ex"),
 							scale = 0.5, 
 							hold = 1,
 							backdrop_colour = TYPE_CLR['poison'],
@@ -281,7 +341,7 @@ SMODS.Blind {
 			if card.ability.koga_poison_bonus and card.ability.koga_poison_bonus < 0 then
 				card.ability.perma_bonus = card.ability.perma_bonus - card.ability.koga_poison_bonus
 				card.ability.koga_poison_bonus = nil
-				card:juice_up()
+				card:juice_up(0.1, 0.1)
 			end
 		end
 	end,

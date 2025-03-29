@@ -9,7 +9,7 @@
 BL_FUNCTION_TABLE = {}
 
 -- For saving/loading blinds
-local hook_blind_set_blind = Blind.set_blind
+local basegame_blind_set_blind = Blind.set_blind
 function Blind:set_blind(blind, reset, silent)
 	if not reset then
 		G.GAME.BL_EXTRA = {
@@ -19,12 +19,12 @@ function Blind:set_blind(blind, reset, silent)
 		print("BL_EXTRA reset")
 	end
 
-	hook_blind_set_blind(self, blind, reset, silent)
+	basegame_blind_set_blind(self, blind, reset, silent)
 end
 
-local hook_blind_load = Blind.load
+local basegame_blind_load = Blind.load
 function Blind:load(blindTable)
-	hook_blind_load(self, blindTable)
+	basegame_blind_load(self, blindTable)
 
 	if G.GAME.BL_EXTRA and G.GAME.BL_EXTRA.reload then
 		local reload_func = BL_FUNCTION_TABLE[G.GAME.BL_EXTRA.reload]
