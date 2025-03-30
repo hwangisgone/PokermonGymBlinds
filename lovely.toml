@@ -14,20 +14,3 @@ payload = '''
 elseif G.GAME.round_resets.blind_type_override and G.GAME.round_resets.blind_type_override[G.GAME.blind_on_deck] then
 	G.GAME.round_resets.blind_states[G.GAME.blind_on_deck] = 'Defeated'
 '''
-
-# Handle pre_discard
-[[patches]]
-[patches.pattern]
-target = 'functions/state_events.lua'
-pattern = 'if highlighted_count > 0 then'
-position = 'before'
-match_indent = true
-payload = '''
-if G.GAME.BL_EXTRA and G.GAME.BL_EXTRA.pre_discard then
-	local pre_discard_func = BL_FUNCTION_TABLE[G.GAME.BL_EXTRA.pre_discard]
-	if type(pre_discard_func) == 'function' then
-		pre_discard_func()
-		print("PREDISCARD CALCULATED")
-	end
-end
-'''

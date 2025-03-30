@@ -739,6 +739,26 @@ SMODS.Blind {
 	dollars = 12,
 	mult = 4,
 	boss = {min = 10, max = 10, showdown = true}, 
-	config = {},
-	vars = {},
+	config = {blue_penalty_chips = 12},
+	vars = {12},
+
+	calculate = function(self, card, context)
+		if context.before then
+			for k, card in pairs(G.play.cards) do
+				G.E_MANAGER:add_event(Event({trigger = 'immediate',func = function() 
+					card:juice_up(0.5,0.1)
+					card.ability.perma_bonus = -self.config.blue_penalty_chips
+					card.ability.bonus = -self.config.blue_penalty_chips
+					print(card.ability.bonus)
+					return true
+				end}))
+			end
+		end
+		-- elseif context.after then
+		-- 	for k, card in pairs(G.play.cards) do
+		-- 		print("TRIGGERED")
+		-- 		card.ability.perma_bonus = card.ability.perma_bonus + self.config.blue_penalty_chips
+		-- 	end
+		-- end
+	end,
 }

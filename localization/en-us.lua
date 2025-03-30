@@ -16,7 +16,7 @@ return {
 			bl_pkrm_gym_e4_bruno   = {name = 'Saffron Shackles', text = {"Discarded poker hand", "will not score"}},
 			bl_pkrm_gym_e4_agatha  = {name = 'Cursed Cane'    , text = {"Discarded cards", "lose 10 chips", "and return to deck"}},
 			bl_pkrm_gym_e4_lance   = {name = 'Sunset Scale'  , text = {"One scoring card debuffed", "for each remaining hand"}},
-			bl_pkrm_gym_champion_kanto = {name = 'The Blue Chip', text = {"-1 hand size", "-1 consumable slot", "Rightmost joker is debuffed"}},
+			bl_pkrm_gym_champion_kanto = {name = 'The Blue Chip', text = {"Played cards score", "#1# less Chips"}},
 			-- Johto
 			bl_pkrm_gym_zephyr  = {name = 'The Zephyr' , text = {"Repeated ranks", "are unscored"}},
 			bl_pkrm_gym_hive    = {name = 'The Hive'   , text = {"Destroy rightmost card", "after scoring"}},
@@ -26,25 +26,32 @@ return {
 			bl_pkrm_gym_mineral = {name = 'The Mineral', text = {""}},
 			bl_pkrm_gym_glacier = {name = 'The Glacier', text = {"Enhanced cards held in hand","turns into glass"}},
 			bl_pkrm_gym_rising  = {name = 'The Rising' , text = {"Card ranks increase", "before scoring"}},
-			bl_pkrm_gym_e4_will  = {name = 'Violet Mask'   , text = {"Must play at least", "2 face cards"}},
+			bl_pkrm_gym_e4_will  = {name = 'Magenta Mask'   , text = {"Must play at least", "2 face cards"}},
 			bl_pkrm_gym_e4_koga  = {name = 'Fuchsia Poison', text = {"After Play,", "flip cards held in hand", "and they lose -#1# chips"}},
 			bl_pkrm_gym_e4_karen = {name = 'Temp Karen'    , text = {"Elite Four - 4"}},
 			bl_pkrm_gym_champion_johto = {name = 'Scarlet Scale', text = {"Champion"}},
 			-- Hoenn
 			bl_pkrm_gym_stone   = {name = 'The Stone'  ,text = {"First #1# selected cards", "become Stone cards","and give no chip"}},
-			bl_pkrm_gym_knuckle = {name = 'The Knuckle',text = {"Selecting card cycles","cards in hand"}},
+			bl_pkrm_gym_knuckle = {name = 'The Knuckle',text = {"Selecting cycles","cards in hand"}},
 			bl_pkrm_gym_dynamo  = {name = 'The Dynamo' ,text = {"Rightmost joker", "transfers all energy", "to leftmost joker"}},
-			bl_pkrm_gym_heat    = {name = 'The Heat'   ,text = {"Score requirements","increase by #1#% Base","when exceeded"}},
+			bl_pkrm_gym_heat    = {name = 'The Heat'   ,text = {"Blind size","increase by #1#% Base","when exceeded"}},
 			bl_pkrm_gym_balance = {name = 'The Balance',text = {"Each hand only scores", "after discard"}},
-			bl_pkrm_gym_feather = {name = 'The Feather',text = {"Smaller ranks", "are drawn first"}},
-			bl_pkrm_gym_mind    = {name = 'The Mind'   ,text = {"Hand must contains a Pair"}},
+			bl_pkrm_gym_feather = {name = 'The Feather',text = {"Cards with less chips", "are drawn first"}},
+			bl_pkrm_gym_mind    = {name = 'The Mind'   ,text = {"Hand must contains", "a Pair"}},
 			bl_pkrm_gym_rain    = {name = 'The Rain'   ,text = {"Giovanni's Gym"}},
 			-- TODO: Alt The Rain with Juan
-			bl_pkrm_gym_e4_sidney = {name = 'Temp Bruno',text = {"Elite Four - 1"}},
-			bl_pkrm_gym_e4_phoebe = {name = 'Temp Bruno',text = {"Elite Four - 2"}},
-			bl_pkrm_gym_e4_glacia = {name = 'Temp Bruno',text = {"Elite Four - 3"}},
-			bl_pkrm_gym_e4_drake  = {name = 'Temp Bruno',text = {"Elite Four - 4"}},
+			bl_pkrm_gym_e4_sidney = {name = 'Slick Shades',text = {"Elite Four - 1"}},
+			bl_pkrm_gym_e4_phoebe = {name = 'Pale Petal',text = {"Elite Four - 2"}},
+			bl_pkrm_gym_e4_glacia = {name = 'Glistening Gown',text = {"Elite Four - 3"}},
+			bl_pkrm_gym_e4_drake  = {name = 'Midnight Mast',text = {"Elite Four - 4"}},
 			bl_pkrm_gym_champion_hoenn = {name = 'Temp Steven', text = {"Champion"}},
+			-- Platinum Pendant
+			-- Azure Amulet
+			-- Teal Token
+			-- Steel Signet
+			-- Mint Marker
+			-- Platinum Pin
+			-- Titanium Token
 			-- TODO: Alt Champion with Wallace
 			-- Sinnoh
 			bl_pkrm_gym_coal   = {name = 'The Coal'  ,text = {"Nothing yet"}},

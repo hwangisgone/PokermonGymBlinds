@@ -53,7 +53,7 @@ SMODS.Blind {
 					offset = {x = 0, y = 0}
 				})
 				
-                G.ROOM.jiggle = G.ROOM.jiggle + 0.7
+				G.ROOM.jiggle = G.ROOM.jiggle + 0.7
 
 				G.GAME.BL_EXTRA.temp_table['roxanne_triggered'] = trigger_count + 1 
 				G.GAME.blind:wiggle()
@@ -83,35 +83,6 @@ SMODS.Blind {
 	end,
 }
 
-local basegame_card_highlight = Card.highlight
-function Card:highlight(is_highlighted)
-    if G.GAME.blind and G.GAME.blind.name == 'bl_pkrm_gym_knuckle' then
-	    if self.area and self.area == G.hand and not self.highlighted and is_highlighted then
-			if #G.hand.highlighted <= G.hand.config.highlighted_limit then
-				
-				local leftmost_card = G.hand.cards[1]
-
-		        draw_card(G.hand, G.discard, 100, 'down', false, leftmost_card)
-		        draw_card(G.deck, G.hand, 100, 'up', false)
-
-		        -- This fix the "hovering deck problem"
-		        -- Where if selected card is also leftmost (or close to left), when moving it to deck
-		        -- it also opens the UI when you hover over the deck
-		        -- So instead of moving directly Hand -> Deck, we move Hand -> Discard -> Deck
-		        G.E_MANAGER:add_event(Event({
-				    trigger = "after", 
-				    delay = 0.5, 
-				    func = function() 
-				        draw_card(G.discard, G.deck, 100, 'down', false, leftmost_card)
-				        return true 
-				    end
-				}))
-		    end
-	    end
-	end
-
-	basegame_card_highlight(self, is_highlighted)
-end
 
 SMODS.Blind {
 	key = 'knuckle',
@@ -126,6 +97,37 @@ SMODS.Blind {
 	config = {},
 	vars = {},
 }
+
+local basegame_card_highlight = Card.highlight
+function Card:highlight(is_highlighted)
+	if G.GAME.blind and G.GAME.blind.name == 'bl_pkrm_gym_knuckle' and not G.GAME.blind.disabled then
+		if self.area and self.area == G.hand and not self.highlighted and is_highlighted then
+			if #G.hand.highlighted <= G.hand.config.highlighted_limit then
+				
+				local leftmost_card = G.hand.cards[1]
+
+				draw_card(G.hand, G.discard, 100, 'down', false, leftmost_card)
+				draw_card(G.deck, G.hand, 100, 'up', false)
+
+				-- This fix the "hovering deck problem"
+				-- Where if selected card is also leftmost (or close to left), when moving it to deck
+				-- it also opens the UI when you hover over the deck
+				-- So instead of moving directly Hand -> Deck, we move Hand -> Discard -> Deck
+				G.E_MANAGER:add_event(Event({
+					trigger = "after", 
+					delay = 0.5, 
+					func = function() 
+						draw_card(G.discard, G.deck, 100, 'down', false, leftmost_card)
+						return true 
+					end
+				}))
+			end
+		end
+	end
+
+	basegame_card_highlight(self, is_highlighted)
+end
+
 
 SMODS.Blind {
 	key = 'dynamo',
@@ -169,8 +171,7 @@ SMODS.Blind {
 	vars = {},
 
 	calculate = function(self, card, context)
-		-- TODO: just context.pre_discard Might be buggy??\
-		-- Also context.after? context.cardarea == G.play
+		-- TOCHECK: context.pre_discard and context.cardarea == G.play??
 		if not G.GAME.blind.disabled then
 			if context.pre_discard then
 				G.GAME.blind:wiggle()
@@ -198,6 +199,23 @@ SMODS.Blind {
 	boss = {min = 1, max = 10}, 
 	config = {},
 	vars = {},
+
+	set_blind = function(self)
+		G.E_MANAGER:add_event(Event({
+			trigger = "after", 
+			delay = 0.6,
+			-- TOCHECK: Might be slightly buggy with 0.6
+			-- Need a more concrete way of doing this, such as parent event releasing 'blocking' child event after 0.4
+			blocking = false, 
+			func = function()
+				table.sort(G.deck.cards, function (a, b)
+					local chipa, chipb = a:get_chip_bonus(), b:get_chip_bonus()
+					return chipa == chipb and a:get_nominal() > b:get_nominal() or chipa > chipb
+				end)
+				return true 
+			end
+		}))
+	end,
 }
 
 SMODS.Blind {

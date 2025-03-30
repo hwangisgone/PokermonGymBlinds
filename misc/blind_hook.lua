@@ -16,7 +16,7 @@ function Blind:set_blind(blind, reset, silent)
 			reload = nil,
 			temp_table = {},
 		}
-		print("BL_EXTRA reset")
+		-- print("BL_EXTRA reset")
 	end
 
 	basegame_blind_set_blind(self, blind, reset, silent)

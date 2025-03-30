@@ -249,7 +249,7 @@ SMODS.Blind {
 	key = 'e4_will',
 	atlas = 'blinds_johto',
 	pos = { x = 0, y = 8 },
-	boss_colour = TYPE_CLR['psychic'],
+	boss_colour = GYM_SHOWDOWN_CLR['will'],
 
 	discovered = false,
 	dollars = 8,

@@ -1,15 +1,17 @@
 GYM_BLINDS_TYPE_CLR = {
 	fire = HEX('E62829'),
-	grass = HEX('3FA129'),
+	grass = HEX('70CC50'),
 	water = HEX('009CFD'),
 	electric = HEX('FAC000'),
 	bug = HEX('91A119'),
-	normal = HEX('C1C2C1'),
+	normal = HEX('BBBBAA'),
 	flying = HEX('81B9EF'),
 	fighting = HEX('FF8000'),
 	ghost = HEX('704170'),
 	poison = HEX('9141CB'),
-	psychic = HEX('EF4179'),
+	psychic = HEX('EF638C'),
+	-- F85888
+	-- EF638C
 	dark = HEX('624D4E'),
 	dragon = HEX('5060E1'),
 	fairy = HEX('EF70EF'),
@@ -21,13 +23,13 @@ GYM_BLINDS_TYPE_CLR = {
 
 GYM_SHOWDOWN_CLR = {
 	blue = G.C.UI_CHIPS,
-	will = HEX('EF4179'),
+	will = HEX('BC2649'),	-- Viva Magenta
 	lance = HEX('AC3C26'),
 	-- 'steven'
 }
 -- TODO: Note: green needs to be brighter
 -- Psychic too intense, suitable for Will but not anyone else
---  Maybe darken normal
+
 
 -- TODO: Use this??? SMODS.juice_up_blind()
 
@@ -184,6 +186,19 @@ if success and dpAPI.isVersionCompatible(1) then -- Make sure DebugPlus is avail
 		end
 	})
 
+	debugplus.addCommand({
+		name = "test_sort",
+		shortDesc = "Add disabling jokers",
+		desc = "Add disabling jokers",
+		exec = function (args, rawArgs, dp)
+			local list_rank = {}
+			for _, card in pairs(G.deck.cards) do
+				table.insert(list_rank, card:get_id())
+			end
+
+			print(table.concat(list_rank, " "))
+		end
+	})
 end
 
 
