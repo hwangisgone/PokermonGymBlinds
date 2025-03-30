@@ -10,6 +10,57 @@ SMODS.Atlas {
 	frames = 21 
 }
 
+function rescore_hand(scoring_hand, config)
+	local new_scoring_hand = {}
+	local non_scoring_cards = {}
+
+	for _, card in pairs(scoring_hand) do
+		if config.is_unscored_func(card) then
+			table.insert(non_scoring_cards, card)
+		else
+			table.insert(new_scoring_hand, card)			
+		end
+	end
+
+	if #non_scoring_cards > 0 then
+		-- Remove original scoring_hand and replace it
+		for i = 1, #scoring_hand do
+			table.remove(scoring_hand, 1)
+		end
+
+		for i = 1, #new_scoring_hand do
+			table.insert(scoring_hand, new_scoring_hand[i])
+		end
+
+		G.E_MANAGER:add_event(Event({
+			trigger = "after",
+			delay = 0.1,
+			func = function() 
+
+				config.blind_juice_func()
+
+				return true
+			end
+		}))
+
+		-- Repeated rank, unhighlight
+		for _, card in pairs(non_scoring_cards) do
+			G.E_MANAGER:add_event(Event({
+				trigger = "after",
+				delay = 0.1,
+				func = function() 
+					card:highlight(false)
+					card:juice_up(0.3, 0.2)
+
+					config.card_juice_func(card)
+
+					return true 
+				end
+			}))
+		end
+	end
+end
+
 SMODS.Blind {
 	key = 'zephyr',
 	atlas = 'blinds_johto',
@@ -24,72 +75,43 @@ SMODS.Blind {
 	vars = {},
 	
 	calculate = function(self, card, context)
-		if context.before then
-			local new_scoring_hand = {}
-			local non_scoring_cards = {}
+		if context.before and not G.GAME.blind.disabled then
 			local seen_ranks = {}
 
-			for _, card in pairs(context.scoring_hand) do
-				local card_rank = card:get_id()
-				
-				-- Intentional: Stone card is never unscored (Flying weaks to Rock)
+			rescore_hand(context.scoring_hand, {
+				is_unscored_func = function(card) 
+					local card_rank = card:get_id()
 
-				if not seen_ranks[card_rank] or card.config.center.key == 'm_stone' then
-					-- First occurrence of this rank
-					seen_ranks[card_rank] = true
-					table.insert(new_scoring_hand, card)
-				else
-					table.insert(non_scoring_cards, card)
-				end
-			end
+					-- Intentional: Stone card is never unscored (Flying weaks to Rock)
 
-			if #non_scoring_cards > 0 then
-				-- Remove original scoring_hand and replace it
-				for i = 1, #context.scoring_hand do
-					table.remove(context.scoring_hand, 1)
-				end
-
-				for i = 1, #new_scoring_hand do
-					table.insert(context.scoring_hand, new_scoring_hand[i])
-				end
-
-				G.E_MANAGER:add_event(Event({
-					trigger = "after",
-					delay = 0.1,
-					func = function() 
-						attention_text({
-							text = localize("pkrm_gym_zephyr_ex"),
-							scale = 1.3, 
-							hold = 0.7,
-							backdrop_colour = TYPE_CLR['flying'],
-							align = 'tm',
-							major = G.play,
-							offset = {x = 0, y = -0.1*G.CARD_H}
-						})
-
-						G.GAME.blind:juice_up(0.3)
-						play_sound('whoosh', 0.7, 0.6)
-						G.GAME.blind.triggered = true 
-
+					if not seen_ranks[card_rank] or card.config.center.key == 'm_stone' then
+						-- First occurrence of this rank
+						seen_ranks[card_rank] = true
+						return false
+					else
 						return true
 					end
-				}))
+				end, 
+				blind_juice_func = function()
+					attention_text({
+						text = localize("pkrm_gym_zephyr_ex"),
+						scale = 1.3, 
+						hold = 0.7,
+						backdrop_colour = TYPE_CLR['flying'],
+						align = 'tm',
+						major = G.play,
+						offset = {x = 0, y = -0.1*G.CARD_H}
+					})
 
-				-- Repeated rank, unhighlight
-				for _, card in pairs(non_scoring_cards) do
-					G.E_MANAGER:add_event(Event({
-						trigger = "after",
-						delay = 0.1,
-						func = function() 
-							card:highlight(false)
-							card:juice_up(0.5, 0.2)
-							play_sound('card1', 0.4, 0.5)
-							G.ROOM.jiggle = G.ROOM.jiggle + 0.5
-							return true 
-						end
-					}))
-				end
-			end
+					G.GAME.blind:juice_up(0.3)
+					play_sound('whoosh', 0.7, 0.6)
+					G.GAME.blind.triggered = true 
+				end, 
+				card_juice_func = function(card)
+					play_sound('card1', 0.4, 0.5)
+					G.ROOM.jiggle = G.ROOM.jiggle + 0.5
+				end,
+			})
 		end
 	end,
 }
@@ -286,40 +308,47 @@ SMODS.Blind {
 	dollars = 8,
 	mult = 2,
 	boss = {min = 8, max = 10, showdown = true}, 
-	config = {poison_chips = 10},
+	config = {},
 	vars = {},
-	loc_vars = function(self)
-		return {vars = {self.config.poison_chips}}
-	end,
-	collection_loc_vars = function(self)
-		return {vars = {self.config.poison_chips}}
-	end,
 
 	calculate = function(self, card, context)
 		-- TODO: just context.pre_discard Might be buggy??
 		if context.before and not G.GAME.blind.disabled then
+
+			rescore_hand(context.scoring_hand, {
+				is_unscored_func = function(card) 
+					return not card.ability.koga_flipped
+				end,
+				blind_juice_func = function()
+					G.GAME.blind:wiggle()
+					G.GAME.blind.triggered = true 
+				end, 
+				card_juice_func = function(card)
+					attention_text({
+						text = localize("pkrm_gym_e4_koga_ex"),
+						scale = 0.5, 
+						hold = 1,
+						backdrop_colour = TYPE_CLR['poison'],
+						align = 'tm',
+						major = card,
+						offset = {x = 0, y = -0.05*G.CARD_H}
+					})
+
+					play_sound('cancel', 1);
+					G.ROOM.jiggle = G.ROOM.jiggle + 0.2
+				end,
+			})
+			
+		elseif context.pre_discard and not G.GAME.blind.disabled then
 			for i = 1, #G.hand.cards do
 				local percent = 1.15 - (i-0.999)/(#G.hand.cards-0.998)*0.3
 				local this_card = G.hand.cards[i]
 
-				if not this_card.highlighted then
+				if this_card.facing == 'front' and not this_card.highlighted then
 					G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.15,func = function() 
 						this_card:flip();
-
-						this_card.ability.perma_bonus = this_card.ability.perma_bonus - self.config.poison_chips
-						this_card.ability.koga_poison_bonus = (this_card.ability.koga_poison_bonus or 0) - self.config.poison_chips
-
-						attention_text({
-							text = localize("pkrm_gym_e4_koga_ex"),
-							scale = 0.5, 
-							hold = 1,
-							backdrop_colour = TYPE_CLR['poison'],
-							align = 'tm',
-							major = this_card,
-							offset = {x = 0, y = -0.05*G.CARD_H}
-						})
-
-						play_sound('cancel', percent);
+						this_card.ability.koga_flipped = true
+						play_sound('card1', percent);
 						G.GAME.blind:wiggle()
 						G.GAME.blind.triggered = true
 						return true
@@ -333,23 +362,6 @@ SMODS.Blind {
 		for _, card in pairs(G.hand.cards) do
 			if card.facing == 'back' then 
 				card:flip();
-			end
-		end
-		
-		-- Remove poison negative bonus chips
-		for _, card in pairs(G.playing_cards) do
-			if card.ability.koga_poison_bonus and card.ability.koga_poison_bonus < 0 then
-				card.ability.perma_bonus = card.ability.perma_bonus - card.ability.koga_poison_bonus
-				card.ability.koga_poison_bonus = nil
-				card:juice_up(0.1, 0.1)
-			end
-		end
-	end,
-
-	defeat = function(self)
-		for _, card in pairs(G.playing_cards) do
-			if card.koga_poison_bonus and card.koga_poison_bonus < 0 then
-				card.ability.perma_bonus = card.ability.perma_bonus - card.koga_poison_bonus
 			end
 		end
 	end,

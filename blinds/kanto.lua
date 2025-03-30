@@ -208,7 +208,8 @@ SMODS.Blind {
 				local percent = 1.15 - (i-0.999)/(#G.hand.cards-0.998)*0.3
 				local this_card = G.hand.cards[i]
 
-				if this_card.facing == 'front' and not this_card.highlighted then
+				-- previously check for front facing cards only: this_card.facing == 'front'
+				if not this_card.highlighted then
 					G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.15,func = function() 
 						this_card:flip();
 						play_sound('card1', percent);
@@ -729,6 +730,16 @@ SMODS.Blind {
 	vars = {},
 }
 
+local pokermon_chip_drain = poke_stabilize_chip_drain
+poke_stabilize_chip_drain = function(card)
+	card.ability.nominal_drain = 0
+	-- if card.ability.boss_drain then
+	-- 	card.ability.boss_drain = nil
+	-- else
+	-- 	pokermon_chip_drain(card)
+	-- end
+end
+
 SMODS.Blind {
 	key = 'champion_kanto',
 	atlas = 'blinds_kanto',
@@ -744,21 +755,23 @@ SMODS.Blind {
 
 	calculate = function(self, card, context)
 		if context.before then
-			for k, card in pairs(G.play.cards) do
-				G.E_MANAGER:add_event(Event({trigger = 'immediate',func = function() 
-					card:juice_up(0.5,0.1)
-					card.ability.perma_bonus = -self.config.blue_penalty_chips
-					card.ability.bonus = -self.config.blue_penalty_chips
-					print(card.ability.bonus)
-					return true
-				end}))
+			for k, v in pairs(G.play.cards) do
+				-- G.E_MANAGER:add_event(Event({trigger = 'immediate',func = function() 
+					v:juice_up(0.5,0.1)
+					-- card.ability.nominal_drain = self.config.blue_penalty_chips
+					-- card.ability.boss_drain = true
+					v.ability.perma_bonus = v.ability.perma_bonus - self.config.blue_penalty_chips
+					print(v:get_chip_bonus())
+
 			end
+		elseif context.after then
+			G.E_MANAGER:add_event(Event({trigger = 'immediate',func = function()
+				for k, card in pairs(G.play.cards) do
+					print("TRIGGERED")
+					card.ability.perma_bonus = card.ability.perma_bonus + self.config.blue_penalty_chips
+				end
+				return true
+			end}))
 		end
-		-- elseif context.after then
-		-- 	for k, card in pairs(G.play.cards) do
-		-- 		print("TRIGGERED")
-		-- 		card.ability.perma_bonus = card.ability.perma_bonus + self.config.blue_penalty_chips
-		-- 	end
-		-- end
 	end,
 }

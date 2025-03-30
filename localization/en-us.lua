@@ -6,7 +6,7 @@ return {
 			bl_pkrm_gym_cascade = {name = 'The Cascade', text = {"After Play, #1# in #2# chance","to lose Energy", "in one Water Joker"}},
 			bl_pkrm_gym_thunder = {name = 'The Thunder', text = {"Lose $#1# when Discard", "without #2#"}},
 			bl_pkrm_gym_rainbow = {name = 'The Rainbow', text = {"Wild and Polychrome cards", "are debuffed"}},
-			bl_pkrm_gym_soul    = {name = 'The Soul'   , text = {"After Play or Discard,", "flip cards held in hand", "face down"}},
+			bl_pkrm_gym_soul    = {name = 'The Soul'   , text = {"After Play or Discard,", "flip cards held in hand"}},
 			-- bl_pkrm_gym_soul_janine = {name = 'The Soul'   , text = {"Played ranks have", "1 in 6 chance to be drawn face down"}},
 			-- TODO: Soul with Janine after Johto instead of Koga
 			bl_pkrm_gym_marsh   = {name = 'The Marsh'  , text = {"Cards drawn are debuffed", "until 1 Consumable used"}},
@@ -27,7 +27,7 @@ return {
 			bl_pkrm_gym_glacier = {name = 'The Glacier', text = {"Enhanced cards held in hand","turns into glass"}},
 			bl_pkrm_gym_rising  = {name = 'The Rising' , text = {"Card ranks increase", "before scoring"}},
 			bl_pkrm_gym_e4_will  = {name = 'Magenta Mask'   , text = {"Must play at least", "2 face cards"}},
-			bl_pkrm_gym_e4_koga  = {name = 'Fuchsia Poison', text = {"After Play,", "flip cards held in hand", "and they lose -#1# chips"}},
+			bl_pkrm_gym_e4_koga  = {name = 'Fuchsia Poison', text = {"After Discard, flip down", "cards held in hand", "Only flipped cards score"}},
 			bl_pkrm_gym_e4_karen = {name = 'Temp Karen'    , text = {"Elite Four - 4"}},
 			bl_pkrm_gym_champion_johto = {name = 'Scarlet Scale', text = {"Champion"}},
 			-- Hoenn
