@@ -133,8 +133,10 @@ SMODS.Blind {
 	end,
 
 	calculate = function(self, card, context)
+		if G.GAME.blind.disabled then return end
+
 		-- TODO: just context.pre_discard Might be buggy??
-		if context.pre_discard and not G.GAME.blind.disabled then
+		if context.pre_discard then
 			local rank1 = self.config.need_ranks[1].id
 			local rank2 = self.config.need_ranks[2].id
 
@@ -202,8 +204,10 @@ SMODS.Blind {
 	vars = {},
 
 	calculate = function(self, card, context)
+		if G.GAME.blind.disabled then return end
+
 		-- TODO: just context.pre_discard Might be buggy??
-		if (context.pre_discard or context.before) and not G.GAME.blind.disabled then
+		if context.pre_discard or context.before then
 			for i = 1, #G.hand.cards do
 				local percent = 1.15 - (i-0.999)/(#G.hand.cards-0.998)*0.3
 				local this_card = G.hand.cards[i]
@@ -246,8 +250,9 @@ SMODS.Blind {
 	vars = {},
 
 	calculate = function(self, card, context)
+		if G.GAME.blind.disabled then return end
+
 		if context.using_consumeable then
-			print("Used consumable")
 			self.config.extra.used_consumable = true
 
 			-- Recalculate debuffs
@@ -615,6 +620,8 @@ SMODS.Blind {
 	end,
 
 	calculate = function(self, card, context)
+		if G.GAME.blind.disabled then return end
+
 		if context.after then
 			if G.GAME.BL_EXTRA.temp_table.break_in == 0 then
 				for _, card in ipairs(G.hand.cards) do
@@ -624,7 +631,6 @@ SMODS.Blind {
 					end}))
 				end
 			end
-			-- print(G.GAME.BL_EXTRA.temp_table.break_in)
 		end
 	end,
 
@@ -648,6 +654,8 @@ SMODS.Blind {
 	end,
 
 	calculate = function(self, card, context)
+		if G.GAME.blind.disabled then return end
+
 		if context.pre_discard then
 			local text = G.FUNCS.get_poker_hand_info(G.hand.highlighted)
 
@@ -659,19 +667,17 @@ SMODS.Blind {
 	end,
 
 	debuff_hand = function(self, cards, hand, handname, check)
-		if not G.GAME.blind.disabled then
-			local is_debuffed = false
-			local disabled_hands = G.GAME.BL_EXTRA.temp_table
+		local is_debuffed = false
+		local disabled_hands = G.GAME.BL_EXTRA.temp_table
 
-			for k,v in pairs(disabled_hands) do
-				if k == handname then
-					is_debuffed = true
-					break
-				end
+		for k,v in pairs(disabled_hands) do
+			if k == handname then
+				is_debuffed = true
+				break
 			end
-
-			return is_debuffed
 		end
+
+		return is_debuffed
 	end,
 
 	get_loc_debuff_text = function(self)
@@ -754,6 +760,8 @@ SMODS.Blind {
 	vars = {12},
 
 	calculate = function(self, card, context)
+		if G.GAME.blind.disabled then return end
+		
 		if context.before then
 			for k, v in pairs(G.play.cards) do
 				-- G.E_MANAGER:add_event(Event({trigger = 'immediate',func = function() 

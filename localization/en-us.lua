@@ -27,7 +27,7 @@ return {
 			bl_pkrm_gym_glacier = {name = 'The Glacier', text = {"Enhanced cards held in hand","turns into glass"}},
 			bl_pkrm_gym_rising  = {name = 'The Rising' , text = {"Card ranks increase", "before scoring"}},
 			bl_pkrm_gym_e4_will  = {name = 'Magenta Mask'   , text = {"Must play at least", "2 face cards"}},
-			bl_pkrm_gym_e4_koga  = {name = 'Fuchsia Poison', text = {"After Discard, flip down", "cards held in hand", "Only flipped cards score"}},
+			bl_pkrm_gym_e4_koga  = {name = 'Fuchsia Poison', text = {"After Discard, flip down", "cards held in hand.", "Only flipped cards score"}},
 			bl_pkrm_gym_e4_karen = {name = 'Temp Karen'    , text = {"Elite Four - 4"}},
 			bl_pkrm_gym_champion_johto = {name = 'Scarlet Scale', text = {"Champion"}},
 			-- Hoenn

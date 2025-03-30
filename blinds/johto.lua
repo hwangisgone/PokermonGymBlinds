@@ -75,7 +75,9 @@ SMODS.Blind {
 	vars = {},
 	
 	calculate = function(self, card, context)
-		if context.before and not G.GAME.blind.disabled then
+		if G.GAME.blind.disabled then return end
+
+		if context.before then
 			local seen_ranks = {}
 
 			rescore_hand(context.scoring_hand, {
@@ -130,6 +132,8 @@ SMODS.Blind {
 	vars = {},
 
 	calculate = function(self, card, context)
+		if G.GAME.blind.disabled then return end
+
 		if context.final_scoring_step then
 			local rightmost_card = G.play.cards[#G.play.cards]
 			
@@ -265,6 +269,12 @@ SMODS.Blind {
 	boss = {min = 1, max = 10}, 
 	config = {},
 	vars = {},
+	calculate = function(self, card, context)
+		if G.GAME.blind.disabled then return end
+
+		if context.before then
+		end
+	end
 }
 
 SMODS.Blind {
@@ -281,19 +291,17 @@ SMODS.Blind {
 	vars = {},
 
 	debuff_hand = function(self, cards, hand, handname, check)
-		if not G.GAME.blind.disabled then
-			local face_count = 0
-			for i = 1, #cards do
-				if cards[i]:is_face() and (cards[i].facing == 'front' or not check) then
-					face_count = face_count + 1
-				end
+		local face_count = 0
+		for i = 1, #cards do
+			if cards[i]:is_face() and (cards[i].facing == 'front' or not check) then
+				face_count = face_count + 1
 			end
+		end
 
-			if face_count < 2 then
-				return true
-			else
-				return false
-			end
+		if face_count < 2 then
+			return true
+		else
+			return false
 		end
 	end,
 }
@@ -312,9 +320,9 @@ SMODS.Blind {
 	vars = {},
 
 	calculate = function(self, card, context)
-		-- TODO: just context.pre_discard Might be buggy??
-		if context.before and not G.GAME.blind.disabled then
+		if G.GAME.blind.disabled then return end
 
+		if context.before then
 			rescore_hand(context.scoring_hand, {
 				is_unscored_func = function(card) 
 					return not card.ability.koga_flipped
@@ -338,8 +346,9 @@ SMODS.Blind {
 					G.ROOM.jiggle = G.ROOM.jiggle + 0.2
 				end,
 			})
-			
-		elseif context.pre_discard and not G.GAME.blind.disabled then
+
+		-- TODO: just context.pre_discard Might be buggy??
+		elseif context.pre_discard then
 			for i = 1, #G.hand.cards do
 				local percent = 1.15 - (i-0.999)/(#G.hand.cards-0.998)*0.3
 				local this_card = G.hand.cards[i]

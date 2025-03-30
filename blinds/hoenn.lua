@@ -171,14 +171,14 @@ SMODS.Blind {
 	vars = {},
 
 	calculate = function(self, card, context)
+		if G.GAME.blind.disabled then return end
+
 		-- TOCHECK: context.pre_discard and context.cardarea == G.play??
-		if not G.GAME.blind.disabled then
-			if context.pre_discard then
-				G.GAME.blind:wiggle()
-				G.GAME.blind.has_discarded = true
-			elseif context.after then
-				G.GAME.blind.has_discarded = false
-			end
+		if context.pre_discard then
+			G.GAME.blind:wiggle()
+			G.GAME.blind.has_discarded = true
+		elseif context.after then
+			G.GAME.blind.has_discarded = false
 		end
 	end,
 
@@ -232,10 +232,8 @@ SMODS.Blind {
 	vars = {},
 
 	debuff_hand = function(self, cards, hand, handname, check)
-		if not G.GAME.blind.disabled then
-			-- TODO: what the hell is check? "if not check then"
-			return not next(hand['Pair'])
-		end
+		-- TODO: what the hell is check? "if not check then"
+		return not next(hand['Pair'])
 	end,
 }
 
