@@ -4,8 +4,7 @@ local TYPE_CLR = GYM_BLINDS_TYPE_CLR
 SMODS.Atlas { 
 	key = 'blinds_hoenn', 
 	atlas_table = 'ANIMATION_ATLAS', 
-	path = 'blinds_kanto.png', 
-	-- TODO
+	path = 'blinds_kanto.png',
 	px = 34, 
 	py = 34, 
 	frames = 21 
@@ -232,7 +231,7 @@ SMODS.Blind {
 	vars = {},
 
 	debuff_hand = function(self, cards, hand, handname, check)
-		-- TODO: what the hell is check? "if not check then"
+		-- TODO: what is check? "if not check then"
 		return not next(hand['Pair'])
 	end,
 }

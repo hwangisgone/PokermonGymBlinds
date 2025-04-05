@@ -9,9 +9,7 @@ GYM_BLINDS_TYPE_CLR = {
 	fighting = HEX('FF8000'),
 	ghost = HEX('704170'),
 	poison = HEX('9141CB'),
-	psychic = HEX('EF638C'),
-	-- F85888
-	-- EF638C
+	psychic = HEX('F85888'),
 	dark = HEX('624D4E'),
 	dragon = HEX('5060E1'),
 	fairy = HEX('EF70EF'),
@@ -27,31 +25,9 @@ GYM_SHOWDOWN_CLR = {
 	lance = HEX('AC3C26'),
 	-- 'steven'
 }
--- TODO: Note: green needs to be brighter
--- Psychic too intense, suitable for Will but not anyone else
-
-
--- TODO: Use this??? SMODS.juice_up_blind()
-
--- SMODS.Back {
--- 	key = 'testing1',
--- 	loc_txt = "TESTING DECK 1",
--- 	discovered = true,
--- 	apply = function(self, back)
--- 		SMODS.create_card({
--- 			set = 'Joker',
--- 			area = G.jokers,
--- 			key = 'j_chicot'
--- 		})
-
--- 		SMODS.create_card({
--- 			set = 'Joker',
--- 			area = G.jokers,
--- 			key = 'j_poke_weezing'
--- 		})
--- 	end
--- }
-
+-- NOTE: green needs to be slightly darker
+-- TODO:
+-- TOCHECK:
 
 -- Utilities:
 function get_current_dollars()
@@ -108,12 +84,13 @@ function card_is_odd(card)
 			id == 14
 end
 
+
+
 -- Loading blind hooks
 local blind_hooks, load_error = SMODS.load_file('misc/blind_hook.lua')
 if load_error then sendDebugMessage ("The error is: "..load_error)
 else blind_hooks()
 end
-
 
 -- Loading blinds
 local kanto_load, load_error = SMODS.load_file('blinds/kanto.lua')

@@ -134,20 +134,46 @@ SMODS.Blind {
 	calculate = function(self, card, context)
 		if G.GAME.blind.disabled then return end
 
-		if context.final_scoring_step then
-			local rightmost_card = G.play.cards[#G.play.cards]
+		if context.destroy_card and context.cardarea == G.play then
+
+			if context.destroying_card.ID == G.play.cards[#G.play.cards].ID then
+				local cutting_card = context.destroying_card
+
+				
+
+				G.E_MANAGER:add_event(Event({ trigger = 'immediate', func = function()
+					play_sound('slice1', 0.96+math.random()*0.08)
+					cutting_card:start_dissolve({HEX("57ecab")}, true, 1.6, false)
+
+					return true
+				end}))
+
+				return {
+					remove = true
+				}
+			end
+
+			if context.remove_playing_cards then
+				print("DESTROYING...")
+			end
+
+
+
+			-- local rightmost_card = G.play.cards[#G.play.cards]
 			
-			-- Scyther effect
-			-- Card:start_dissolve(dissolve_colours, silent, dissolve_time_fac, no_juice)
-			G.E_MANAGER:add_event(Event({ trigger = 'immediate', func = function()
-				rightmost_card:start_dissolve({HEX("57ecab")}, true, 1.6, false)
-				play_sound('slice1', 0.96+math.random()*0.08)
+			-- -- Scyther effect
+			-- -- Card:start_dissolve(dissolve_colours, silent, dissolve_time_fac, no_juice)
+			-- G.E_MANAGER:add_event(Event({ trigger = 'immediate', func = function()
+			-- 	rightmost_card:start_dissolve({HEX("57ecab")}, true, 1.6, false)
+			-- 	rightmost_card.destroyed = true
 
-				G.GAME.blind:wiggle()
-				G.GAME.blind.triggered = true
+			-- 	play_sound('slice1', 0.96+math.random()*0.08)
 
-				return true
-			end}))
+			-- 	G.GAME.blind:wiggle()
+			-- 	G.GAME.blind.triggered = true
+
+			-- 	return true
+			-- end}))
 		end
 	end,
 }
@@ -164,8 +190,6 @@ SMODS.Blind {
 	boss = {min = 1, max = 10}, 
 	config = { rollout = 120 },
 	vars = {},
-	-- TODO: reework config stuffs to use extra? https://github.com/Steamodded/smods/wiki/API-Documentation#common-parameters
-
 
 	press_play = function(self)
 		G.GAME.blind.chips = G.GAME.blind.chips * (self.config.rollout/100)
@@ -269,10 +293,32 @@ SMODS.Blind {
 	boss = {min = 1, max = 10}, 
 	config = {},
 	vars = {},
+
 	calculate = function(self, card, context)
 		if G.GAME.blind.disabled then return end
 
 		if context.before then
+			for i = 1, #context.scoring_hand do
+				local this_card = context.scoring_hand[i]
+				local percent_pitch = 0.8 + i*0.05 
+				local percent_vol = 0.6 + i*0.05		
+
+
+				G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.4,func = function() 
+					
+					play_sound('highlight2', percent_pitch, percent_vol)
+					this_card:juice_up(0.5, 0.2)
+
+					this_card:flip()
+					poke_vary_rank(this_card, false, nil, true)
+					this_card:flip()
+
+					SMODS.juice_up_blind()
+					G.GAME.blind.triggered = true
+					return true
+				end}))
+		
+			end
 		end
 	end
 }
