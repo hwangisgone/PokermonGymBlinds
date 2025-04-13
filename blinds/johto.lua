@@ -251,6 +251,12 @@ SMODS.Blind {
 	boss = {min = 1, max = 10}, 
 	config = {},
 	vars = {},
+
+	set_blind = function(self)
+		local hands_usable = math.max(G.GAME.current_round.hands_left - 1, 0)
+		ease_hands_played(-hands_usable)
+		ease_discard(hands_usable)
+	end
 }
 
 SMODS.Blind {

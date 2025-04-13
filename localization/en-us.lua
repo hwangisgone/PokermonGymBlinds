@@ -22,7 +22,7 @@ return {
 			bl_pkrm_gym_hive    = {name = 'The Hive'   , text = {"Destroy rightmost card", "after scoring"}},
 			bl_pkrm_gym_plain   = {name = 'The Plain'  , text = {"Blind gets X1.2 bigger", "every hand"}},
 			bl_pkrm_gym_fog     = {name = 'The Fog'    , text = {"Only Spade, Club cards", "are drawn face up"}},
-			bl_pkrm_gym_storm   = {name = 'The Storm'  , text = {"All but 1 hand", "become discard"}},
+			bl_pkrm_gym_storm   = {name = 'The Storm'  , text = {"All but 1 hand", "becomes discard"}},
 			bl_pkrm_gym_mineral = {name = 'The Mineral', text = {""}},
 			bl_pkrm_gym_glacier = {name = 'The Glacier', text = {"Enhanced cards held in hand","turns into glass"}},
 			bl_pkrm_gym_rising  = {name = 'The Rising' , text = {"Card ranks increase", "before scoring"}},
@@ -38,7 +38,7 @@ return {
 			bl_pkrm_gym_balance = {name = 'The Balance',text = {"Each hand only scores", "after discard"}},
 			bl_pkrm_gym_feather = {name = 'The Feather',text = {"Cards with less chips", "are drawn first"}},
 			bl_pkrm_gym_mind    = {name = 'The Mind'   ,text = {"Hand must contains", "a Pair"}},
-			bl_pkrm_gym_rain    = {name = 'The Rain'   ,text = {"Giovanni's Gym"}},
+			bl_pkrm_gym_rain    = {name = 'The Rain'   ,text = {"0 Base Mult"}},
 			-- TODO: Alt The Rain with Juan
 			bl_pkrm_gym_e4_sidney = {name = 'Slick Shades',text = {"Elite Four - 1"}},
 			bl_pkrm_gym_e4_phoebe = {name = 'Pale Petal',text = {"Elite Four - 2"}},
