@@ -26,7 +26,7 @@ return {
 			bl_pkrm_gym_mineral = {name = 'The Mineral', text = {""}},
 			bl_pkrm_gym_glacier = {name = 'The Glacier', text = {"Enhanced cards held in hand","turns into glass"}},
 			bl_pkrm_gym_rising  = {name = 'The Rising' , text = {"Card ranks increase", "before scoring"}},
-			bl_pkrm_gym_e4_will  = {name = 'Magenta Mask'   , text = {"Must play at least", "2 face cards"}},
+			bl_pkrm_gym_e4_will  = {name = 'Magenta Mask'  , text = {"Must play at least", "2 face cards"}},
 			bl_pkrm_gym_e4_koga  = {name = 'Fuchsia Poison', text = {"After Discard, flip down", "cards held in hand.", "Only flipped cards score"}},
 			bl_pkrm_gym_e4_karen = {name = 'Temp Karen'    , text = {"Elite Four - 4"}},
 			bl_pkrm_gym_champion_johto = {name = 'Scarlet Scale', text = {"Champion"}},
@@ -35,16 +35,16 @@ return {
 			bl_pkrm_gym_knuckle = {name = 'The Knuckle',text = {"Selecting cycles","cards in hand"}},
 			bl_pkrm_gym_dynamo  = {name = 'The Dynamo' ,text = {"Rightmost joker", "transfers all energy", "to leftmost joker"}},
 			bl_pkrm_gym_heat    = {name = 'The Heat'   ,text = {"Blind size","increase by #1#% Base","when exceeded"}},
-			bl_pkrm_gym_balance = {name = 'The Balance',text = {"Each hand only scores", "after discard"}},
+			bl_pkrm_gym_balance = {name = 'The Balance',text = {"Must play the last", "discarded poker hand"}},
 			bl_pkrm_gym_feather = {name = 'The Feather',text = {"Cards with less chips", "are drawn first"}},
 			bl_pkrm_gym_mind    = {name = 'The Mind'   ,text = {"Hand must contains", "a Pair"}},
 			bl_pkrm_gym_rain    = {name = 'The Rain'   ,text = {"0 Base Mult"}},
-			-- TODO: Alt The Rain with Juan
-			bl_pkrm_gym_e4_sidney = {name = 'Slick Shades',text = {"Elite Four - 1"}},
-			bl_pkrm_gym_e4_phoebe = {name = 'Pale Petal',text = {"Elite Four - 2"}},
-			bl_pkrm_gym_e4_glacia = {name = 'Glistening Gown',text = {"Elite Four - 3"}},
-			bl_pkrm_gym_e4_drake  = {name = 'Midnight Mast',text = {"Elite Four - 4"}},
-			bl_pkrm_gym_champion_hoenn = {name = 'Temp Steven', text = {"Champion"}},
+			bl_pkrm_gym_rain_juan = {name = 'The Rain'   ,text = {"Mult is capped by Chips"}},
+			bl_pkrm_gym_e4_sidney = {name = 'Slick Shades'    ,text = {"Elite Four - 1"}},
+			bl_pkrm_gym_e4_phoebe = {name = 'Pale Petal'      ,text = {"Elite Four - 2"}},
+			bl_pkrm_gym_e4_glacia = {name = 'Glistening Gown' ,text = {"Elite Four - 3"}},
+			bl_pkrm_gym_e4_drake  = {name = 'Midnight Mast'   ,text = {"Elite Four - 4"}},
+			bl_pkrm_gym_champion_hoenn = {name = 'Temp Steven',text = {"Champion"}},
 			-- Platinum Pendant
 			-- Azure Amulet
 			-- Teal Token
@@ -83,6 +83,9 @@ return {
 
 			pkrm_gym_thunder_collection_note = "(2 random ranks)",
 			pkrm_gym_earth_collection_note = "(ante x 10)",
+
+			bl_pkrm_gym_e4_bruno_debuff_text_initial = "Discarded poker hand will no longer score",
+			bl_pkrm_gym_balance_debuff_text_initial = "No poker hand discarded yet",
 
 			pkrm_gym_blaine_quizzes_loc = {
 				single = "Choose one answer (Only the leftmost card in hand count)",
@@ -238,6 +241,9 @@ return {
 					right_answers = {"FALSE", "What's that?"}
 				}
 			}
+		},
+		v_dictionary = {
+			bl_pkrm_gym_balance_debuff_text = "Must play the last discarded hand (#1#)",
 		}
 	}
 }

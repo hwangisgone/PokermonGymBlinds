@@ -169,20 +169,37 @@ SMODS.Blind {
 	config = {},
 	vars = {},
 
+	set_blind = function(self)
+		G.GAME.BL_EXTRA.temp_table = {
+			discarded_hand = nil,
+		}
+	end,
+
+	get_loc_debuff_text = function(self)
+		if (G.GAME.BL_EXTRA.temp_table.discarded_hand) then
+			return localize({ 
+				type = "variable", 
+				key = "bl_pkrm_gym_balance_debuff_text", 
+				vars = { G.GAME.BL_EXTRA.temp_table.discarded_hand } 
+			})
+		else
+			return localize("bl_pkrm_gym_balance_debuff_text_initial")
+		end
+	end,
+
 	calculate = function(self, card, context)
 		if G.GAME.blind.disabled then return end
 
 		-- TOCHECK: context.pre_discard and context.cardarea == G.play??
 		if context.pre_discard then
+			G.GAME.BL_EXTRA.temp_table.discarded_hand = G.FUNCS.get_poker_hand_info(G.hand.highlighted)
+
 			G.GAME.blind:wiggle()
-			G.GAME.blind.has_discarded = true
-		elseif context.after then
-			G.GAME.blind.has_discarded = false
 		end
 	end,
 
 	debuff_hand = function(self, cards, hand, handname, check)
-		return not G.GAME.blind.has_discarded
+		return not (G.GAME.BL_EXTRA.temp_table.discarded_hand == handname)
 	end,
 }
 
@@ -248,6 +265,10 @@ SMODS.Blind {
 	boss = {min = 1, max = 10}, 
 	config = {},
 	vars = {},
+
+	modify_hand = function(self, cards, poker_hands, text, mult, hand_chips)
+		return 0, hand_chips, true
+	end,
 }
 
 SMODS.Blind {
