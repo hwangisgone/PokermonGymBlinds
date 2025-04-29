@@ -11,7 +11,7 @@ return {
 			-- TODO: Soul with Janine after Johto instead of Koga
 			bl_pkrm_gym_marsh   = {name = 'The Marsh'  , text = {"Cards drawn are debuffed", "until 1 Consumable used"}},
 			bl_pkrm_gym_volcano = {name = 'The Volcano', text = {"Pokermon Trivia","Answer 3 correctly to win!"}},
-			bl_pkrm_gym_earth   = {name = 'The Earth'  , text = {"Lose $#1#.", "Add X1 for every {C:red}-$#2#{}","in current debt"}},
+			bl_pkrm_gym_earth   = {name = 'The Earth'  , text = {"Very big blind.", "-1X in size for every {C:gold}$#1#{}","earned this round"}},
 			bl_pkrm_gym_e4_lorelei = {name = 'Seaglass Song' , text = {"Cards held in hand", "are destroyed after #1# hands"}},
 			bl_pkrm_gym_e4_bruno   = {name = 'Saffron Shackles', text = {"Discarded poker hand", "will not score"}},
 			bl_pkrm_gym_e4_agatha  = {name = 'Cursed Cane'    , text = {"Discarded cards", "lose 10 chips", "and return to deck"}},
@@ -27,9 +27,9 @@ return {
 			bl_pkrm_gym_glacier = {name = 'The Glacier', text = {"Enhanced cards held in hand","turns into glass"}},
 			bl_pkrm_gym_rising  = {name = 'The Rising' , text = {"Card ranks increase", "before scoring"}},
 			bl_pkrm_gym_e4_will  = {name = 'Magenta Mask'  , text = {"Must play at least", "2 face cards"}},
-			bl_pkrm_gym_e4_koga  = {name = 'Fuchsia Poison', text = {"After Discard, flip down", "cards held in hand.", "Only flipped cards score"}},
+			bl_pkrm_gym_e4_koga  = {name = 'Fuchsia Poison', text = {"Every 4th card flipped down.", "Flipped cards cannot be discarded"}},
 			bl_pkrm_gym_e4_karen = {name = 'Temp Karen'    , text = {"Elite Four - 4"}},
-			bl_pkrm_gym_champion_johto = {name = 'Scarlet Scale', text = {"Champion"}},
+			bl_pkrm_gym_champion_johto = {name = 'The Scarlet Scale', text = {"Champion"}},
 			-- Hoenn
 			bl_pkrm_gym_stone   = {name = 'The Stone'  ,text = {"First #1# selected cards", "become Stone cards","and give no chip"}},
 			bl_pkrm_gym_knuckle = {name = 'The Knuckle',text = {"Selecting cycles","cards in hand"}},
@@ -42,7 +42,7 @@ return {
 			bl_pkrm_gym_rain_juan = {name = 'The Rain'   ,text = {"Mult is capped by Chips"}},
 			bl_pkrm_gym_e4_sidney = {name = 'Slick Shades'    ,text = {"Elite Four - 1"}},
 			bl_pkrm_gym_e4_phoebe = {name = 'Pale Petal'      ,text = {"Elite Four - 2"}},
-			bl_pkrm_gym_e4_glacia = {name = 'Glistening Gown' ,text = {"Elite Four - 3"}},
+			bl_pkrm_gym_e4_glacia = {name = 'Glistening Gown' ,text = {"Lose $#1#.", "-1 hand size per {C:red}-$#2#{}", "in current debt"}},
 			bl_pkrm_gym_e4_drake  = {name = 'Midnight Mast'   ,text = {"Elite Four - 4"}},
 			bl_pkrm_gym_champion_hoenn = {name = 'Temp Steven',text = {"Champion"}},
 			-- Platinum Pendant
@@ -82,7 +82,7 @@ return {
 			bl_pkrm_gym_stone_ex = "Rock Tomb",
 
 			pkrm_gym_thunder_collection_note = "(2 random ranks)",
-			pkrm_gym_earth_collection_note = "(ante x 10)",
+			pkrm_gym_e4_glacia_collection_note = "(ante x 4)",
 
 			bl_pkrm_gym_e4_bruno_debuff_text_initial = "Discarded poker hand will no longer score",
 			bl_pkrm_gym_balance_debuff_text_initial = "No poker hand discarded yet",

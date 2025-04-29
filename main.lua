@@ -85,7 +85,6 @@ function card_is_odd(card)
 end
 
 
-
 -- Loading blind hooks
 local blind_hooks, load_error = SMODS.load_file('misc/blind_hook.lua')
 if load_error then sendDebugMessage ("The error is: "..load_error)

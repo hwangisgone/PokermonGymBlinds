@@ -299,6 +299,54 @@ SMODS.Blind {
 	vars = {},
 }
 
+BL_FUNCTION_TABLE['e4_glacia_ease_dollars'] = function()
+	local blind = G.GAME.blind
+	local every_debt = G.GAME.blind.config.blind.config.every_debt
+	
+	local original_hand_size = (G.GAME.BL_EXTRA.temp_table.original_hand_size or 8)
+	local current_hand_size = G.hand.config.card_limit
+
+	local current_money = get_current_dollars()
+
+	local target_hand_size = original_hand_size
+	if current_money < 0 then
+		target_hand_size = original_hand_size - math.floor(math.abs(current_money) / every_debt)
+	end
+
+	-- Now compute relative change and apply it
+	local change = target_hand_size - current_hand_size
+	G.hand:change_size(change)
+
+	print(current_money)
+	print(math.floor(-current_money / every_debt))
+	print(target_hand_size)
+	print(current_hand_size)
+
+
+	blind:wiggle()
+
+	-- local calculated_chips = original_chips*calculated_mult*G.GAME.starting_params.ante_scaling
+
+	-- -- Animate change in chips
+	-- if calculated_chips ~= blind.chips then
+	-- 	blind.chips = calculated_chips
+	-- 	blind.chip_text = number_format(calculated_chips)
+
+	-- 	attention_text({
+	-- 		text = 'X'..calculated_mult,
+	-- 		scale = 1, 
+	-- 		hold = 2,
+	-- 		cover = G.HUD_blind:get_UIE_by_ID("HUD_blind_count").parent.parent,
+	-- 		-- Team Rocket color
+	-- 		cover_colour = HEX('b83020'),
+	-- 		align = 'cm',
+	-- 	})
+
+	-- 	blind:wiggle()
+	-- end
+end
+
+
 SMODS.Blind {
 	key = 'e4_glacia',
 	atlas = 'blinds_hoenn',
@@ -308,9 +356,33 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 8,
 	mult = 2,
-	boss = {min = 8, max = 10, showdown = true}, 
-	config = {},
+	boss = {min = 8, max = 10, showdown = true},  
+	config = {lose = 40, every_debt = 5},
 	vars = {},
+	
+	set_blind = function(self)
+		self.config.lose = G.GAME.round_resets.ante * 4
+		G.GAME.BL_EXTRA.ease_dollars = 'e4_glacia_ease_dollars'
+		G.GAME.BL_EXTRA.temp_table.original_hand_size = G.hand.config.card_limit
+
+		G.ROOM.jiggle = G.ROOM.jiggle + 4
+		ease_dollars(- self.config.lose, true)
+
+		G.GAME.blind.triggered = true	
+	end,
+
+	loc_vars = function(self)
+		return {vars = {G.GAME.round_resets.ante * 4, self.config.every_debt}}
+	end,
+	collection_loc_vars = function(self)
+		return {vars = {self.config.lose.." "..localize("pkrm_gym_e4_glacia_collection_note"), self.config.every_debt}}
+	end,
+
+	disable = function(self)
+		ease_dollars(G.GAME.round_resets.ante * 4)
+
+		G.GAME.BL_EXTRA.ease_dollars = nil	
+	end,
 }
 
 SMODS.Blind {

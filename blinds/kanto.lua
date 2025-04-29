@@ -1,13 +1,13 @@
 -- KANTO
 local TYPE_CLR = GYM_BLINDS_TYPE_CLR
 
-SMODS.Atlas { 
-	key = 'blinds_kanto', 
-	atlas_table = 'ANIMATION_ATLAS', 
-	path = 'blinds_kanto.png', 
-	px = 34, 
-	py = 34, 
-	frames = 21 
+SMODS.Atlas {
+	key = 'blinds_kanto',
+	atlas_table = 'ANIMATION_ATLAS',
+	path = 'blinds_kanto.png',
+	px = 34,
+	py = 34,
+	frames = 21
 }
 
 SMODS.Blind {
@@ -15,18 +15,18 @@ SMODS.Blind {
 	atlas = 'blinds_kanto',
 	pos = { y = 0 },
 	boss_colour = TYPE_CLR['rock'],
-	
+
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = {min = 1, max = 10},
+	boss = { min = 1, max = 10 },
 	config = {},
 	vars = {},
-	
+
 	drawn_to_hand = function(self)
 		if G.GAME.blind.prepped then
 			for _, card in pairs(G.jokers.cards) do
-				if goose_disable(G.GAME.blind.disabled, card, {'Fire'}) then
+				if goose_disable(G.GAME.blind.disabled, card, { 'Fire' }) then
 					SMODS.debuff_card(card, true, 'brock_boulder_debuff')
 					G.GAME.blind:wiggle()
 				end
@@ -51,23 +51,22 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = {min = 1, max = 10}, 
-	config = {odd = 2},
-	vars = {1,2},
+	boss = { min = 1, max = 10 },
+	config = { odd = 2 },
+	vars = { 1, 2 },
 	loc_vars = function(self)
-		return {vars = {math.max(G.GAME.probabilities.normal, 1), self.config.odd}}
+		return { vars = { math.max(G.GAME.probabilities.normal, 1), self.config.odd } }
 	end,
 	collection_loc_vars = function(self)
-		return {vars = {(G.GAME and G.GAME.probabilities.normal or 1), self.config.odd}}
+		return { vars = { (G.GAME and G.GAME.probabilities.normal or 1), self.config.odd } }
 	end,
-	
+
 	press_play = function(self)
 		if pseudorandom(pseudoseed('misty')) < G.GAME.probabilities.normal / self.config.odd then
-
 			local water_list = {}
 
 			-- Remove jokers without energy
-			for k,v in pairs(find_pokemon_type('Water')) do
+			for k, v in pairs(find_pokemon_type('Water')) do
 				if v.ability.extra.energy_count and v.ability.extra.energy_count > 0 then
 					table.insert(water_list, v)
 				end
@@ -75,7 +74,7 @@ SMODS.Blind {
 
 			if #water_list > 0 then
 				local chosen_joker = pseudorandom_element(water_list, pseudoseed('misty'))
-				
+
 				local original_escale = chosen_joker.ability.extra.escale
 				chosen_joker.ability.extra.energy_count = chosen_joker.ability.extra.energy_count - 1
 				chosen_joker.ability.extra.escale = -1
@@ -83,7 +82,7 @@ SMODS.Blind {
 				chosen_joker.ability.extra.escale = original_escale
 
 				card_eval_status_text(chosen_joker, 'extra', nil, nil, nil, {
-					message = localize("poke_reverse_energized_ex"), 
+					message = localize("poke_reverse_energized_ex"),
 					colour = TYPE_CLR['water']
 				})
 
@@ -110,21 +109,21 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = {min = 1, max = 10}, 
+	boss = { min = 1, max = 10 },
 	config = {},
 	vars = {},
-	config = {lose = 5, need_ranks = nil},
+	config = { lose = 5, need_ranks = nil },
 	loc_vars = function(self)
 		local ranks_text = localize("pkrm_gym_thunder_collection_note")
 
 		if self.config.need_ranks then
-			ranks_text = self.config.need_ranks[1].rank.." or "..self.config.need_ranks[2].rank
+			ranks_text = self.config.need_ranks[1].rank .. " or " .. self.config.need_ranks[2].rank
 		end
 
-		return {vars = {self.config.lose, ranks_text}}
+		return { vars = { self.config.lose, ranks_text } }
 	end,
 	collection_loc_vars = function(self)
-		return {vars = {self.config.lose, localize("pkrm_gym_thunder_collection_note")}}
+		return { vars = { self.config.lose, localize("pkrm_gym_thunder_collection_note") } }
 	end,
 
 	set_blind = function(self)
@@ -142,7 +141,6 @@ SMODS.Blind {
 
 			for k, v in pairs(G.hand.highlighted) do
 				if v:get_id() == rank1 or v:get_id() == rank2 then
-
 					return
 				end
 			end
@@ -168,11 +166,11 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = {min = 1, max = 10}, 
+	boss = { min = 1, max = 10 },
 	config = {},
 	vars = {},
 	recalc_debuff = function(self, card, from_blind)
-		if card.area ~= G.jokers then 
+		if card.area ~= G.jokers then
 			if (card.edition and card.edition.polychrome) or card.ability.name == 'Wild Card' then
 				SMODS.debuff_card(card, true, 'erika_rainbow_debuff')
 				return false
@@ -199,7 +197,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = {min = 1, max = 10}, 
+	boss = { min = 1, max = 10 },
 	config = {},
 	vars = {},
 
@@ -209,18 +207,22 @@ SMODS.Blind {
 		-- TODO: just context.pre_discard Might be buggy??
 		if context.pre_discard or context.before then
 			for i = 1, #G.hand.cards do
-				local percent = 1.15 - (i-0.999)/(#G.hand.cards-0.998)*0.3
+				local percent = 1.15 - (i - 0.999) / (#G.hand.cards - 0.998) * 0.3
 				local this_card = G.hand.cards[i]
 
 				-- previously check for front facing cards only: this_card.facing == 'front'
 				if not this_card.highlighted then
-					G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.15,func = function() 
-						this_card:flip();
-						play_sound('card1', percent);
-						G.GAME.blind:wiggle()
-						G.GAME.blind.triggered = true
-						return true
-					end}))
+					G.E_MANAGER:add_event(Event({
+						trigger = 'after',
+						delay = 0.15,
+						func = function()
+							this_card:flip();
+							play_sound('card1', percent);
+							G.GAME.blind:wiggle()
+							G.GAME.blind.triggered = true
+							return true
+						end
+					}))
 				end
 			end
 		end
@@ -228,7 +230,7 @@ SMODS.Blind {
 
 	disable = function(self)
 		for _, card in pairs(G.hand.cards) do
-			if card.facing == 'back' then 
+			if card.facing == 'back' then
 				card:flip();
 			end
 		end
@@ -245,8 +247,8 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = {min = 1, max = 10}, 
-	config = {extra = { used_consumable = false }},
+	boss = { min = 1, max = 10 },
+	config = { extra = { used_consumable = false } },
 	vars = {},
 
 	calculate = function(self, card, context)
@@ -258,27 +260,35 @@ SMODS.Blind {
 			-- Recalculate debuffs
 			for _, v in ipairs(G.hand.cards) do
 				if v.debuff then
-					G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.1,func = function() 
-						SMODS.recalc_debuff(v)
-						v.ability.sabrina_marsh_debuff = true
-						play_sound('tarot1', 1);
-						v:juice_up(0.1, 0.1)
-						return true
-					end}))
+					G.E_MANAGER:add_event(Event({
+						trigger = 'after',
+						delay = 0.1,
+						func = function()
+							SMODS.recalc_debuff(v)
+							v.ability.sabrina_marsh_debuff = true
+							play_sound('tarot1', 1);
+							v:juice_up(0.1, 0.1)
+							return true
+						end
+					}))
 				end
 			end
 
-			G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.1,func = function() 
-				self.config.extra.used_consumable = false
-				return true
-			end}))	
+			G.E_MANAGER:add_event(Event({
+				trigger = 'after',
+				delay = 0.1,
+				func = function()
+					self.config.extra.used_consumable = false
+					return true
+				end
+			}))
 		end
 	end,
 
 	recalc_debuff = function(self, card, from_blind)
-		if card.ability.set ~= 'Joker' 
-		and not self.config.extra.used_consumable
-		and not card.ability.sabrina_marsh_debuff then
+		if card.ability.set ~= 'Joker'
+			and not self.config.extra.used_consumable
+			and not card.ability.sabrina_marsh_debuff then
 			-- ability is to prevent purified cards from being debuffed again
 			return true
 		else
@@ -290,90 +300,182 @@ SMODS.Blind {
 local function displayGUIquiz(quiz_table)
 	local answer_rows = {}
 	local current_row = {}
-	
+
 
 	if ((quiz_table.answers[1] == "Yes" or quiz_table.answers[2] == "Yes") and #quiz_table.answers == 2) then
-		table.insert(answer_rows, 
-			{n=G.UIT.C, config={padding = 0}, nodes = {
-				{n=G.UIT.R, config = {padding = 0.1}, nodes = {
-					{n=G.UIT.O, config={object = DynaText({scale = 0.5, string = "Yes", colours = {G.C.UI.TEXT_LIGHT}, 
-							float = false, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6}
-					)}},
-					{n = G.UIT.C, config = {minw = 1}},
-					{n=G.UIT.O, config={object = DynaText({scale = 0.5, string = "No", colours = {G.C.UI.TEXT_LIGHT}, 
-							float = false, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6}
-					)}},
-				}},
-				-- Consistent pacing
-				{n=G.UIT.R, config = {minh = 0.6, padding = 0.1}}
-			}}
+		table.insert(answer_rows,
+			{
+				n = G.UIT.C,
+				config = { padding = 0 },
+				nodes = {
+					{
+						n = G.UIT.R,
+						config = { padding = 0.1 },
+						nodes = {
+							{
+								n = G.UIT.O,
+								config = {
+									object = DynaText({
+										scale = 0.5,
+										string = "Yes",
+										colours = { G.C.UI.TEXT_LIGHT },
+										float = false,
+										shadow = true,
+										silent = true,
+										pop_in = 0,
+										pop_in_rate = 6
+									}
+									)
+								}
+							},
+							{ n = G.UIT.C, config = { minw = 1 } },
+							{
+								n = G.UIT.O,
+								config = {
+									object = DynaText({
+										scale = 0.5,
+										string = "No",
+										colours = { G.C.UI.TEXT_LIGHT },
+										float = false,
+										shadow = true,
+										silent = true,
+										pop_in = 0,
+										pop_in_rate = 6
+									}
+									)
+								}
+							},
+						}
+					},
+					-- Consistent pacing
+					{ n = G.UIT.R, config = { minh = 0.6, padding = 0.1 } }
+				}
+			}
 		)
 	else
 		for i, answer in pairs(quiz_table.answers) do
 			local display_text = i .. ". " .. answer
-			
-			table.insert(current_row, {n=G.UIT.R, config = {align = "cl", padding = 0.1}, nodes = {
-				{n=G.UIT.O, config={object = DynaText({scale = 0.5, string = display_text, colours = {G.C.UI.TEXT_LIGHT}, 
-						float = false, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6}
-				)}},
-			}})
-			
+
+			table.insert(current_row, {
+				n = G.UIT.R,
+				config = { align = "cl", padding = 0.1 },
+				nodes = {
+					{
+						n = G.UIT.O,
+						config = {
+							object = DynaText({
+								scale = 0.5,
+								string = display_text,
+								colours = { G.C.UI.TEXT_LIGHT },
+								float = false,
+								shadow = true,
+								silent = true,
+								pop_in = 0,
+								pop_in_rate = 6
+							}
+							)
+						}
+					},
+				}
+			})
+
 			-- End the column after 2 answers or final answer
 			if #current_row == 2 or i == #quiz_table.answers then
-				table.insert(answer_rows, 
-					{n=G.UIT.C, config = {padding = 0}, nodes = current_row}
+				table.insert(answer_rows,
+					{ n = G.UIT.C, config = { padding = 0 }, nodes = current_row }
 				)
 				current_row = {}
 			end
-		end		
+		end
 	end
 
-	local first_line = quiz_table.quiz[#quiz_table.quiz-1] or ""
+	local first_line = quiz_table.quiz[#quiz_table.quiz - 1] or ""
 	local second_line = quiz_table.quiz[#quiz_table.quiz]
 
-	-- minw = 8, minh = 6, 
-	return {n=G.UIT.ROOT, config = {align = 'tm', padding = 0, colour = G.C.CLEAR}, nodes = {
+	-- minw = 8, minh = 6,
+	return {
+		n = G.UIT.ROOT,
+		config = { align = 'tm', padding = 0, colour = G.C.CLEAR },
+		nodes = {
 			-- Quiz question
-			{n=G.UIT.R, config = {align = 'tm', padding = 0.05}, nodes = {
-				{n=G.UIT.O, config={object = DynaText({
-					scale = 0.6, string = first_line, colours = {G.C.WHITE}, 
-					float = true, bump_rate = 1, bump_amount = 10, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6
-				})}}
-			}},
-			{n=G.UIT.R, config = {align = 'tm', padding = 0.05}, nodes = {
-				{n=G.UIT.O, config={object = DynaText({
-					scale = 0.6, string = second_line, colours = {G.C.WHITE}, 
-					float = true, bump_rate = 1, bump_amount = 10, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6
-				})}}
-			}},
+			{
+				n = G.UIT.R,
+				config = { align = 'tm', padding = 0.05 },
+				nodes = {
+					{
+						n = G.UIT.O,
+						config = {
+							object = DynaText({
+								scale = 0.6,
+								string = first_line,
+								colours = { G.C.WHITE },
+								float = true,
+								bump_rate = 1,
+								bump_amount = 10,
+								shadow = true,
+								silent = true,
+								pop_in = 0,
+								pop_in_rate = 6
+							})
+						}
+					}
+				}
+			},
+			{
+				n = G.UIT.R,
+				config = { align = 'tm', padding = 0.05 },
+				nodes = {
+					{
+						n = G.UIT.O,
+						config = {
+							object = DynaText({
+								scale = 0.6,
+								string = second_line,
+								colours = { G.C.WHITE },
+								float = true,
+								bump_rate = 1,
+								bump_amount = 10,
+								shadow = true,
+								silent = true,
+								pop_in = 0,
+								pop_in_rate = 6
+							})
+						}
+					}
+				}
+			},
 
 			-- Quiz type
-			{n = G.UIT.R, config = {align = 'tm', padding = 0.1}, nodes = {
-				{n=G.UIT.O, config={object = DynaText({scale = 0.4, string = quiz_table.type_loc, colours = {G.C.WHITE}, shadow = true, pop_in = 0, pop_in_rate = 6})}}
-			}},
-			
+			{
+				n = G.UIT.R,
+				config = { align = 'tm', padding = 0.1 },
+				nodes = {
+					{ n = G.UIT.O, config = { object = DynaText({ scale = 0.4, string = quiz_table.type_loc, colours = { G.C.WHITE }, shadow = true, pop_in = 0, pop_in_rate = 6 }) } }
+				}
+			},
+
 			-- Spacer
-			{n = G.UIT.R, config = {minh = 0.1}},
-			
+			{ n = G.UIT.R, config = { minh = 0.1 } },
+
 			-- Answers section
-			{n = G.UIT.R, config = {align = 'tm', padding = 0.2}, nodes = answer_rows}
+			{ n = G.UIT.R, config = { align = 'tm', padding = 0.2 }, nodes = answer_rows }
 		}
 	}
 end
 
 local function redrawQuizUI(quiz_table)
-	return UIBox{
+	return UIBox {
 		definition = displayGUIquiz(quiz_table),
 		config = {
 			align = 'tm',
-			offset ={x=0,y=1}, 
+			offset = { x = 0, y = 1 },
 			major = G.play,
 		}
 	}
 end
 
 BL_FUNCTION_TABLE['volcano_reload'] = function(temp_table)
-	if type(temp_table) == 'table' then 
+	if type(temp_table) == 'table' then
 		G.GAME.blind.config.blind.custom_UI = redrawQuizUI(temp_table)
 		G.GAME.blind.config.blind.quiz_table = temp_table
 	end
@@ -404,7 +506,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 3,
-	boss = {min = 1, max = 10}, 
+	boss = { min = 1, max = 10 },
 	config = {},
 	vars = {},
 	set_blind = function(self)
@@ -443,23 +545,22 @@ SMODS.Blind {
 			attention_text({
 				text = "Correct!",
 				backdrop_colour = G.C.GREEN,
-				scale = 1.4, 
+				scale = 1.4,
 				hold = 2,
 				major = G.play,
 				align = 'tm',
-				offset = {x = 0, y = 0},
+				offset = { x = 0, y = 0 },
 				silent = false
 			})
-
 		elseif quiz_table.type == 'multiple' then
 			attention_text({
 				text = "Incorrect!",
 				backdrop_colour = G.C.RED,
-				scale = 1.4, 
+				scale = 1.4,
 				hold = 2,
 				major = G.play,
 				align = 'tm',
-				offset = {x = 0, y = 0},
+				offset = { x = 0, y = 0 },
 				silent = false
 			})
 		end
@@ -483,20 +584,24 @@ SMODS.Blind {
 	end,
 }
 
+BL_FUNCTION_TABLE['earth_ease_dollars'] = function(mod)
+	local blind = G.GAME.blind
+	local every_earned = G.GAME.blind.config.blind.config.every_earned
 
-function update_earth_score(blind, every_debt)
+	G.GAME.BL_EXTRA.temp_table.total_earned = (G.GAME.BL_EXTRA.temp_table.total_earned or 0) + mod
+
+	local total_earned = G.GAME.BL_EXTRA.temp_table.total_earned
 	local original_chips = get_blind_amount(G.GAME.round_resets.ante)
-	local calculated_mult = blind.mult -- X2 in normal condition
-	local current_money = get_current_dollars()
+	local calculated_mult = blind.mult -- X8 in normal condition
 
-	if current_money < 0 then
-		calculated_mult = calculated_mult + math.floor((-current_money) / every_debt)
-	end
-	print(current_money)
-	print((-current_money) / every_debt)
+
+	calculated_mult = math.max(calculated_mult - math.floor(total_earned / every_earned), 2)
+
+	print(total_earned)
+	print(total_earned / every_earned)
 	print(calculated_mult)
 
-	local calculated_chips = original_chips*calculated_mult*G.GAME.starting_params.ante_scaling
+	local calculated_chips = original_chips * calculated_mult * G.GAME.starting_params.ante_scaling
 
 	-- Animate change in chips
 	if calculated_chips ~= blind.chips then
@@ -504,8 +609,8 @@ function update_earth_score(blind, every_debt)
 		blind.chip_text = number_format(calculated_chips)
 
 		attention_text({
-			text = 'X'..calculated_mult,
-			scale = 1, 
+			text = 'X' .. calculated_mult,
+			scale = 1,
 			hold = 2,
 			cover = G.HUD_blind:get_UIE_by_ID("HUD_blind_count").parent.parent,
 			-- Team Rocket color
@@ -517,25 +622,6 @@ function update_earth_score(blind, every_debt)
 	end
 end
 
--- Only Giovanni do this so only checks for The Earth
-local _ease_dollars = ease_dollars
-function ease_dollars(mod, instant)
-	_ease_dollars(mod, instant)
-
-	if G.GAME.blind.name == 'bl_pkrm_gym_earth' then
-		if instant then
-			update_earth_score(G.GAME.blind, G.GAME.blind.config.blind.config.every_debt)
-		else
-			G.E_MANAGER:add_event(Event({
-			trigger = 'immediate',
-			func = function()
-				update_earth_score(G.GAME.blind, G.GAME.blind.config.blind.config.every_debt)
-				return true
-			end
-			}))
-		end
-	end
-end
 
 SMODS.Blind {
 	key = 'earth',
@@ -543,46 +629,51 @@ SMODS.Blind {
 	pos = { x = 0, y = 7 },
 	-- boss_colour = TYPE_CLR['ground'],
 	-- Used giovanni color
-	boss_colour = G.C.BLACK,	
+	boss_colour = G.C.BLACK,
 
 	discovered = false,
 	dollars = 8,
-	mult = 2,
-	boss = {min = 1, max = 10}, 
-	config = {lose = 80, every_debt = 5},
+	mult = 8,
+	boss = { min = 1, max = 10 },
+	config = { every_earned = 5 },
 	vars = {},
-	
+
 	set_blind = function(self)
-		self.config.lose = G.GAME.round_resets.ante * 10
+		G.GAME.BL_EXTRA.ease_dollars = 'earth_ease_dollars'
 	end,
 
 	loc_vars = function(self)
-		return {vars = {G.GAME.round_resets.ante * 10, self.config.every_debt}}
+		return { vars = { self.config.every_earned } }
 	end,
 	collection_loc_vars = function(self)
-		return {vars = {self.config.lose.." "..localize("pkrm_gym_earth_collection_note"), self.config.every_debt}}
+		return { vars = { self.config.every_earned } }
 	end,
 
-	drawn_to_hand = function(self)
-		if G.GAME.blind.prepped then
-			G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.5, blockable = false, blocking = false, func = function()
-				if not G.GAME.blind.disabled then
-					G.ROOM.jiggle = G.ROOM.jiggle + 4
-					ease_dollars(- self.config.lose, true)
+	-- drawn_to_hand = function(self)
+	-- 	if G.GAME.blind.prepped then
+	-- 		G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.5, blockable = false, blocking = false, func = function()
+	-- 			if not G.GAME.blind.disabled then
+	-- 				G.ROOM.jiggle = G.ROOM.jiggle + 4
+	-- 				ease_dollars(- self.config.lose, true)
 
-					G.GAME.blind.triggered = true
-					save_run()
-				end
+	-- 				G.GAME.blind.triggered = true
+	-- 				save_run()
+	-- 			end
 
-				return true 
-			end}))
-		end
-	end,
+	-- 			return true
+	-- 		end}))
+	-- 	end
+	-- end,
 
 	disable = function(self)
-		if G.GAME.blind.triggered then
-			ease_dollars(self.config.lose)
-		end
+		G.GAME.BL_EXTRA.ease_dollars = nil
+
+		local original_chips = get_blind_amount(G.GAME.round_resets.ante)
+		local calculated_mult = 2
+		local calculated_chips = original_chips * calculated_mult * G.GAME.starting_params.ante_scaling
+
+		G.GAME.blind.chips = calculated_chips
+		G.GAME.blind.chip_text = number_format(calculated_chips)
 	end,
 }
 
@@ -595,11 +686,11 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 8,
 	mult = 2,
-	boss = {min = 8, max = 10, showdown = true}, 
-	config = {break_turns = 3},
-	vars = {3},
+	boss = { min = 8, max = 10, showdown = true },
+	config = { break_turns = 3 },
+	vars = { 3 },
 	loc_vars = function(self)
-		return {vars = {self.config.break_turns}}
+		return { vars = { self.config.break_turns } }
 	end,
 
 	set_blind = function(self)
@@ -625,10 +716,14 @@ SMODS.Blind {
 		if context.after then
 			if G.GAME.BL_EXTRA.temp_table.break_in == 0 then
 				for _, card in ipairs(G.hand.cards) do
-					G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.2,func = function() 
-						card:shatter()
-						return true
-					end}))
+					G.E_MANAGER:add_event(Event({
+						trigger = 'after',
+						delay = 0.2,
+						func = function()
+							card:shatter()
+							return true
+						end
+					}))
 				end
 			end
 		end
@@ -645,7 +740,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 8,
 	mult = 2,
-	boss = {min = 8, max = 10, showdown = true}, 
+	boss = { min = 8, max = 10, showdown = true },
 	config = {},
 	vars = {},
 
@@ -660,7 +755,7 @@ SMODS.Blind {
 			local text = G.FUNCS.get_poker_hand_info(G.hand.highlighted)
 
 			G.GAME.BL_EXTRA.temp_table[text] = true
-			
+
 			G.GAME.blind:wiggle()
 			play_sound('cancel', 2, 0.9);
 		end
@@ -670,7 +765,7 @@ SMODS.Blind {
 		local is_debuffed = false
 		local disabled_hands = G.GAME.BL_EXTRA.temp_table
 
-		for k,v in pairs(disabled_hands) do
+		for k, v in pairs(disabled_hands) do
 			if k == handname then
 				is_debuffed = true
 				break
@@ -692,16 +787,16 @@ SMODS.Blind {
 		if total > 0 then
 			text = ''
 			local i = 1
-			for k,v in pairs(disabled_hands) do
-				text = text..k
+			for k, v in pairs(disabled_hands) do
+				text = text .. k
 				if i < (total - 1) then
-					text = text..', '
+					text = text .. ', '
 				elseif i == (total - 1) then
-					text = text..' and '
+					text = text .. ' and '
 				end
 				i = i + 1
 			end
-			text = text..' will not score'
+			text = text .. ' will not score'
 		end
 
 		return text
@@ -717,7 +812,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 8,
 	mult = 2,
-	boss = {min = 8, max = 10, showdown = true}, 
+	boss = { min = 8, max = 10, showdown = true },
 	config = {},
 	vars = {},
 }
@@ -731,9 +826,27 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 8,
 	mult = 2,
-	boss = {min = 8, max = 10, showdown = true}, 
+	boss = { min = 8, max = 10, showdown = true },
 	config = {},
 	vars = {},
+
+	calculate = function(self, card, context)
+		if G.GAME.blind.disabled then return end
+
+		if context.before then
+			local hands_left = G.GAME.current_round.hands_left
+			local played_length = #G.play.cards
+
+			for k, v in pairs(G.play.cards) do
+				if (played_length - k) < hands_left then
+					SMODS.debuff_card(v, true, 'e4_lance_debuff')
+					v:juice_up(0.5, 0.1)
+				end
+			end
+
+			G.GAME.blind:wiggle()
+		end
+	end,
 }
 
 local pokermon_chip_drain = poke_stabilize_chip_drain
@@ -755,31 +868,33 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 12,
 	mult = 4,
-	boss = {min = 10, max = 10, showdown = true}, 
-	config = {blue_penalty_chips = 12},
-	vars = {12},
+	boss = { min = 10, max = 10, showdown = true },
+	config = { blue_penalty_chips = 12 },
+	vars = { 12 },
 
 	calculate = function(self, card, context)
 		if G.GAME.blind.disabled then return end
-		
+
 		if context.before then
 			for k, v in pairs(G.play.cards) do
-				-- G.E_MANAGER:add_event(Event({trigger = 'immediate',func = function() 
-					v:juice_up(0.5,0.1)
-					-- card.ability.nominal_drain = self.config.blue_penalty_chips
-					-- card.ability.boss_drain = true
-					v.ability.perma_bonus = v.ability.perma_bonus - self.config.blue_penalty_chips
-					print(v:get_chip_bonus())
-
+				-- G.E_MANAGER:add_event(Event({trigger = 'immediate',func = function()
+				v:juice_up(0.5, 0.1)
+				-- card.ability.nominal_drain = self.config.blue_penalty_chips
+				-- card.ability.boss_drain = true
+				v.ability.perma_bonus = v.ability.perma_bonus - self.config.blue_penalty_chips
+				print(v:get_chip_bonus())
 			end
 		elseif context.after then
-			G.E_MANAGER:add_event(Event({trigger = 'immediate',func = function()
-				for k, card in pairs(G.play.cards) do
-					print("TRIGGERED")
-					card.ability.perma_bonus = card.ability.perma_bonus + self.config.blue_penalty_chips
+			G.E_MANAGER:add_event(Event({
+				trigger = 'immediate',
+				func = function()
+					for k, card in pairs(G.play.cards) do
+						print("TRIGGERED")
+						card.ability.perma_bonus = card.ability.perma_bonus + self.config.blue_penalty_chips
+					end
+					return true
 				end
-				return true
-			end}))
+			}))
 		end
 	end,
 }

@@ -309,7 +309,6 @@ SMODS.Blind {
 				local percent_pitch = 0.8 + i*0.05 
 				local percent_vol = 0.6 + i*0.05		
 
-
 				G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.4,func = function() 
 					
 					play_sound('highlight2', percent_pitch, percent_vol)
