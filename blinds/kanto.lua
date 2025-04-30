@@ -94,7 +94,7 @@ SMODS.Blind {
 				play_sound('cancel')
 			end
 		end
-	end
+	end,
 }
 
 
@@ -153,7 +153,7 @@ SMODS.Blind {
 
 	defeat = function(self)
 		self.config.need_ranks = nil
-	end
+	end,
 }
 
 
@@ -800,7 +800,7 @@ SMODS.Blind {
 		end
 
 		return text
-	end
+	end,
 }
 
 SMODS.Blind {
@@ -840,7 +840,7 @@ SMODS.Blind {
 			for k, v in pairs(G.play.cards) do
 				if (played_length - k) < hands_left then
 					SMODS.debuff_card(v, true, 'e4_lance_debuff')
-					v:juice_up(0.5, 0.1)
+					v:juice_up()
 				end
 			end
 

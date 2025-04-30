@@ -15,7 +15,7 @@ return {
 			bl_pkrm_gym_e4_lorelei = {name = 'Seaglass Song' , text = {"Cards held in hand", "are destroyed after #1# hands"}},
 			bl_pkrm_gym_e4_bruno   = {name = 'Saffron Shackles', text = {"Discarded poker hand", "will not score"}},
 			bl_pkrm_gym_e4_agatha  = {name = 'Cursed Cane'    , text = {"Discarded cards", "lose 10 chips", "and return to deck"}},
-			bl_pkrm_gym_e4_lance   = {name = 'Sunset Scale'  , text = {"One scoring card debuffed", "for each remaining hand"}},
+			bl_pkrm_gym_e4_lance   = {name = 'Sunset Scale'  , text = {"Debuff one rightmost","scoring card", "for each remaining hand"}},
 			bl_pkrm_gym_champion_kanto = {name = 'The Blue Chip', text = {"Played cards score", "#1# less Chips"}},
 			-- Johto
 			bl_pkrm_gym_zephyr  = {name = 'The Zephyr' , text = {"Repeated ranks", "are unscored"}},
@@ -23,13 +23,13 @@ return {
 			bl_pkrm_gym_plain   = {name = 'The Plain'  , text = {"Blind gets X1.2 bigger", "every hand"}},
 			bl_pkrm_gym_fog     = {name = 'The Fog'    , text = {"Only Spade, Club cards", "are drawn face up"}},
 			bl_pkrm_gym_storm   = {name = 'The Storm'  , text = {"All but 1 hand", "becomes discard"}},
-			bl_pkrm_gym_mineral = {name = 'The Mineral', text = {""}},
+			bl_pkrm_gym_mineral = {name = 'The Mineral', text = {"If Steel or Stone card", "is held in hand,", "discard entire hand on Play"}},
 			bl_pkrm_gym_glacier = {name = 'The Glacier', text = {"Enhanced cards held in hand","turns into glass"}},
 			bl_pkrm_gym_rising  = {name = 'The Rising' , text = {"Card ranks increase", "before scoring"}},
 			bl_pkrm_gym_e4_will  = {name = 'Magenta Mask'  , text = {"Must play at least", "2 face cards"}},
 			bl_pkrm_gym_e4_koga  = {name = 'Fuchsia Poison', text = {"Every 4th card flipped down.", "Flipped cards cannot be discarded"}},
 			bl_pkrm_gym_e4_karen = {name = 'Temp Karen'    , text = {"Elite Four - 4"}},
-			bl_pkrm_gym_champion_johto = {name = 'The Scarlet Scale', text = {"Champion"}},
+			bl_pkrm_gym_champion_johto = {name = 'The Scarlet Scale', text = {"Debuff one rightmost Joker", "for each remaining hand"}},
 			-- Hoenn
 			bl_pkrm_gym_stone   = {name = 'The Stone'  ,text = {"First #1# selected cards", "become Stone cards","and give no chip"}},
 			bl_pkrm_gym_knuckle = {name = 'The Knuckle',text = {"Selecting cycles","cards in hand"}},
@@ -78,8 +78,12 @@ return {
 
 			poke_reverse_energized_ex = "Lose energy!",
 			pkrm_gym_zephyr_ex = "Gust",
+			pkrm_gym_mineral_ex_steel = "Magnet Pull",
+			pkrm_gym_mineral_ex_stone = "Iron Tail",
 			pkrm_gym_e4_koga_ex = "Poisoned",
-			bl_pkrm_gym_stone_ex = "Rock Tomb",
+			pkrm_gym_stone_ex = "Rock Tomb",
+
+			pkrm_gym_champion_no_disable = "Champion Blind cannot be disabled",
 
 			pkrm_gym_thunder_collection_note = "(2 random ranks)",
 			pkrm_gym_e4_glacia_collection_note = "(ante x 4)",

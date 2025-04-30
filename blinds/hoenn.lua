@@ -36,14 +36,12 @@ SMODS.Blind {
 			and trigger_count < self.config.card_count then
 				card.ability.roxanne_stone_transform = card.config.center
 
-				local roxanne_stone = G.P_CENTERS.m_stone
-				roxanne_stone.config.bonus = 0
-
 				card:juice_up()
-				card:set_ability(roxanne_stone, nil, true)
+				card:set_ability(G.P_CENTERS.m_stone, nil, true)
+				card.ability.bonus = 0
 
 				attention_text({
-					text = localize("bl_pkrm_gym_stone_ex"),
+					text = localize("pkrm_gym_stone_ex"),
 					scale = 0.75, 
 					hold = 1,
 					backdrop_colour = TYPE_CLR['rock'],
@@ -165,7 +163,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = {min = 1, max = 10}, 
+	boss = {min = 5, max = 10}, 
 	config = {},
 	vars = {},
 

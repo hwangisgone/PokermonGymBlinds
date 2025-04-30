@@ -139,8 +139,6 @@ SMODS.Blind {
 			if context.destroying_card.ID == G.play.cards[#G.play.cards].ID then
 				local cutting_card = context.destroying_card
 
-				
-
 				G.E_MANAGER:add_event(Event({ trigger = 'immediate', func = function()
 					play_sound('slice1', 0.96+math.random()*0.08)
 					cutting_card:start_dissolve({HEX("57ecab")}, true, 1.6, false)
@@ -206,7 +204,7 @@ SMODS.Blind {
 
 		G.GAME.blind.triggered = true
 		G.GAME.blind:wiggle()
-	end
+	end,
 }
 
 SMODS.Blind {
@@ -256,7 +254,7 @@ SMODS.Blind {
 		local hands_usable = math.max(G.GAME.current_round.hands_left - 1, 0)
 		ease_hands_played(-hands_usable)
 		ease_discard(hands_usable)
-	end
+	end,
 }
 
 SMODS.Blind {
@@ -271,6 +269,45 @@ SMODS.Blind {
 	boss = {min = 1, max = 10}, 
 	config = {},
 	vars = {},
+
+	press_play = function(self)
+		local flavor_text = ''
+		local has_steel_stone = false
+
+		for _, card in pairs(G.hand.cards) do
+			if card.config.center.key == 'm_steel' or card.config.center.key == 'm_stone' then
+				has_steel_stone = true
+				if card.config.center.key == 'm_steel' then
+					flavor_text = localize('pkrm_gym_mineral_ex_steel')
+				else
+					flavor_text = localize('pkrm_gym_mineral_ex_stone')
+				end
+
+				break
+			end
+		end
+
+		if has_steel_stone then
+			G.GAME.blind:wiggle()
+
+			attention_text({
+				text = flavor_text,
+				scale = 1.3, 
+				hold = 0.7,
+				backdrop_colour = TYPE_CLR['steel'],
+				align = 'tm',
+				major = G.hand,
+				offset = {x = 0, y = -0.1*G.CARD_H}
+			})
+
+			for _, card in pairs(G.hand.cards) do
+				if not card.highlighted then
+					card:juice_up()
+					draw_card(G.hand, G.discard, 100, 'up', false, card, 0.2)
+				end
+			end
+		end
+	end,
 }
 
 SMODS.Blind {
@@ -307,7 +344,7 @@ SMODS.Blind {
 			for i = 1, #context.scoring_hand do
 				local this_card = context.scoring_hand[i]
 				local percent_pitch = 0.8 + i*0.05 
-				local percent_vol = 0.6 + i*0.05		
+				local percent_vol = 0.3 + i*0.05		
 
 				G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.4,func = function() 
 					
@@ -325,7 +362,7 @@ SMODS.Blind {
 		
 			end
 		end
-	end
+	end,
 }
 
 SMODS.Blind {
@@ -441,6 +478,28 @@ SMODS.Blind {
 	vars = {},
 }
 
+
+local lance_debuff = function(self)
+	local hands_left = G.GAME.current_round.hands_left
+	local jokers_count = #G.jokers.cards
+
+	for k, v in pairs(G.jokers.cards) do
+		if v.debuff then
+			SMODS.debuff_card(v, false, 'lance_champion_johto_debuff')
+			v:juice_up()
+		end
+
+		if (jokers_count - k) < hands_left then
+			if not v.debuff then	
+				SMODS.debuff_card(v, true, 'lance_champion_johto_debuff')
+				v:juice_up()
+			end
+		end
+	end
+
+	G.GAME.blind:wiggle()
+end
+
 SMODS.Blind {
 	key = 'champion_johto',
 	atlas = 'blinds_johto',
@@ -453,4 +512,47 @@ SMODS.Blind {
 	boss = {min = 10, max = 10, showdown = true}, 
 	config = {},
 	vars = {},
+
+	drawn_to_hand = function(self)
+		if G.GAME.blind.prepped then
+			lance_debuff()
+		end
+	end,
+
+	calculate = function(self, card, context)
+		-- if G.GAME.blind.disabled then G.GAME.blind.disabled = false end
+
+		if context.before 
+		or (context.selling_card and context.cardarea == G.jokers) then
+			lance_debuff()
+
+		elseif context.card_added then
+			G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.2,func = function() 
+				lance_debuff()
+				return true
+			end}))
+		end
+	end,
+
+	disable = function(self)
+		G.GAME.blind.disabled = false
+
+		attention_text({
+			text = localize("pkrm_gym_champion_no_disable"),
+			scale = 0.75, 
+			hold = 10,
+			align = 'tm',
+			major = G.play,
+			offset = {x = 0, y = -0.1*G.CARD_H}
+		})
+	end,
+
+	defeat = function(self)
+		for k, v in pairs(G.jokers.cards) do
+			if v.debuff then
+				SMODS.debuff_card(v, false, 'lance_champion_johto_debuff')
+				v:juice_up()
+			end
+		end
+	end,
 }
