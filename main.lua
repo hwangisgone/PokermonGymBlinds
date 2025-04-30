@@ -84,6 +84,48 @@ function card_is_odd(card)
 			id == 14
 end
 
+function pkrm_gym_attention_text(args)
+	args = args or {}
+
+	if not args.text or not args.backdrop_colour or not args.major then
+		print("Syntax: pkrm_gym_attention_text({text, backdrop_colour, major, scale, hold, align})")
+		return
+	end
+
+	args.scale = args.scale or 1.3
+	args.hold = args.hold or 0.7
+	args.align = args.align or 'tm'
+
+	local offset_y
+	if args.major == G.play then
+		offset_y = -0.1
+	elseif args.major == G.hand then
+		offset_y = -0.3
+	else
+		offset_y = -0.1
+	end
+
+	attention_text({
+		text = args.text,
+		scale = args.scale, 
+		hold = args.hold,
+		backdrop_colour = args.backdrop_colour,
+		align = args.align,
+		major = args.major,
+		offset = {x = 0, y = offset_y*G.CARD_H}
+	})
+end
+
+function champion_no_disable_attention_text()
+	attention_text({
+		text = localize("pkrm_gym_champion_no_disable"),
+		scale = 0.75, 
+		hold = 10,
+		align = 'tm',
+		major = G.play,
+		offset = {x = 0, y = -0.1*G.CARD_H}
+	})
+end
 
 -- Loading blind hooks
 local blind_hooks, load_error = SMODS.load_file('misc/blind_hook.lua')

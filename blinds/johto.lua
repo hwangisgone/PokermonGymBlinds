@@ -95,14 +95,10 @@ SMODS.Blind {
 					end
 				end, 
 				blind_juice_func = function()
-					attention_text({
+					pkrm_gym_attention_text({
 						text = localize("pkrm_gym_zephyr_ex"),
-						scale = 1.3, 
-						hold = 0.7,
 						backdrop_colour = TYPE_CLR['flying'],
-						align = 'tm',
-						major = G.play,
-						offset = {x = 0, y = -0.1*G.CARD_H}
+						major = G.play
 					})
 
 					G.GAME.blind:juice_up(0.3)
@@ -196,7 +192,7 @@ SMODS.Blind {
 		attention_text({
 		  text = 'X'..(self.config.rollout/100),
 		  scale = 0.8, 
-		  hold = 1.5,
+		  hold = 2,
 		  cover = G.HUD_blind:get_UIE_by_ID("HUD_blind_count").parent,
 		  cover_colour = G.C.GOLD,
 		  align = 'cm',
@@ -290,14 +286,10 @@ SMODS.Blind {
 		if has_steel_stone then
 			G.GAME.blind:wiggle()
 
-			attention_text({
+			pkrm_gym_attention_text({
 				text = flavor_text,
-				scale = 1.3, 
-				hold = 0.7,
 				backdrop_colour = TYPE_CLR['steel'],
-				align = 'tm',
-				major = G.hand,
-				offset = {x = 0, y = -0.1*G.CARD_H}
+				major = G.hand
 			})
 
 			for _, card in pairs(G.hand.cards) do
@@ -407,58 +399,50 @@ SMODS.Blind {
 	config = {},
 	vars = {},
 
-	calculate = function(self, card, context)
-		if G.GAME.blind.disabled then return end
+	debuff_hand = function(self, cards, hand, handname, check)
+		local count = 0
+		local to_flip = {}
 
-		if context.before then
-			rescore_hand(context.scoring_hand, {
-				is_unscored_func = function(card) 
-					return not card.ability.koga_flipped
-				end,
-				blind_juice_func = function()
-					G.GAME.blind:wiggle()
-					G.GAME.blind.triggered = true 
-				end, 
-				card_juice_func = function(card)
-					attention_text({
-						text = localize("pkrm_gym_e4_koga_ex"),
-						scale = 0.5, 
-						hold = 1,
-						backdrop_colour = TYPE_CLR['poison'],
-						align = 'tm',
-						major = card,
-						offset = {x = 0, y = -0.05*G.CARD_H}
-					})
-
-					play_sound('cancel', 1);
-					G.ROOM.jiggle = G.ROOM.jiggle + 0.2
-				end,
-			})
-
-		-- TODO: just context.pre_discard Might be buggy??
-		elseif context.pre_discard then
-			for i = 1, #G.hand.cards do
-				local percent = 1.15 - (i-0.999)/(#G.hand.cards-0.998)*0.3
-				local this_card = G.hand.cards[i]
-
-				if this_card.facing == 'front' and not this_card.highlighted then
-					G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.15,func = function() 
-						this_card:flip();
-						this_card.ability.koga_flipped = true
-						play_sound('card1', percent);
-						G.GAME.blind:wiggle()
-						G.GAME.blind.triggered = true
-						return true
-					end}))
-				end
+		for _, card in pairs(G.hand.cards) do
+			if not card.ability.koga_flipped then
+				card.ability.koga_flipped = true
+				count = count + 1
+				table.insert(to_flip, card)
 			end
 		end
+		
+		if count > 0 then
+			G.GAME.blind:wiggle()
+			G.GAME.blind.triggered = true
+
+			pkrm_gym_attention_text({
+				text = localize("pkrm_gym_e4_koga_ex"),
+				backdrop_colour = TYPE_CLR['poison'],
+				major = G.hand
+			})
+		end
+
+		for i = 1, #to_flip do
+			local percent = 1.15 - (i - 0.999) / (#to_flip - 0.998) * 0.3
+			local this_card = to_flip[i]
+
+			G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.15, func = function()
+					this_card:flip()
+					play_sound('card1', percent);
+					return true
+				end
+			}))
+		end
+
+		return false
 	end,
 
 	disable = function(self)
 		for _, card in pairs(G.hand.cards) do
-			if card.facing == 'back' then 
-				card:flip();
+			if card.facing == 'back' then
+				if card.ability.koga_flipped then
+					card:flip()
+				end
 			end
 		end
 	end,
@@ -537,14 +521,7 @@ SMODS.Blind {
 	disable = function(self)
 		G.GAME.blind.disabled = false
 
-		attention_text({
-			text = localize("pkrm_gym_champion_no_disable"),
-			scale = 0.75, 
-			hold = 10,
-			align = 'tm',
-			major = G.play,
-			offset = {x = 0, y = -0.1*G.CARD_H}
-		})
+		champion_no_disable_attention_text()
 	end,
 
 	defeat = function(self)

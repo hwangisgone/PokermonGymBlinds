@@ -609,7 +609,7 @@ BL_FUNCTION_TABLE['earth_ease_dollars'] = function(mod)
 		blind.chip_text = number_format(calculated_chips)
 
 		attention_text({
-			text = 'X' .. calculated_mult,
+			text = 'X'..calculated_mult,
 			scale = 1,
 			hold = 2,
 			cover = G.HUD_blind:get_UIE_by_ID("HUD_blind_count").parent.parent,

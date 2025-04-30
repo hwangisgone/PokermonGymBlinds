@@ -24,10 +24,10 @@ return {
 			bl_pkrm_gym_fog     = {name = 'The Fog'    , text = {"Only Spade, Club cards", "are drawn face up"}},
 			bl_pkrm_gym_storm   = {name = 'The Storm'  , text = {"All but 1 hand", "becomes discard"}},
 			bl_pkrm_gym_mineral = {name = 'The Mineral', text = {"If Steel or Stone card", "is held in hand,", "discard entire hand on Play"}},
-			bl_pkrm_gym_glacier = {name = 'The Glacier', text = {"Enhanced cards held in hand","turns into glass"}},
+			bl_pkrm_gym_glacier = {name = 'The Glacier', text = {"Enhanced cards held in hand", "turns into glass"}},
 			bl_pkrm_gym_rising  = {name = 'The Rising' , text = {"Card ranks increase", "before scoring"}},
 			bl_pkrm_gym_e4_will  = {name = 'Magenta Mask'  , text = {"Must play at least", "2 face cards"}},
-			bl_pkrm_gym_e4_koga  = {name = 'Fuchsia Poison', text = {"Every 4th card flipped down.", "Flipped cards cannot be discarded"}},
+			bl_pkrm_gym_e4_koga  = {name = 'Fuchsia Poison', text = {"After selecting card,", "flip down cards", "held in hand"}},
 			bl_pkrm_gym_e4_karen = {name = 'Temp Karen'    , text = {"Elite Four - 4"}},
 			bl_pkrm_gym_champion_johto = {name = 'The Scarlet Scale', text = {"Debuff one rightmost Joker", "for each remaining hand"}},
 			-- Hoenn
@@ -80,7 +80,7 @@ return {
 			pkrm_gym_zephyr_ex = "Gust",
 			pkrm_gym_mineral_ex_steel = "Magnet Pull",
 			pkrm_gym_mineral_ex_stone = "Iron Tail",
-			pkrm_gym_e4_koga_ex = "Poisoned",
+			pkrm_gym_e4_koga_ex = "Toxic",
 			pkrm_gym_stone_ex = "Rock Tomb",
 
 			pkrm_gym_champion_no_disable = "Champion Blind cannot be disabled",
