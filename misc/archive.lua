@@ -68,4 +68,29 @@ calculate = function(self, card, context)
     end
 end,
 
+
+-- Old storm
+
+-- bl_pkrm_gym_storm   = {name = 'The Storm'  , text = {"All but 1 hand", "becomes discard"}},
+
+SMODS.Blind {
+	key = 'storm',
+	atlas = 'blinds_johto',
+	pos = { x = 0, y = 4 },
+	boss_colour = TYPE_CLR['fighting'],	
+
+	discovered = false,
+	dollars = 5,
+	mult = 2,
+	boss = {min = 1, max = 10}, 
+	config = {},
+	vars = {},
+
+	set_blind = function(self)
+		local hands_usable = math.max(G.GAME.current_round.hands_left - 1, 0)
+		ease_hands_played(-hands_usable)
+		ease_discard(hands_usable)
+	end,
+}
+
 */

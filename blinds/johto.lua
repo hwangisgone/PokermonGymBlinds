@@ -1,13 +1,13 @@
 -- JOHTO
 local TYPE_CLR = GYM_BLINDS_TYPE_CLR
 
-SMODS.Atlas { 
-	key = 'blinds_johto', 
-	atlas_table = 'ANIMATION_ATLAS', 
-	path = 'blinds_johto.png', 
-	px = 34, 
-	py = 34, 
-	frames = 21 
+SMODS.Atlas {
+	key = 'blinds_johto',
+	atlas_table = 'ANIMATION_ATLAS',
+	path = 'blinds_johto.png',
+	px = 34,
+	py = 34,
+	frames = 21,
 }
 
 function rescore_hand(scoring_hand, config)
@@ -18,7 +18,7 @@ function rescore_hand(scoring_hand, config)
 		if config.is_unscored_func(card) then
 			table.insert(non_scoring_cards, card)
 		else
-			table.insert(new_scoring_hand, card)			
+			table.insert(new_scoring_hand, card)
 		end
 	end
 
@@ -32,31 +32,30 @@ function rescore_hand(scoring_hand, config)
 			table.insert(scoring_hand, new_scoring_hand[i])
 		end
 
-		G.E_MANAGER:add_event(Event({
-			trigger = "after",
+		G.E_MANAGER:add_event(Event {
+			trigger = 'after',
 			delay = 0.1,
-			func = function() 
-
+			func = function()
 				config.blind_juice_func()
 
 				return true
-			end
-		}))
+			end,
+		})
 
 		-- Repeated rank, unhighlight
 		for _, card in pairs(non_scoring_cards) do
-			G.E_MANAGER:add_event(Event({
-				trigger = "after",
+			G.E_MANAGER:add_event(Event {
+				trigger = 'after',
 				delay = 0.1,
-				func = function() 
+				func = function()
 					card:highlight(false)
 					card:juice_up(0.3, 0.2)
 
 					config.card_juice_func(card)
 
-					return true 
-				end
-			}))
+					return true
+				end,
+			})
 		end
 	end
 end
@@ -65,15 +64,15 @@ SMODS.Blind {
 	key = 'zephyr',
 	atlas = 'blinds_johto',
 	pos = { x = 0, y = 0 },
-	boss_colour = TYPE_CLR['flying'],	
+	boss_colour = TYPE_CLR['flying'],
 
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = {min = 1, max = 10}, 
+	boss = { min = 1, max = 10 },
 	config = {},
 	vars = {},
-	
+
 	calculate = function(self, card, context)
 		if G.GAME.blind.disabled then return end
 
@@ -81,7 +80,7 @@ SMODS.Blind {
 			local seen_ranks = {}
 
 			rescore_hand(context.scoring_hand, {
-				is_unscored_func = function(card) 
+				is_unscored_func = function(card)
 					local card_rank = card:get_id()
 
 					-- Intentional: Stone card is never unscored (Flying weaks to Rock)
@@ -93,18 +92,18 @@ SMODS.Blind {
 					else
 						return true
 					end
-				end, 
+				end,
 				blind_juice_func = function()
-					pkrm_gym_attention_text({
-						text = localize("pkrm_gym_zephyr_ex"),
+					pkrm_gym_attention_text {
+						text = localize('pkrm_gym_zephyr_ex'),
 						backdrop_colour = TYPE_CLR['flying'],
-						major = G.play
-					})
+						major = G.play,
+					}
 
 					G.GAME.blind:juice_up(0.3)
 					play_sound('whoosh', 0.7, 0.6)
-					G.GAME.blind.triggered = true 
-				end, 
+					G.GAME.blind.triggered = true
+				end,
 				card_juice_func = function(card)
 					play_sound('card1', 0.4, 0.5)
 					G.ROOM.jiggle = G.ROOM.jiggle + 0.5
@@ -118,56 +117,46 @@ SMODS.Blind {
 	key = 'hive',
 	atlas = 'blinds_johto',
 	pos = { x = 0, y = 1 },
-	boss_colour = TYPE_CLR['bug'],	
+	boss_colour = TYPE_CLR['bug'],
 
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = {min = 1, max = 10}, 
+	boss = { min = 1, max = 10 },
 	config = {},
 	vars = {},
 
 	calculate = function(self, card, context)
 		if G.GAME.blind.disabled then return end
 
-		if context.destroy_card and context.cardarea == G.play then
+		if context.final_scoring_step then
+			local cutting_card = G.play.cards[#G.play.cards]
 
-			if context.destroying_card.ID == G.play.cards[#G.play.cards].ID then
-				local cutting_card = context.destroying_card
+			G.E_MANAGER:add_event(Event {
+				trigger = 'immediate',
+				func = function()
+					play_sound('slice1', 0.96 + math.random() * 0.08)
+					cutting_card:start_dissolve({ HEX('57ecab') }, true, 1.6, false)
 
-				G.E_MANAGER:add_event(Event({ trigger = 'immediate', func = function()
-					play_sound('slice1', 0.96+math.random()*0.08)
-					cutting_card:start_dissolve({HEX("57ecab")}, true, 1.6, false)
+					-- Remove from discard, fix ghost card bug
+					G.E_MANAGER:add_event(Event {
+						trigger = 'after',
+						delay = 0.5,
+						func = function()
+							for k, v in pairs(G.discard.cards) do
+								if v.ID == cutting_card.ID then
+									v:remove()
+									break
+								end
+							end
+
+							return true
+						end,
+					})
 
 					return true
-				end}))
-
-				return {
-					remove = true
-				}
-			end
-
-			if context.remove_playing_cards then
-				print("DESTROYING...")
-			end
-
-
-
-			-- local rightmost_card = G.play.cards[#G.play.cards]
-			
-			-- -- Scyther effect
-			-- -- Card:start_dissolve(dissolve_colours, silent, dissolve_time_fac, no_juice)
-			-- G.E_MANAGER:add_event(Event({ trigger = 'immediate', func = function()
-			-- 	rightmost_card:start_dissolve({HEX("57ecab")}, true, 1.6, false)
-			-- 	rightmost_card.destroyed = true
-
-			-- 	play_sound('slice1', 0.96+math.random()*0.08)
-
-			-- 	G.GAME.blind:wiggle()
-			-- 	G.GAME.blind.triggered = true
-
-			-- 	return true
-			-- end}))
+				end,
+			})
 		end
 	end,
 }
@@ -176,27 +165,27 @@ SMODS.Blind {
 	key = 'plain',
 	atlas = 'blinds_johto',
 	pos = { x = 0, y = 2 },
-	boss_colour = TYPE_CLR['normal'],	
+	boss_colour = TYPE_CLR['normal'],
 
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = {min = 1, max = 10}, 
+	boss = { min = 1, max = 10 },
 	config = { rollout = 120 },
 	vars = {},
 
 	press_play = function(self)
-		G.GAME.blind.chips = G.GAME.blind.chips * (self.config.rollout/100)
+		G.GAME.blind.chips = G.GAME.blind.chips * (self.config.rollout / 100)
 		G.GAME.blind.chip_text = number_format(G.GAME.blind.chips)
 
-		attention_text({
-		  text = 'X'..(self.config.rollout/100),
-		  scale = 0.8, 
-		  hold = 2,
-		  cover = G.HUD_blind:get_UIE_by_ID("HUD_blind_count").parent,
-		  cover_colour = G.C.GOLD,
-		  align = 'cm',
-		})
+		attention_text {
+			text = 'X' .. (self.config.rollout / 100),
+			scale = 0.8,
+			hold = 2,
+			cover = G.HUD_blind:get_UIE_by_ID('HUD_blind_count').parent,
+			cover_colour = G.C.GOLD,
+			align = 'cm',
+		}
 
 		G.GAME.blind.triggered = true
 		G.GAME.blind:wiggle()
@@ -207,27 +196,23 @@ SMODS.Blind {
 	key = 'fog',
 	atlas = 'blinds_johto',
 	pos = { x = 0, y = 3 },
-	boss_colour = TYPE_CLR['ghost'],	
+	boss_colour = TYPE_CLR['ghost'],
 
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = {min = 1, max = 10}, 
+	boss = { min = 1, max = 10 },
 	config = {},
 	vars = {},
 
 	stay_flipped = function(self, area, card)
-		if area == G.hand then
-			return not (card:is_suit('Spades') or card:is_suit('Clubs'))
-		end
+		if area == G.hand then return not (card:is_suit('Spades') or card:is_suit('Clubs')) end
 		return false
 	end,
 
 	disable = function(self)
 		for _, card in pairs(G.hand.cards) do
-			if card.facing == 'back' then 
-				card:flip();
-			end
+			if card.facing == 'back' then card:flip() end
 		end
 		G.GAME.blind.triggered = false
 	end,
@@ -237,19 +222,68 @@ SMODS.Blind {
 	key = 'storm',
 	atlas = 'blinds_johto',
 	pos = { x = 0, y = 4 },
-	boss_colour = TYPE_CLR['fighting'],	
+	boss_colour = TYPE_CLR['fighting'],
 
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = {min = 1, max = 10}, 
-	config = {},
+	boss = { min = 1, max = 10 },
+	config = { suits = { 'Spades', 'Hearts', 'Clubs', 'Diamonds' }, index = 1 },
 	vars = {},
 
-	set_blind = function(self)
-		local hands_usable = math.max(G.GAME.current_round.hands_left - 1, 0)
-		ease_hands_played(-hands_usable)
-		ease_discard(hands_usable)
+	loc_vars = function(self)
+		return { vars = { self.config.suits[self.config.index] } }
+	end,
+	collection_loc_vars = function(self)
+		return { vars = { self.config.suits[self.config.index] } }
+	end,
+
+	calculate = function(self, card, context)
+		if G.GAME.blind.disabled then return end
+
+		if context.after then
+			G.E_MANAGER:add_event(Event {
+				trigger = 'immediate',
+				func = function()
+					if self.config.index == #self.config.suits then
+						self.config.index = 1
+					else
+						self.config.index = self.config.index + 1
+					end
+
+					for _, card in pairs(G.playing_cards) do
+						SMODS.recalc_debuff(card)
+					end
+
+					G.GAME.blind:set_text()
+					G.GAME.blind:wiggle()
+					return true
+				end,
+			})
+		end
+	end,
+
+	recalc_debuff = function(self, card, from_blind)
+		if card:is_suit(self.config.suits[self.config.index]) then
+			SMODS.debuff_card(card, true, 'chuck_storm_debuff')
+			card:juice_up()
+		else
+			SMODS.debuff_card(card, false, 'chuck_storm_debuff')
+		end
+
+		return false
+	end,
+
+	disable = function(self)
+		for _, card in pairs(G.playing_cards) do
+			SMODS.debuff_card(card, false, 'chuck_storm_debuff')
+		end
+	end,
+
+	defeat = function(self)
+		for _, card in pairs(G.playing_cards) do
+			SMODS.debuff_card(card, false, 'chuck_storm_debuff')
+		end
 	end,
 }
 
@@ -257,12 +291,12 @@ SMODS.Blind {
 	key = 'mineral',
 	atlas = 'blinds_johto',
 	pos = { x = 0, y = 5 },
-	boss_colour = TYPE_CLR['steel'],	
+	boss_colour = TYPE_CLR['steel'],
 
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = {min = 1, max = 10}, 
+	boss = { min = 1, max = 10 },
 	config = {},
 	vars = {},
 
@@ -286,11 +320,11 @@ SMODS.Blind {
 		if has_steel_stone then
 			G.GAME.blind:wiggle()
 
-			pkrm_gym_attention_text({
+			pkrm_gym_attention_text {
 				text = flavor_text,
 				backdrop_colour = TYPE_CLR['steel'],
-				major = G.hand
-			})
+				major = G.hand,
+			}
 
 			for _, card in pairs(G.hand.cards) do
 				if not card.highlighted then
@@ -306,12 +340,12 @@ SMODS.Blind {
 	key = 'glacier',
 	atlas = 'blinds_johto',
 	pos = { x = 0, y = 6 },
-	boss_colour = TYPE_CLR['ice'],	
+	boss_colour = TYPE_CLR['ice'],
 
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = {min = 1, max = 10}, 
+	boss = { min = 1, max = 10 },
 	config = {},
 	vars = {},
 }
@@ -320,12 +354,12 @@ SMODS.Blind {
 	key = 'rising',
 	atlas = 'blinds_johto',
 	pos = { x = 0, y = 7 },
-	boss_colour = TYPE_CLR['dragon'],	
+	boss_colour = TYPE_CLR['dragon'],
 
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = {min = 1, max = 10}, 
+	boss = { min = 1, max = 10 },
 	config = {},
 	vars = {},
 
@@ -335,23 +369,25 @@ SMODS.Blind {
 		if context.before then
 			for i = 1, #context.scoring_hand do
 				local this_card = context.scoring_hand[i]
-				local percent_pitch = 0.8 + i*0.05 
-				local percent_vol = 0.3 + i*0.05		
+				local percent_pitch = 0.8 + i * 0.05
+				local percent_vol = 0.3 + i * 0.05
 
-				G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.4,func = function() 
-					
-					play_sound('highlight2', percent_pitch, percent_vol)
-					this_card:juice_up(0.5, 0.2)
+				G.E_MANAGER:add_event(Event {
+					trigger = 'after',
+					delay = 0.4,
+					func = function()
+						play_sound('highlight2', percent_pitch, percent_vol)
+						this_card:juice_up(0.5, 0.2)
 
-					this_card:flip()
-					poke_vary_rank(this_card, false, nil, true)
-					this_card:flip()
+						this_card:flip()
+						poke_vary_rank(this_card, false, nil, true)
+						this_card:flip()
 
-					SMODS.juice_up_blind()
-					G.GAME.blind.triggered = true
-					return true
-				end}))
-		
+						SMODS.juice_up_blind()
+						G.GAME.blind.triggered = true
+						return true
+					end,
+				})
 			end
 		end
 	end,
@@ -366,16 +402,14 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 8,
 	mult = 2,
-	boss = {min = 8, max = 10, showdown = true}, 
+	boss = { min = 8, max = 10, showdown = true },
 	config = {},
 	vars = {},
 
 	debuff_hand = function(self, cards, hand, handname, check)
 		local face_count = 0
 		for i = 1, #cards do
-			if cards[i]:is_face() and (cards[i].facing == 'front' or not check) then
-				face_count = face_count + 1
-			end
+			if cards[i]:is_face() and (cards[i].facing == 'front' or not check) then face_count = face_count + 1 end
 		end
 
 		if face_count < 2 then
@@ -395,7 +429,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 8,
 	mult = 2,
-	boss = {min = 8, max = 10, showdown = true}, 
+	boss = { min = 8, max = 10, showdown = true },
 	config = {},
 	vars = {},
 
@@ -410,28 +444,31 @@ SMODS.Blind {
 				table.insert(to_flip, card)
 			end
 		end
-		
+
 		if count > 0 then
 			G.GAME.blind:wiggle()
 			G.GAME.blind.triggered = true
 
-			pkrm_gym_attention_text({
-				text = localize("pkrm_gym_e4_koga_ex"),
+			pkrm_gym_attention_text {
+				text = localize('pkrm_gym_e4_koga_ex'),
 				backdrop_colour = TYPE_CLR['poison'],
-				major = G.hand
-			})
+				major = G.hand,
+			}
 		end
 
 		for i = 1, #to_flip do
 			local percent = 1.15 - (i - 0.999) / (#to_flip - 0.998) * 0.3
 			local this_card = to_flip[i]
 
-			G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.15, func = function()
+			G.E_MANAGER:add_event(Event {
+				trigger = 'after',
+				delay = 0.15,
+				func = function()
 					this_card:flip()
-					play_sound('card1', percent);
+					play_sound('card1', percent)
 					return true
-				end
-			}))
+				end,
+			})
 		end
 
 		return false
@@ -440,9 +477,7 @@ SMODS.Blind {
 	disable = function(self)
 		for _, card in pairs(G.hand.cards) do
 			if card.facing == 'back' then
-				if card.ability.koga_flipped then
-					card:flip()
-				end
+				if card.ability.koga_flipped then card:flip() end
 			end
 		end
 	end,
@@ -457,11 +492,10 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 8,
 	mult = 2,
-	boss = {min = 8, max = 10, showdown = true}, 
+	boss = { min = 8, max = 10, showdown = true },
 	config = {},
 	vars = {},
 }
-
 
 local lance_debuff = function(self)
 	local hands_left = G.GAME.current_round.hands_left
@@ -474,7 +508,7 @@ local lance_debuff = function(self)
 		end
 
 		if (jokers_count - k) < hands_left then
-			if not v.debuff then	
+			if not v.debuff then
 				SMODS.debuff_card(v, true, 'lance_champion_johto_debuff')
 				v:juice_up()
 			end
@@ -493,28 +527,28 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 12,
 	mult = 4,
-	boss = {min = 10, max = 10, showdown = true}, 
+	boss = { min = 10, max = 10, showdown = true },
 	config = {},
 	vars = {},
 
 	drawn_to_hand = function(self)
-		if G.GAME.blind.prepped then
-			lance_debuff()
-		end
+		if G.GAME.blind.prepped then lance_debuff() end
 	end,
 
 	calculate = function(self, card, context)
 		-- if G.GAME.blind.disabled then G.GAME.blind.disabled = false end
 
-		if context.before 
-		or (context.selling_card and context.cardarea == G.jokers) then
+		if context.before or (context.selling_card and context.cardarea == G.jokers) then
 			lance_debuff()
-
 		elseif context.card_added then
-			G.E_MANAGER:add_event(Event({trigger = 'after',delay = 0.2,func = function() 
-				lance_debuff()
-				return true
-			end}))
+			G.E_MANAGER:add_event(Event {
+				trigger = 'after',
+				delay = 0.2,
+				func = function()
+					lance_debuff()
+					return true
+				end,
+			})
 		end
 	end,
 

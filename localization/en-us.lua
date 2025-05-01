@@ -2,7 +2,7 @@ return {
 	descriptions = {
 		Blind = {
 			-- Kanto
-			bl_pkrm_gym_boulder = {name = 'The Boulder', text = {"{X:fire,C:white}Fire{} Jokers","are debuffed"}},
+			bl_pkrm_gym_boulder = {name = 'The Boulder', text = {"{X:lightning,C:white}Lightning{} and {X:fire,C:white}Fire{}","Jokers are debuffed"}},
 			bl_pkrm_gym_cascade = {name = 'The Cascade', text = {"After Play, #1# in #2# chance","to lose Energy", "in one Water Joker"}},
 			bl_pkrm_gym_thunder = {name = 'The Thunder', text = {"Lose $#1# when Discard", "without #2#"}},
 			bl_pkrm_gym_rainbow = {name = 'The Rainbow', text = {"Wild and Polychrome cards", "are debuffed"}},
@@ -10,7 +10,7 @@ return {
 			-- bl_pkrm_gym_soul_janine = {name = 'The Soul'   , text = {"Played ranks have", "1 in 6 chance to be drawn face down"}},
 			-- TODO: Soul with Janine after Johto instead of Koga
 			bl_pkrm_gym_marsh   = {name = 'The Marsh'  , text = {"Cards drawn are debuffed", "until 1 Consumable used"}},
-			bl_pkrm_gym_volcano = {name = 'The Volcano', text = {"Pokermon Trivia","Answer 3 correctly to win!"}},
+			bl_pkrm_gym_volcano = {name = 'The Volcano', text = {"Pokermon Trivia","Answer 3 correct to win!"}},
 			bl_pkrm_gym_earth   = {name = 'The Earth'  , text = {"Very big blind.", "-1X in size for every {C:gold}$#1#{}","earned this round"}},
 			bl_pkrm_gym_e4_lorelei = {name = 'Seaglass Song' , text = {"Cards held in hand", "are destroyed after #1# hands"}},
 			bl_pkrm_gym_e4_bruno   = {name = 'Saffron Shackles', text = {"Discarded poker hand", "will not score"}},
@@ -22,7 +22,7 @@ return {
 			bl_pkrm_gym_hive    = {name = 'The Hive'   , text = {"Destroy rightmost card", "after scoring"}},
 			bl_pkrm_gym_plain   = {name = 'The Plain'  , text = {"Blind gets X1.2 bigger", "every hand"}},
 			bl_pkrm_gym_fog     = {name = 'The Fog'    , text = {"Only Spade, Club cards", "are drawn face up"}},
-			bl_pkrm_gym_storm   = {name = 'The Storm'  , text = {"All but 1 hand", "becomes discard"}},
+			bl_pkrm_gym_storm   = {name = 'The Storm'  , text = {"#1# are debuffed.","Suit changes in order","after scoring"}},
 			bl_pkrm_gym_mineral = {name = 'The Mineral', text = {"If Steel or Stone card", "is held in hand,", "discard entire hand on Play"}},
 			bl_pkrm_gym_glacier = {name = 'The Glacier', text = {"Enhanced cards held in hand", "turns into glass"}},
 			bl_pkrm_gym_rising  = {name = 'The Rising' , text = {"Card ranks increase", "before scoring"}},
@@ -54,20 +54,31 @@ return {
 			-- Titanium Token
 			-- TODO: Alt Champion with Wallace
 			-- Sinnoh
-			bl_pkrm_gym_coal   = {name = 'The Coal'  ,text = {"Nothing yet"}},
-			bl_pkrm_gym_forest = {name = 'The Forest',text = {"Nothing yet"}},
-			bl_pkrm_gym_cobble = {name = 'The Cobble',text = {"Nothing yet"}},
-			bl_pkrm_gym_fen    = {name = 'The Fen'   ,text = {"Nothing yet"}},
-			bl_pkrm_gym_relic  = {name = 'The Relic' ,text = {"Nothing yet"}},
-			bl_pkrm_gym_mine   = {name = 'The Mine'  ,text = {"Nothing yet"}},
-			bl_pkrm_gym_icicle = {name = 'The Icicle',text = {"Nothing yet"}},
-			bl_pkrm_gym_beacon = {name = 'The Beacon',text = {"Nothing yet"}},
+			bl_pkrm_gym_coal   = {name = 'The Coal'  , text = {"Nothing yet"}},
+			bl_pkrm_gym_forest = {name = 'The Forest', text = {"Nothing yet"}},
+			bl_pkrm_gym_cobble = {name = 'The Cobble', text = {"Nothing yet"}},
+			bl_pkrm_gym_fen    = {name = 'The Fen'   , text = {"Nothing yet"}},
+			bl_pkrm_gym_relic  = {name = 'The Relic' , text = {"Nothing yet"}},
+			bl_pkrm_gym_mine   = {name = 'The Mine'  , text = {"Nothing yet"}},
+			bl_pkrm_gym_icicle = {name = 'The Icicle', text = {"Nothing yet"}},
+			bl_pkrm_gym_beacon = {name = 'The Beacon', text = {"Nothing yet"}},
 			bl_pkrm_gym_e4_aaron  = {name = 'Temp E4', text = {"Elite Four - 1"}},
 			bl_pkrm_gym_e4_bertha = {name = 'Temp E4', text = {"Elite Four - 2"}},
 			bl_pkrm_gym_e4_flint  = {name = 'Temp E4', text = {"Elite Four - 3"}},
 			bl_pkrm_gym_e4_lucian = {name = 'Temp E4', text = {"Elite Four - 4"}},
 			bl_pkrm_gym_champion_sinnoh = {name = 'Temp Champ', text = {"Champion"}},
-		}
+		},
+		Enhanced = {
+            m_pkrm_gym_answer_card = {
+                name = "Answer Card",
+                text = {
+                    "Answer for {C:attention}#1#{}",
+                    "no rank or suit",
+					"returns to hand when discarded",
+                    "removed at end of round",
+                },
+            },
+        },
 	},
 	misc = {
 		dictionary = {

@@ -48,7 +48,7 @@ local basegame_reset_blinds = reset_blinds
 function reset_blinds()
 	basegame_reset_blinds()
 
-	if pkrm_gym_config.setting_only_gym then 
+	if pkrm_gym_config.setting_only_gym then
 		local league_index = G.GAME.round_resets.ante % league_length
 
 		if league_index == 9 then
@@ -61,7 +61,7 @@ function reset_blinds()
 
 			G.GAME.round_resets.blind_tags.Small = nil
 			G.GAME.round_resets.blind_choices.Small = get_new_boss('small')
-			
+
 			G.GAME.round_resets.blind_tags.Big = nil
 			G.GAME.round_resets.blind_choices.Big = get_new_boss('big')
 		else
@@ -73,35 +73,33 @@ function reset_blinds()
 	end
 end
 
-
 local basegame_blind_get_type = Blind.get_type
 function Blind:get_type()
 	local valid_types = { Small = true, Big = true, Boss = true }
 
 	-- sendTraceMessage(G.GAME.blind_on_deck, "Check type blind 2")
 
-	if G.GAME.round_resets.blind_type_override and G.GAME.round_resets.blind_type_override[G.GAME.blind_on_deck] then 
+	if G.GAME.round_resets.blind_type_override and G.GAME.round_resets.blind_type_override[G.GAME.blind_on_deck] then
 		return G.GAME.blind_on_deck
 	end
 
 	return basegame_blind_get_type(self)
 end
 
-
 -- Change ante stuffs
 -- TODO: Work with SMODS.get_blind_amount
-local basegame_get_blind_amount = get_blind_amount 
+local basegame_get_blind_amount = get_blind_amount
 function get_blind_amount(ante)
 	if pkrm_gym_config.setting_reduce_scaling and (ante == 9 or ante == 10) then
-		if not G.GAME.modifiers.scaling or G.GAME.modifiers.scaling == 1 then 
-			local amounts = {100000, 250000}
-			return amounts[ante-8]
-		elseif G.GAME.modifiers.scaling == 2 then 
-			local amounts = {200000, 500000}
-			return amounts[ante-8]
-		elseif G.GAME.modifiers.scaling == 3 then 
-			local amounts = {500000, 1000000}
-			return amounts[ante-8]
+		if not G.GAME.modifiers.scaling or G.GAME.modifiers.scaling == 1 then
+			local amounts = { 100000, 250000 }
+			return amounts[ante - 8]
+		elseif G.GAME.modifiers.scaling == 2 then
+			local amounts = { 200000, 500000 }
+			return amounts[ante - 8]
+		elseif G.GAME.modifiers.scaling == 3 then
+			local amounts = { 500000, 1000000 }
+			return amounts[ante - 8]
 		end
 	end
 

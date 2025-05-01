@@ -7,7 +7,7 @@ SMODS.Atlas {
 	path = 'blinds_kanto.png',
 	px = 34,
 	py = 34,
-	frames = 21
+	frames = 21,
 }
 
 SMODS.Blind {
@@ -82,8 +82,8 @@ SMODS.Blind {
 				chosen_joker.ability.extra.escale = original_escale
 
 				card_eval_status_text(chosen_joker, 'extra', nil, nil, nil, {
-					message = localize("poke_reverse_energized_ex"),
-					colour = TYPE_CLR['water']
+					message = localize('poke_reverse_energized_ex'),
+					colour = TYPE_CLR['water'],
 				})
 
 				G.GAME.blind:wiggle()
@@ -96,8 +96,6 @@ SMODS.Blind {
 		end
 	end,
 }
-
-
 
 SMODS.Blind {
 	key = 'thunder',
@@ -114,16 +112,16 @@ SMODS.Blind {
 	vars = {},
 	config = { lose = 5, need_ranks = nil },
 	loc_vars = function(self)
-		local ranks_text = localize("pkrm_gym_thunder_collection_note")
+		local ranks_text = localize('pkrm_gym_thunder_collection_note')
 
 		if self.config.need_ranks then
-			ranks_text = self.config.need_ranks[1].rank .. " or " .. self.config.need_ranks[2].rank
+			ranks_text = self.config.need_ranks[1].rank .. ' or ' .. self.config.need_ranks[2].rank
 		end
 
 		return { vars = { self.config.lose, ranks_text } }
 	end,
 	collection_loc_vars = function(self)
-		return { vars = { self.config.lose, localize("pkrm_gym_thunder_collection_note") } }
+		return { vars = { self.config.lose, localize('pkrm_gym_thunder_collection_note') } }
 	end,
 
 	set_blind = function(self)
@@ -140,9 +138,7 @@ SMODS.Blind {
 			local rank2 = self.config.need_ranks[2].id
 
 			for k, v in pairs(G.hand.highlighted) do
-				if v:get_id() == rank1 or v:get_id() == rank2 then
-					return
-				end
+				if v:get_id() == rank1 or v:get_id() == rank2 then return end
 			end
 
 			G.GAME.blind.triggered = true
@@ -155,7 +151,6 @@ SMODS.Blind {
 		self.config.need_ranks = nil
 	end,
 }
-
 
 SMODS.Blind {
 	key = 'rainbow',
@@ -184,7 +179,12 @@ SMODS.Blind {
 		for _, card in pairs(G.playing_cards) do
 			SMODS.debuff_card(card, false, 'erika_rainbow_debuff')
 		end
-		G.GAME.blind.triggered = false
+	end,
+
+	defeat = function(self)
+		for _, card in pairs(G.playing_cards) do
+			SMODS.debuff_card(card, false, 'erika_rainbow_debuff')
+		end
 	end,
 }
 
@@ -212,17 +212,17 @@ SMODS.Blind {
 
 				-- previously check for front facing cards only: this_card.facing == 'front'
 				if not this_card.highlighted then
-					G.E_MANAGER:add_event(Event({
+					G.E_MANAGER:add_event(Event {
 						trigger = 'after',
 						delay = 0.15,
 						func = function()
-							this_card:flip();
-							play_sound('card1', percent);
+							this_card:flip()
+							play_sound('card1', percent)
 							G.GAME.blind:wiggle()
 							G.GAME.blind.triggered = true
 							return true
-						end
-					}))
+						end,
+					})
 				end
 			end
 		end
@@ -230,9 +230,7 @@ SMODS.Blind {
 
 	disable = function(self)
 		for _, card in pairs(G.hand.cards) do
-			if card.facing == 'back' then
-				card:flip();
-			end
+			if card.facing == 'back' then card:flip() end
 		end
 		G.GAME.blind.triggered = false
 	end,
@@ -260,35 +258,37 @@ SMODS.Blind {
 			-- Recalculate debuffs
 			for _, v in ipairs(G.hand.cards) do
 				if v.debuff then
-					G.E_MANAGER:add_event(Event({
+					G.E_MANAGER:add_event(Event {
 						trigger = 'after',
 						delay = 0.1,
 						func = function()
 							SMODS.recalc_debuff(v)
 							v.ability.sabrina_marsh_debuff = true
-							play_sound('tarot1', 1);
+							play_sound('tarot1', 1)
 							v:juice_up(0.1, 0.1)
 							return true
-						end
-					}))
+						end,
+					})
 				end
 			end
 
-			G.E_MANAGER:add_event(Event({
+			G.E_MANAGER:add_event(Event {
 				trigger = 'after',
 				delay = 0.1,
 				func = function()
 					self.config.extra.used_consumable = false
 					return true
-				end
-			}))
+				end,
+			})
 		end
 	end,
 
 	recalc_debuff = function(self, card, from_blind)
-		if card.ability.set ~= 'Joker'
+		if
+			card.ability.set ~= 'Joker'
 			and not self.config.extra.used_consumable
-			and not card.ability.sabrina_marsh_debuff then
+			and not card.ability.sabrina_marsh_debuff
+		then
 			-- ability is to prevent purified cards from being debuffed again
 			return true
 		else
@@ -297,73 +297,72 @@ SMODS.Blind {
 	end,
 }
 
+local function isYesNo(quiz_table)
+	return (quiz_table.answers[1] == 'Yes' or quiz_table.answers[2] == 'Yes') and #quiz_table.answers == 2
+end
+
 local function displayGUIquiz(quiz_table)
 	local answer_rows = {}
 	local current_row = {}
 
-
-	if ((quiz_table.answers[1] == "Yes" or quiz_table.answers[2] == "Yes") and #quiz_table.answers == 2) then
-		table.insert(answer_rows,
-			{
-				n = G.UIT.C,
-				config = { padding = 0 },
-				nodes = {
-					{
-						n = G.UIT.R,
-						config = { padding = 0.1 },
-						nodes = {
-							{
-								n = G.UIT.O,
-								config = {
-									object = DynaText({
-										scale = 0.5,
-										string = "Yes",
-										colours = { G.C.UI.TEXT_LIGHT },
-										float = false,
-										shadow = true,
-										silent = true,
-										pop_in = 0,
-										pop_in_rate = 6
-									}
-									)
-								}
+	if isYesNo(quiz_table) then
+		table.insert(answer_rows, {
+			n = G.UIT.C,
+			config = { padding = 0 },
+			nodes = {
+				{
+					n = G.UIT.R,
+					config = { padding = 0.1 },
+					nodes = {
+						{
+							n = G.UIT.O,
+							config = {
+								object = DynaText {
+									scale = 0.5,
+									string = 'Yes',
+									colours = { G.C.UI.TEXT_LIGHT },
+									float = false,
+									shadow = true,
+									silent = true,
+									pop_in = 0,
+									pop_in_rate = 6,
+								},
 							},
-							{ n = G.UIT.C, config = { minw = 1 } },
-							{
-								n = G.UIT.O,
-								config = {
-									object = DynaText({
-										scale = 0.5,
-										string = "No",
-										colours = { G.C.UI.TEXT_LIGHT },
-										float = false,
-										shadow = true,
-										silent = true,
-										pop_in = 0,
-										pop_in_rate = 6
-									}
-									)
-								}
+						},
+						{ n = G.UIT.C, config = { minw = 1 } },
+						{
+							n = G.UIT.O,
+							config = {
+								object = DynaText {
+									scale = 0.5,
+									string = 'No',
+									colours = { G.C.UI.TEXT_LIGHT },
+									float = false,
+									shadow = true,
+									silent = true,
+									pop_in = 0,
+									pop_in_rate = 6,
+								},
 							},
-						}
+						},
 					},
-					-- Consistent pacing
-					{ n = G.UIT.R, config = { minh = 0.6, padding = 0.1 } }
-				}
-			}
-		)
+				},
+				-- Consistent pacing
+				{ n = G.UIT.R, config = { minh = 0.6, padding = 0.1 } },
+			},
+		})
 	else
 		for i, answer in pairs(quiz_table.answers) do
-			local display_text = i .. ". " .. answer
+			local display_text = i .. '. ' .. answer
 
 			table.insert(current_row, {
 				n = G.UIT.R,
-				config = { align = "cl", padding = 0.1 },
+				config = { align = 'cl', padding = 0.1 },
 				nodes = {
 					{
 						n = G.UIT.O,
 						config = {
-							object = DynaText({
+							object = DynaText {
 								scale = 0.5,
 								string = display_text,
 								colours = { G.C.UI.TEXT_LIGHT },
@@ -371,25 +370,22 @@ local function displayGUIquiz(quiz_table)
 								shadow = true,
 								silent = true,
 								pop_in = 0,
-								pop_in_rate = 6
-							}
-							)
-						}
+								pop_in_rate = 6,
+							},
+						},
 					},
-				}
+				},
 			})
 
 			-- End the column after 2 answers or final answer
 			if #current_row == 2 or i == #quiz_table.answers then
-				table.insert(answer_rows,
-					{ n = G.UIT.C, config = { padding = 0 }, nodes = current_row }
-				)
+				table.insert(answer_rows, { n = G.UIT.C, config = { padding = 0 }, nodes = current_row })
 				current_row = {}
 			end
 		end
 	end
 
-	local first_line = quiz_table.quiz[#quiz_table.quiz - 1] or ""
+	local first_line = quiz_table.quiz[#quiz_table.quiz - 1] or ''
 	local second_line = quiz_table.quiz[#quiz_table.quiz]
 
 	-- minw = 8, minh = 6,
@@ -405,7 +401,7 @@ local function displayGUIquiz(quiz_table)
 					{
 						n = G.UIT.O,
 						config = {
-							object = DynaText({
+							object = DynaText {
 								scale = 0.6,
 								string = first_line,
 								colours = { G.C.WHITE },
@@ -415,11 +411,11 @@ local function displayGUIquiz(quiz_table)
 								shadow = true,
 								silent = true,
 								pop_in = 0,
-								pop_in_rate = 6
-							})
-						}
-					}
-				}
+								pop_in_rate = 6,
+							},
+						},
+					},
+				},
 			},
 			{
 				n = G.UIT.R,
@@ -428,7 +424,7 @@ local function displayGUIquiz(quiz_table)
 					{
 						n = G.UIT.O,
 						config = {
-							object = DynaText({
+							object = DynaText {
 								scale = 0.6,
 								string = second_line,
 								colours = { G.C.WHITE },
@@ -438,11 +434,11 @@ local function displayGUIquiz(quiz_table)
 								shadow = true,
 								silent = true,
 								pop_in = 0,
-								pop_in_rate = 6
-							})
-						}
-					}
-				}
+								pop_in_rate = 6,
+							},
+						},
+					},
+				},
 			},
 
 			-- Quiz type
@@ -450,16 +446,28 @@ local function displayGUIquiz(quiz_table)
 				n = G.UIT.R,
 				config = { align = 'tm', padding = 0.1 },
 				nodes = {
-					{ n = G.UIT.O, config = { object = DynaText({ scale = 0.4, string = quiz_table.type_loc, colours = { G.C.WHITE }, shadow = true, pop_in = 0, pop_in_rate = 6 }) } }
-				}
+					{
+						n = G.UIT.O,
+						config = {
+							object = DynaText {
+								scale = 0.4,
+								string = quiz_table.type_loc,
+								colours = { G.C.WHITE },
+								shadow = true,
+								pop_in = 0,
+								pop_in_rate = 6,
+							},
+						},
+					},
+				},
 			},
 
 			-- Spacer
 			{ n = G.UIT.R, config = { minh = 0.1 } },
 
 			-- Answers section
-			{ n = G.UIT.R, config = { align = 'tm', padding = 0.2 }, nodes = answer_rows }
-		}
+			{ n = G.UIT.R, config = { align = 'tm', padding = 0.2 }, nodes = answer_rows },
+		},
 	}
 end
 
@@ -470,7 +478,7 @@ local function redrawQuizUI(quiz_table)
 			align = 'tm',
 			offset = { x = 0, y = 1 },
 			major = G.play,
-		}
+		},
 	}
 end
 
@@ -493,9 +501,92 @@ local function blaine_get_quiz()
 	return quiz_table
 end
 
-SMODS.Enhancement {
-	key = 'answer_card'
+local answer_cards_config = {
+	H_A = 1,
+	H_2 = 2,
+	H_3 = 3,
+	H_4 = 4,
+	H_K = 'Yes',
+	H_Q = 'No',
 }
+
+SMODS.Enhancement {
+	key = 'answer_card',
+	no_collection = true,
+	no_rank = true,
+	no_suit = true,
+	replace_base_card = true,
+	always_scores = true,
+	weight = 0,
+
+	in_pool = function(self, args)
+		return false
+	end,
+
+	loc_vars = function(self, info_queue, card)
+		local answer_key = card.ability.extra.answer_key
+		if type(answer_key) == 'number' then answer_key = answer_key .. '.' end
+		return { vars = { answer_key } }
+	end,
+
+	set_ability = function(self, card, initial, delay_sprites)
+		if initial then
+			card.ability.extra = card.ability.extra or {}
+
+			for k, v in pairs(G.P_CARDS) do
+				if card.config.card == v then
+					card.ability.extra.answer_key = answer_cards_config[k]
+					return
+				end
+			end
+
+			card.ability.extra.answer_key = 1
+		end
+	end,
+}
+
+local function correct_attention_text(major)
+	attention_text {
+		text = 'Correct!',
+		backdrop_colour = G.C.GREEN,
+		scale = 1,
+		hold = 2,
+		major = major,
+		align = (major == G.play and 'tm') or 'cm',
+		offset = { x = 0, y = 0 },
+		silent = false,
+	}
+
+	G.GAME.blind:wiggle()
+end
+
+local function wrong_attention_text(major)
+	attention_text {
+		text = 'Incorrect!',
+		backdrop_colour = G.C.RED,
+		scale = 1,
+		hold = 2,
+		major = major,
+		align = (major == G.play and 'tm') or 'cm',
+		offset = { x = 0, y = 0 },
+		silent = false,
+	}
+
+	G.GAME.blind:wiggle()
+end
+
+local function no_answer_attention_text()
+	attention_text {
+		text = 'No Answer!',
+		backdrop_colour = G.C.BLACK,
+		scale = 1.4,
+		hold = 2,
+		major = G.play,
+		align = 'tm',
+		offset = { x = 0, y = 0 },
+		silent = false,
+	}
+end
 
 SMODS.Blind {
 	key = 'volcano',
@@ -512,6 +603,13 @@ SMODS.Blind {
 	set_blind = function(self)
 		G.GAME.BL_EXTRA.reload = 'volcano_reload'
 		self.ready_new_quiz = true
+
+		for k, v in pairs(answer_cards_config) do
+			local card = create_playing_card({
+				front = G.P_CARDS[k],
+				center = G.P_CENTERS.m_pkrm_gym_answer_card,
+			}, G.hand, nil, nil, { G.C.SECONDARY_SET.Enhanced })
+		end
 	end,
 
 	drawn_to_hand = function(self)
@@ -520,8 +618,12 @@ SMODS.Blind {
 		local quiz_table = blaine_get_quiz()
 
 		local all_answers = {}
-		for i, v in ipairs(quiz_table.wrong_answers) do all_answers[#all_answers + 1] = v end
-		for i, v in ipairs(quiz_table.right_answers) do all_answers[#all_answers + 1] = v end
+		for i, v in ipairs(quiz_table.wrong_answers) do
+			all_answers[#all_answers + 1] = v
+		end
+		for i, v in ipairs(quiz_table.right_answers) do
+			all_answers[#all_answers + 1] = v
+		end
 		pseudoshuffle(all_answers, pseudoseed('blaine'))
 
 		quiz_table.answers = all_answers
@@ -538,49 +640,100 @@ SMODS.Blind {
 		self.ready_new_quiz = false
 	end,
 
-	press_play = function(self)
-		local quiz_table = self.quiz_table
+	calculate = function(self, card, context)
+		if G.GAME.blind.disabled then return end
 
-		if quiz_table.type == 'single' then
-			attention_text({
-				text = "Correct!",
-				backdrop_colour = G.C.GREEN,
-				scale = 1.4,
-				hold = 2,
-				major = G.play,
-				align = 'tm',
-				offset = { x = 0, y = 0 },
-				silent = false
-			})
-		elseif quiz_table.type == 'multiple' then
-			attention_text({
-				text = "Incorrect!",
-				backdrop_colour = G.C.RED,
-				scale = 1.4,
-				hold = 2,
-				major = G.play,
-				align = 'tm',
-				offset = { x = 0, y = 0 },
-				silent = false
-			})
+		if context.before then
+			self.ready_new_quiz = true
+			local quiz_table = self.quiz_table
+
+			if quiz_table.type == 'single' then
+				if isYesNo(quiz_table) then
+					for k, v in pairs(G.play.cards) do
+						if
+							v.config.center.key == 'm_pkrm_gym_answer_card'
+							and type(v.ability.extra.answer_key) == 'string'
+						then
+							if v.ability.extra.answer_key == quiz_table.right_answers[1] then
+								correct_attention_text(v)
+							else
+								wrong_attention_text(v)
+							end
+							return
+						end
+					end
+				else
+					for k, v in pairs(G.play.cards) do
+						if
+							v.config.center.key == 'm_pkrm_gym_answer_card'
+							and type(v.ability.extra.answer_key) == 'number'
+						then
+							if quiz_table.answers[v.ability.extra.answer_key] == quiz_table.right_answers[1] then
+								correct_attention_text(v)
+							else
+								wrong_attention_text(v)
+							end
+							return
+						end
+					end
+				end
+			elseif quiz_table.type == 'multiple' then
+				local right_answers = copy_table(quiz_table.right_answers)
+
+				for k, v in pairs(G.play.cards) do
+					if
+						v.config.center.key == 'm_pkrm_gym_answer_card'
+						and type(v.ability.extra.answer_key) == 'number'
+					then
+						local include_answer = false
+						for i, right_answer in ipairs(right_answers) do
+							if quiz_table.answers[v.ability.extra.answer_key] == right_answer then
+								include_answer = true
+								table.remove(right_answers, i)
+								break
+							end
+						end
+
+						if include_answer then
+							correct_attention_text(v)
+						else
+							wrong_attention_text(v)
+						end
+
+						if #right_answers == 0 then
+							correct_attention_text(G.play)
+							return
+						end
+					end
+				end
+
+				-- Not answered correct all
+				wrong_attention_text(G.play)
+			end
+
+			no_answer_attention_text()
 		end
-
-		G.GAME.blind:wiggle()
-
-		self.ready_new_quiz = true
 	end,
 
 	disable = function(self)
 		self.custom_UI:remove()
+
+		for _, card in pairs(G.deck.cards) do
+			if SMODS.has_enhancement(card, 'm_pkrm_gym_answer_card') then card:remove() end
+		end
 	end,
 
 	defeat = function(self)
 		self.custom_UI:remove()
+
+		for _, card in pairs(G.deck.cards) do
+			if SMODS.has_enhancement(card, 'm_pkrm_gym_answer_card') then card:remove() end
+		end
 	end,
 
 	-- Remove debuff text at the start
 	get_loc_debuff_text = function(self)
-		return ""
+		return ''
 	end,
 }
 
@@ -593,7 +746,6 @@ BL_FUNCTION_TABLE['earth_ease_dollars'] = function(mod)
 	local total_earned = G.GAME.BL_EXTRA.temp_table.total_earned
 	local original_chips = get_blind_amount(G.GAME.round_resets.ante)
 	local calculated_mult = blind.mult -- X8 in normal condition
-
 
 	calculated_mult = math.max(calculated_mult - math.floor(total_earned / every_earned), 2)
 
@@ -608,20 +760,19 @@ BL_FUNCTION_TABLE['earth_ease_dollars'] = function(mod)
 		blind.chips = calculated_chips
 		blind.chip_text = number_format(calculated_chips)
 
-		attention_text({
-			text = 'X'..calculated_mult,
+		attention_text {
+			text = 'X' .. calculated_mult,
 			scale = 1,
 			hold = 2,
-			cover = G.HUD_blind:get_UIE_by_ID("HUD_blind_count").parent.parent,
+			cover = G.HUD_blind:get_UIE_by_ID('HUD_blind_count').parent.parent,
 			-- Team Rocket color
 			cover_colour = HEX('b83020'),
 			align = 'cm',
-		})
+		}
 
 		blind:wiggle()
 	end
 end
-
 
 SMODS.Blind {
 	key = 'earth',
@@ -695,7 +846,7 @@ SMODS.Blind {
 
 	set_blind = function(self)
 		G.GAME.BL_EXTRA.temp_table = {
-			break_in = self.config.break_turns
+			break_in = self.config.break_turns,
 		}
 	end,
 
@@ -716,19 +867,18 @@ SMODS.Blind {
 		if context.after then
 			if G.GAME.BL_EXTRA.temp_table.break_in == 0 then
 				for _, card in ipairs(G.hand.cards) do
-					G.E_MANAGER:add_event(Event({
+					G.E_MANAGER:add_event(Event {
 						trigger = 'after',
 						delay = 0.2,
 						func = function()
 							card:shatter()
 							return true
-						end
-					}))
+						end,
+					})
 				end
 			end
 		end
 	end,
-
 }
 
 SMODS.Blind {
@@ -757,7 +907,7 @@ SMODS.Blind {
 			G.GAME.BL_EXTRA.temp_table[text] = true
 
 			G.GAME.blind:wiggle()
-			play_sound('cancel', 2, 0.9);
+			play_sound('cancel', 2, 0.9)
 		end
 	end,
 
@@ -885,16 +1035,16 @@ SMODS.Blind {
 				print(v:get_chip_bonus())
 			end
 		elseif context.after then
-			G.E_MANAGER:add_event(Event({
+			G.E_MANAGER:add_event(Event {
 				trigger = 'immediate',
 				func = function()
 					for k, card in pairs(G.play.cards) do
-						print("TRIGGERED")
+						print('TRIGGERED')
 						card.ability.perma_bonus = card.ability.perma_bonus + self.config.blue_penalty_chips
 					end
 					return true
-				end
-			}))
+				end,
+			})
 		end
 	end,
 }

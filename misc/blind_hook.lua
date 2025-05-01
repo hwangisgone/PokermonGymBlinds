@@ -5,7 +5,6 @@
 
 -- For persistent variables between run, e.g. Blaine's quizzes, use G.GAME.BL_PERSISTENCE
 
-
 BL_FUNCTION_TABLE = {}
 
 -- For saving/loading blinds
@@ -45,13 +44,13 @@ function ease_dollars(mod, instant)
 			if instant then
 				ease_dollars_func(mod)
 			else
-				G.E_MANAGER:add_event(Event({
+				G.E_MANAGER:add_event(Event {
 					trigger = 'immediate',
 					func = function()
 						ease_dollars_func(mod)
 						return true
-					end
-				}))
+					end,
+				})
 			end
 		end
 	end
