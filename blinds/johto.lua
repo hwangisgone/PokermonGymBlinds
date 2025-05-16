@@ -85,7 +85,7 @@ SMODS.Blind {
 
 					-- Intentional: Stone card is never unscored (Flying weaks to Rock)
 
-					if not seen_ranks[card_rank] or card.config.center.key == 'm_stone' then
+					if not seen_ranks[card_rank] or SMODS.has_enhancement(card, 'm_stone') then
 						-- First occurrence of this rank
 						seen_ranks[card_rank] = true
 						return false
@@ -275,15 +275,10 @@ SMODS.Blind {
 	end,
 
 	disable = function(self)
-		for _, card in pairs(G.playing_cards) do
-			SMODS.debuff_card(card, false, 'chuck_storm_debuff')
-		end
+		remove_debuff_all_playing_cards('chuck_storm_debuff')
 	end,
-
 	defeat = function(self)
-		for _, card in pairs(G.playing_cards) do
-			SMODS.debuff_card(card, false, 'chuck_storm_debuff')
-		end
+		remove_debuff_all_playing_cards('chuck_storm_debuff')
 	end,
 }
 
@@ -302,12 +297,18 @@ SMODS.Blind {
 
 	press_play = function(self)
 		local flavor_text = ''
-		local has_steel_stone = false
-
+		local has_one_steel_stone = false
+		local has_steel = false
+		local has_stone = false
+	
 		for _, card in pairs(G.hand.cards) do
-			if card.config.center.key == 'm_steel' or card.config.center.key == 'm_stone' then
-				has_steel_stone = true
-				if card.config.center.key == 'm_steel' then
+			has_steel = SMODS.has_enhancement(card, 'm_steel')
+			has_stone = SMODS.has_enhancement(card, 'm_stone')
+			
+			if has_steel or has_stone then
+				has_one_steel_stone = true
+
+				if has_steel then
 					flavor_text = localize('pkrm_gym_mineral_ex_steel')
 				else
 					flavor_text = localize('pkrm_gym_mineral_ex_stone')

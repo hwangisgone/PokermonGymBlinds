@@ -96,6 +96,29 @@ SMODS.Blind {
 	vars = {},
 }
 
+-- local function recursive_draw(is_start)
+	
+-- 	if is_start then
+-- 		-- Don't draw if cycled card is a Hazard
+-- 		if SMODS.has_enhancement(G.hand.cards[1], 'm_poke_hazard') then return end
+-- 	end
+
+-- 	draw_card(G.deck, G.hand, 100, 'up', false)
+
+-- 	G.E_MANAGER:add_event(Event {
+-- 		trigger = 'after',
+-- 		delay = 0.2,
+-- 		func = function()
+-- 			-- Draw more if newly drawn card is a Hazard
+-- 			if SMODS.has_enhancement(G.hand.cards[#G.hand.cards]) then
+-- 				recursive_draw(false)
+-- 			end
+
+-- 			return true
+-- 		end,
+-- 	})	
+-- end
+
 local basegame_card_highlight = Card.highlight
 function Card:highlight(is_highlighted)
 	if G.GAME.blind and G.GAME.blind.name == 'bl_pkrm_gym_knuckle' and not G.GAME.blind.disabled then
@@ -112,9 +135,10 @@ function Card:highlight(is_highlighted)
 				-- So instead of moving directly Hand -> Deck, we move Hand -> Discard -> Deck
 				G.E_MANAGER:add_event(Event {
 					trigger = 'after',
-					delay = 0.5,
+					delay = 0.4,
 					func = function()
 						draw_card(G.discard, G.deck, 100, 'down', false, leftmost_card)
+
 						return true
 					end,
 				})
@@ -187,7 +211,6 @@ SMODS.Blind {
 	calculate = function(self, card, context)
 		if G.GAME.blind.disabled then return end
 
-		-- TOCHECK: context.pre_discard and context.cardarea == G.play??
 		if context.pre_discard then
 			G.GAME.BL_EXTRA.temp_table.discarded_hand = G.FUNCS.get_poker_hand_info(G.hand.highlighted)
 
@@ -314,32 +337,12 @@ BL_FUNCTION_TABLE['e4_glacia_ease_dollars'] = function()
 	local change = target_hand_size - current_hand_size
 	G.hand:change_size(change)
 
-	print(current_money)
-	print(math.floor(-current_money / every_debt))
-	print(target_hand_size)
-	print(current_hand_size)
+	-- print(current_money)
+	-- print(math.floor(-current_money / every_debt))
+	-- print(target_hand_size)
+	-- print(current_hand_size)
 
 	blind:wiggle()
-
-	-- local calculated_chips = original_chips*calculated_mult*G.GAME.starting_params.ante_scaling
-
-	-- -- Animate change in chips
-	-- if calculated_chips ~= blind.chips then
-	-- 	blind.chips = calculated_chips
-	-- 	blind.chip_text = number_format(calculated_chips)
-
-	-- 	attention_text({
-	-- 		text = 'X'..calculated_mult,
-	-- 		scale = 1,
-	-- 		hold = 2,
-	-- 		cover = G.HUD_blind:get_UIE_by_ID("HUD_blind_count").parent.parent,
-	-- 		-- Team Rocket color
-	-- 		cover_colour = HEX('b83020'),
-	-- 		align = 'cm',
-	-- 	})
-
-	-- 	blind:wiggle()
-	-- end
 end
 
 SMODS.Blind {
@@ -379,6 +382,12 @@ SMODS.Blind {
 		ease_dollars(G.GAME.round_resets.ante * 4)
 
 		G.GAME.BL_EXTRA.ease_dollars = nil
+	end,
+
+	defeat = function(self)
+		local change = G.GAME.BL_EXTRA.temp_table.original_hand_size - G.hand.config.card_limit 
+		-- change = target_hand_size - current_hand_size
+		G.hand:change_size(change)
 	end,
 }
 

@@ -5,7 +5,6 @@
 calculate = function(self, card, context)
     if G.GAME.blind.disabled then return end
 
-    -- TOCHECK: context.pre_discard and context.cardarea == G.play??
     if context.pre_discard then
         G.GAME.blind:wiggle()
         G.GAME.blind.has_discarded = true

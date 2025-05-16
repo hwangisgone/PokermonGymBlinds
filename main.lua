@@ -65,14 +65,25 @@ function gymblind_get_random_ranks(count, seed)
 	return to_return
 end
 
+function remove_debuff_all_jokers(source)
+	for _, card in pairs(G.jokers.cards) do
+		SMODS.debuff_card(card, false, source)
+	end
+end
+function remove_debuff_all_playing_cards(source)
+	for _, card in pairs(G.playing_cards) do
+		SMODS.debuff_card(card, false, source)
+	end	
+end
+
+
 function card_is_even(card)
-	local id = card:get_id()
-	return id == 2 or id == 4 or id == 6 or id == 8 or id == 10
+	-- Lua has modulo???
+	return not card:is_face() and card:get_id() % 2 == 0
 end
 
 function card_is_odd(card)
-	local id = card:get_id()
-	return id == 3 or id == 5 or id == 7 or id == 8 or id == 14
+	return not card:is_face() and card:get_id() % 2 == 1
 end
 
 function pkrm_gym_attention_text(args)
@@ -118,101 +129,23 @@ function champion_no_disable_attention_text()
 	}
 end
 
--- Loading blind hooks
-local blind_hooks, load_error = SMODS.load_file('misc/blind_hook.lua')
-if load_error then
-	sendDebugMessage('The error is: ' .. load_error)
-else
-	blind_hooks()
-end
+local files_to_load = {
+	 -- Loading blind hooks
+	'misc/blind_hook.lua',
+	 -- Loading blinds
+	'blinds/kanto.lua',
+	'blinds/johto.lua',
+	'blinds/hoenn.lua',
+	'test.lua',
+}
 
--- Loading blinds
-local kanto_load, load_error = SMODS.load_file('blinds/kanto.lua')
-if load_error then
-	sendDebugMessage('The error is: ' .. load_error)
-else
-	kanto_load()
-end
-
-local johto_load, load_error = SMODS.load_file('blinds/johto.lua')
-if load_error then
-	sendDebugMessage('The error is: ' .. load_error)
-else
-	johto_load()
-end
-
-local hoenn_load, load_error = SMODS.load_file('blinds/hoenn.lua')
-if load_error then
-	sendDebugMessage('The error is: ' .. load_error)
-else
-	hoenn_load()
-end
-
--- TODO: Testing
-local success, dpAPI = pcall(require, 'debugplus-api')
-
-if success and dpAPI.isVersionCompatible(1) then -- Make sure DebugPlus is available and compatible
-	local debugplus = dpAPI.registerID('GGGG')
-
-	debugplus.addCommand {
-		name = 'test1',
-		shortDesc = 'Testing command',
-		desc = 'This command is an example from the docs.',
-		exec = function(args, rawArgs, dp)
-			-- UIBox{
-			--     definition =
-			--       {n=G.UIT.ROOT, config = {align = 'cm', colour = G.C.CLEAR, padding = 0.2}, nodes={
-			--         {n=G.UIT.R, config = {align = 'cm', maxw = 1}, nodes={
-			--             {n=G.UIT.O, config={object = DynaText({scale = 0.7, string = localize('ph_unscored_hand'), maxw = 9, colours = {G.C.WHITE},float = true, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6})}},
-			--         }},
-			--         {n=G.UIT.R, config = {align = 'cm', maxw = 1}, nodes={
-			--             {n=G.UIT.O, config={object = DynaText({scale = 0.65, string = localize('ph_unscored_hand'), maxw = 9, colours = {G.C.WHITE},float = true, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6})}},
-			--         }},
-			--         {n=G.UIT.R, config = {align = 'cm', maxw = 1}, nodes={
-			--             {n=G.UIT.O, config={object = DynaText({scale = 0.6, string = localize('ph_unscored_hand'), maxw = 9, colours = {G.C.WHITE},float = true, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6})}},
-			--         }},
-			--         {n=G.UIT.R, config = {align = 'cm', maxw = 1}, nodes={
-			--             {n=G.UIT.O, config={object = DynaText({scale = 0.5, string = localize('ph_unscored_hand'), maxw = 9, colours = {G.C.WHITE},float = true, shadow = true, silent = true, pop_in = 0, pop_in_rate = 6})}},
-			--         }},
-			--     }},
-
-			--   }
-			print(BL_FUNCTION_TABLE)
-			print(BL_FUNCTION_TABLE['test'])
-			print(G.GAME.BL_EXTRA)
-		end,
-	}
-
-	debugplus.addCommand {
-		name = 'test_disable',
-		shortDesc = 'Add disabling jokers',
-		desc = 'Add disabling jokers',
-		exec = function(args, rawArgs, dp)
-			SMODS.add_card {
-				set = 'Joker',
-				key = 'j_chicot',
-			}
-
-			SMODS.add_card {
-				set = 'Joker',
-				key = 'j_poke_weezing',
-			}
-		end,
-	}
-
-	debugplus.addCommand {
-		name = 'test_sort',
-		shortDesc = 'Add disabling jokers',
-		desc = 'Add disabling jokers',
-		exec = function(args, rawArgs, dp)
-			local list_rank = {}
-			for _, card in pairs(G.deck.cards) do
-				table.insert(list_rank, card:get_id())
-			end
-
-			print(table.concat(list_rank, ' '))
-		end,
-	}
+for k, file_path in pairs(files_to_load) do
+	local load_the_file, load_error = SMODS.load_file(file_path)
+	if load_error then 
+		sendDebugMessage('The error is: ' .. load_error)
+	else 
+		load_the_file()
+	end
 end
 
 local kanto_league = {

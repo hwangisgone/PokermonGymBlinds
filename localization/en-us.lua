@@ -35,7 +35,7 @@ return {
 			bl_pkrm_gym_knuckle = {name = 'The Knuckle',text = {"Selecting cycles","cards in hand"}},
 			bl_pkrm_gym_dynamo  = {name = 'The Dynamo' ,text = {"Rightmost joker", "transfers all energy", "to leftmost joker"}},
 			bl_pkrm_gym_heat    = {name = 'The Heat'   ,text = {"Blind size","increase by #1#% Base","when exceeded"}},
-			bl_pkrm_gym_balance = {name = 'The Balance',text = {"Must play the last", "discarded poker hand"}},
+			bl_pkrm_gym_balance = {name = 'The Balance',text = {"Can only play", "last discarded poker hand"}},
 			bl_pkrm_gym_feather = {name = 'The Feather',text = {"Cards with less chips", "are drawn first"}},
 			bl_pkrm_gym_mind    = {name = 'The Mind'   ,text = {"Hand must contains", "a Pair"}},
 			bl_pkrm_gym_rain    = {name = 'The Rain'   ,text = {"0 Base Mult"}},
@@ -44,13 +44,13 @@ return {
 			bl_pkrm_gym_e4_phoebe = {name = 'Pale Petal'      ,text = {"Elite Four - 2"}},
 			bl_pkrm_gym_e4_glacia = {name = 'Glistening Gown' ,text = {"Lose $#1#.", "-1 hand size per {C:red}-$#2#{}", "in current debt"}},
 			bl_pkrm_gym_e4_drake  = {name = 'Midnight Mast'   ,text = {"Elite Four - 4"}},
-			bl_pkrm_gym_champion_hoenn = {name = 'Temp Steven',text = {"Champion"}},
+			bl_pkrm_gym_champion_hoenn = {name = 'The Platinum Pin',text = {"Champion"}},
 			-- Platinum Pendant
 			-- Azure Amulet
 			-- Teal Token
-			-- Steel Signet
-			-- Mint Marker
+			-- Steel Signet/Stickpin
 			-- Platinum Pin
+			-- Mint Marker
 			-- Titanium Token
 			-- TODO: Alt Champion with Wallace
 			-- Sinnoh
@@ -102,8 +102,15 @@ return {
 			bl_pkrm_gym_e4_bruno_debuff_text_initial = "Discarded poker hand will no longer score",
 			bl_pkrm_gym_balance_debuff_text_initial = "No poker hand discarded yet",
 
-			pkrm_gym_blaine_quizzes_loc = {
-				single = "Choose one answer (Only the leftmost card in hand count)",
+			pkrm_gym_blaine_quizzes_ex_right = "Correct!",
+			pkrm_gym_blaine_quizzes_ex_wrong = "Incorrect!",
+			pkrm_gym_blaine_quizzes_warn_single = "One answer only!",
+			pkrm_gym_blaine_quizzes_warn_number = "Number only!",
+			pkrm_gym_blaine_quizzes_warn_yesno = "Yes/No only!",
+			pkrm_gym_blaine_quizzes_warn_no_answer = "No Answer!",
+
+			pkrm_gym_blaine_quizzes_type_loc = {
+				single = "Choose one answer",
 				multiple = "Choose multiple answers",
 			},
 			pkrm_gym_blaine_quizzes = {
