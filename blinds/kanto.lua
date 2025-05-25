@@ -201,8 +201,17 @@ SMODS.Blind {
 	calculate = function(self, card, context)
 		if G.GAME.blind.disabled then return end
 
-		-- TODO: just context.pre_discard Might be buggy??
 		if context.pre_discard or context.before then
+
+			G.E_MANAGER:add_event(Event {
+				trigger = 'immediate',
+				func = function()
+					G.GAME.blind:wiggle()
+					G.GAME.blind.triggered = true
+					return true
+				end
+			})
+
 			for i = 1, #G.hand.cards do
 				local percent = 1.15 - (i - 0.999) / (#G.hand.cards - 0.998) * 0.3
 				local this_card = G.hand.cards[i]
@@ -215,8 +224,7 @@ SMODS.Blind {
 						func = function()
 							this_card:flip()
 							play_sound('card1', percent)
-							G.GAME.blind:wiggle()
-							G.GAME.blind.triggered = true
+
 							return true
 						end,
 					})
@@ -573,6 +581,7 @@ local function correct_attention_text(major)
 	}
 
 	G.GAME.blind:wiggle()
+	play_sound('gong')
 end
 
 local function wrong_attention_text(major)
@@ -617,6 +626,32 @@ local function bad_answer_attention_text(text, major)
 
 	G.ROOM.jiggle = G.ROOM.jiggle + 0.7
 	play_sound('cancel')
+end
+
+local function total_add_new_chips(score)
+	if (SMODS.Mods['Talisman'] or {}).can_load then
+		return (to_big(G.GAME.chips))+(to_big(score))
+	else
+		return  G.GAME.chips + score
+	end
+end
+
+local function score_part_of_blind(division)
+	local chip_UI = G.HUD:get_UIE_by_ID('chip_UI_count')
+	local new_chips = total_add_new_chips(math.ceil(G.GAME.blind.chips / division))
+
+	--Ease from current chips to the new number of chips
+	G.E_MANAGER:add_event(Event({
+		trigger = 'ease',
+		blockable = false,
+		ref_table = G.GAME,
+		ref_value = 'chips',
+		ease_to = new_chips,
+		delay =  0.3,
+		func = (function(t) return math.floor(t) end)
+	}))
+	--Popup text next to the chips in UI showing number of chips gained/lost
+	chip_UI:juice_up()
 end
 
 SMODS.Blind {
@@ -710,68 +745,73 @@ SMODS.Blind {
 		return false
 	end,
 
-	calculate = function(self, card, context)
-		if G.GAME.blind.disabled then return end
+	press_play = function(self)
+		self.ready_new_quiz = true
+		local quiz_table = self.quiz_table
+		local is_yes_no = isYesNo(quiz_table)
 
-		if context.before then
-			self.ready_new_quiz = true
-			local quiz_table = self.quiz_table
-			local is_yes_no = isYesNo(quiz_table)
+		G.E_MANAGER:add_event(Event{
+			trigger = 'after',
+			delay = 0.1,
+			func = function()
+				if quiz_table.type == 'single' then
+					local correct = false
 
-			if quiz_table.type == 'single' then
-				local correct = false
-
-				for k, v in pairs(G.play.cards) do
-					if v.config.center.key == 'm_pkrm_gym_answer_card' then
-						if is_yes_no then
-							correct =  v.ability.extra.answer_key == quiz_table.right_answers[1]
-						else
-							correct = quiz_table.answers[v.ability.extra.answer_key] == quiz_table.right_answers[1]
+					for k, v in pairs(G.play.cards) do
+						if v.config.center.key == 'm_pkrm_gym_answer_card' then
+							if is_yes_no then
+								correct =  v.ability.extra.answer_key == quiz_table.right_answers[1]
+							else
+								correct = quiz_table.answers[v.ability.extra.answer_key] == quiz_table.right_answers[1]
+							end
+							
+							if correct then
+								correct_attention_text(v)
+								score_part_of_blind(3)
+							else
+								wrong_attention_text(v)
+							end
+							return true
 						end
-						
-						if correct then
-							correct_attention_text(v)
-						else
-							wrong_attention_text(v)
-						end
-						return
 					end
-				end
-				
-			elseif quiz_table.type == 'multiple' then
-				local right_answers = copy_table(quiz_table.right_answers)
+					
+				elseif quiz_table.type == 'multiple' then
+					local right_answers = copy_table(quiz_table.right_answers)
 
-				for k, v in pairs(G.play.cards) do
-					if v.config.center.key == 'm_pkrm_gym_answer_card' then
-						local include_answer = false
-						
-						for i, right_answer in ipairs(right_answers) do
-							if quiz_table.answers[v.ability.extra.answer_key] == right_answer then
-								include_answer = true
-								table.remove(right_answers, i)
-								break
+					for k, v in pairs(G.play.cards) do
+						if v.config.center.key == 'm_pkrm_gym_answer_card' then
+							local include_answer = false
+							
+							for i, right_answer in ipairs(right_answers) do
+								if quiz_table.answers[v.ability.extra.answer_key] == right_answer then
+									include_answer = true
+									table.remove(right_answers, i)
+									break
+								end
+							end
+
+							if include_answer then
+								correct_attention_text(v)
+								score_part_of_blind(3)
+							else
+								wrong_attention_text(v)
+							end
+
+							if #right_answers == 0 then
+								correct_attention_text(G.play)
+								return true
 							end
 						end
-
-						if include_answer then
-							correct_attention_text(v)
-						else
-							wrong_attention_text(v)
-						end
-
-						if #right_answers == 0 then
-							correct_attention_text(G.play)
-							return
-						end
 					end
+
+					-- Not all correct
+					wrong_attention_text(G.play)
 				end
 
-				-- Not all correct
-				wrong_attention_text(G.play)
+				bad_answer_attention_text(localize('pkrm_gym_blaine_quizzes_warn_no_answer'), G.play)
+				return true
 			end
-
-			bad_answer_attention_text(localize('pkrm_gym_blaine_quizzes_warn_no_answer'), G.play)
-		end
+		})
 	end,
 
 	disable = function(self)
@@ -1056,22 +1096,31 @@ SMODS.Blind {
 	config = {},
 	vars = {},
 
-	calculate = function(self, card, context)
-		if G.GAME.blind.disabled then return end
+	press_play = function(self)
+		-- Due to press_play being called before the cards handled, we need to subtract 1 from the hands left
+		local hands_left = G.GAME.current_round.hands_left - 1
+		local played_length = #G.hand.highlighted
 
-		if context.before then
-			local hands_left = G.GAME.current_round.hands_left
-			local played_length = #G.play.cards
+		for i, card in ipairs(G.hand.highlighted) do
+			if (played_length - i) < hands_left then
+				G.E_MANAGER:add_event(Event {
+					trigger = 'after',
+					delay = 0.5,
+					func = function()
+						SMODS.debuff_card(card, true, 'e4_lance_debuff')
+						card:juice_up()
 
-			for k, v in pairs(G.play.cards) do
-				if (played_length - k) < hands_left then
-					SMODS.debuff_card(v, true, 'e4_lance_debuff')
-					v:juice_up()
-				end
+						G.GAME.blind:wiggle()
+
+						return true
+					end
+				})
 			end
-
-			G.GAME.blind:wiggle()
 		end
+	end,
+
+	defeat = function(self)
+		remove_debuff_all_playing_cards('e4_lance_debuff')
 	end,
 }
 

@@ -8,15 +8,16 @@ return {
 			bl_pkrm_gym_rainbow = {name = 'The Rainbow', text = {"Wild and Polychrome cards", "are debuffed"}},
 			bl_pkrm_gym_soul    = {name = 'The Soul'   , text = {"After Play or Discard,", "flip cards held in hand"}},
 			-- bl_pkrm_gym_soul_janine = {name = 'The Soul'   , text = {"Played ranks have", "1 in 6 chance to be drawn face down"}},
+			-- bl_pkrm_gym_soul_janine  = {name = 'The Soul', text = {"After selecting card,", "flip down cards", "held in hand"}},
 			-- TODO: Soul with Janine after Johto instead of Koga
 			bl_pkrm_gym_marsh   = {name = 'The Marsh'  , text = {"Cards drawn are debuffed", "until 1 Consumable used"}},
 			bl_pkrm_gym_volcano = {name = 'The Volcano', text = {"Pokermon Trivia","Answer 3 correct to win!"}},
 			bl_pkrm_gym_earth   = {name = 'The Earth'  , text = {"Very big blind.", "-1X in size for every {C:gold}$#1#{}","earned this round"}},
 			bl_pkrm_gym_e4_lorelei = {name = 'Seaglass Song' , text = {"Cards held in hand", "are destroyed after #1# hands"}},
 			bl_pkrm_gym_e4_bruno   = {name = 'Saffron Shackles', text = {"Discarded poker hand", "will not score"}},
-			bl_pkrm_gym_e4_agatha  = {name = 'Cursed Cane'    , text = {"Discarded cards", "lose 10 chips", "and return to deck"}},
+			bl_pkrm_gym_e4_agatha  = {name = 'Cursed Cane'    , text = {"Unscored and", "discarded cards", "return to deck"}},
 			bl_pkrm_gym_e4_lance   = {name = 'Sunset Scale'  , text = {"Debuff one rightmost","scoring card", "for each remaining hand"}},
-			bl_pkrm_gym_champion_kanto = {name = 'The Blue Chip', text = {"Played cards score", "#1# less Chips"}},
+			bl_pkrm_gym_champion_kanto = {name = 'The Blue Chip', text = {"0 Base Chips.", "All cards score no chip"}},
 			-- Johto
 			bl_pkrm_gym_zephyr  = {name = 'The Zephyr' , text = {"Repeated ranks", "are unscored"}},
 			bl_pkrm_gym_hive    = {name = 'The Hive'   , text = {"Destroy rightmost card", "after scoring"}},
@@ -27,18 +28,20 @@ return {
 			bl_pkrm_gym_glacier = {name = 'The Glacier', text = {"Enhanced cards held in hand", "turns into glass"}},
 			bl_pkrm_gym_rising  = {name = 'The Rising' , text = {"Card ranks increase", "before scoring"}},
 			bl_pkrm_gym_e4_will  = {name = 'Magenta Mask'  , text = {"Must play at least", "2 face cards"}},
-			bl_pkrm_gym_e4_koga  = {name = 'Fuchsia Poison', text = {"After selecting card,", "flip down cards", "held in hand"}},
+
+			bl_pkrm_gym_e4_koga  = {name = 'Fuchsia Poison', text = {"Cards drawn face down.", "After Play, flip cards", "held in hand"}},
+
 			bl_pkrm_gym_e4_karen = {name = 'Temp Karen'    , text = {"Elite Four - 4"}},
 			bl_pkrm_gym_champion_johto = {name = 'The Scarlet Scale', text = {"Debuff one rightmost Joker", "for each remaining hand"}},
 			-- Hoenn
-			bl_pkrm_gym_stone   = {name = 'The Stone'  ,text = {"First #1# selected cards", "become Stone cards","and give no chip"}},
-			bl_pkrm_gym_knuckle = {name = 'The Knuckle',text = {"Selecting cycles","cards in hand"}},
-			bl_pkrm_gym_dynamo  = {name = 'The Dynamo' ,text = {"Rightmost joker", "transfers all energy", "to leftmost joker"}},
-			bl_pkrm_gym_heat    = {name = 'The Heat'   ,text = {"Blind size","increase by #1#% Base","when exceeded"}},
+			bl_pkrm_gym_stone   = {name = 'The Stone'  ,text = {"Played face cards", "become Stone cards", "and give no chip"}},
+			bl_pkrm_gym_knuckle = {name = 'The Knuckle',text = {"Selecting a card cycles", "cards in hand"}},
+			bl_pkrm_gym_dynamo  = {name = 'The Dynamo' ,text = {"Switch highest rank in play", "with lowest rank in hand"}},
+			bl_pkrm_gym_heat    = {name = 'The Heat'   ,text = {"Ranks lower than","highest scored rank","are debuffed"}},
 			bl_pkrm_gym_balance = {name = 'The Balance',text = {"Can only play", "last discarded poker hand"}},
-			bl_pkrm_gym_feather = {name = 'The Feather',text = {"Cards with less chips", "are drawn first"}},
-			bl_pkrm_gym_mind    = {name = 'The Mind'   ,text = {"Hand must contains", "a Pair"}},
-			bl_pkrm_gym_rain    = {name = 'The Rain'   ,text = {"0 Base Mult"}},
+			bl_pkrm_gym_feather = {name = 'The Feather',text = {"Add a 9 to deck", "for every unscored card"}},
+			bl_pkrm_gym_mind    = {name = 'The Mind'   ,text = {"Forces a Pair to", "always be selected"}},
+			bl_pkrm_gym_rain    = {name = 'The Rain'   ,text = {"Must play", "more ranks than suits"}},
 			bl_pkrm_gym_rain_juan = {name = 'The Rain'   ,text = {"Mult is capped by Chips"}},
 			bl_pkrm_gym_e4_sidney = {name = 'Slick Shades'    ,text = {"Elite Four - 1"}},
 			bl_pkrm_gym_e4_phoebe = {name = 'Pale Petal'      ,text = {"Elite Four - 2"}},
@@ -92,15 +95,20 @@ return {
 			pkrm_gym_mineral_ex_steel = "Magnet Pull",
 			pkrm_gym_mineral_ex_stone = "Iron Tail",
 			pkrm_gym_e4_koga_ex = "Toxic",
+
 			pkrm_gym_stone_ex = "Rock Tomb",
+			pkrm_gym_dynamo_ex = "Volt Switch",
+			pkrm_gym_heat_ex = "Overheated!",
+			pkrm_gym_feather_ex = "Cloud Nine",
 
 			pkrm_gym_champion_no_disable = "Champion Blind cannot be disabled",
 
-			pkrm_gym_thunder_collection_note = "(2 random ranks)",
-			pkrm_gym_e4_glacia_collection_note = "(ante x 4)",
-
 			bl_pkrm_gym_e4_bruno_debuff_text_initial = "Discarded poker hand will no longer score",
 			bl_pkrm_gym_balance_debuff_text_initial = "No poker hand discarded yet",
+
+			-- Notes in collection
+			pkrm_gym_thunder_collection_note = "(2 random ranks)",
+			pkrm_gym_e4_glacia_collection_note = "(ante x 4)",
 
 			pkrm_gym_blaine_quizzes_ex_right = "Correct!",
 			pkrm_gym_blaine_quizzes_ex_wrong = "Incorrect!",
@@ -123,7 +131,7 @@ return {
 				},
 				{
 					type = "single",
-					quiz = {"Does Doduo evolve into Dodrio?"},
+					quiz = {"Does Doduo evolve into Dotrio?"},
 					wrong_answers = {"Yes"},
 					right_answers = {"No"}
 				},

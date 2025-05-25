@@ -4,68 +4,75 @@ local TYPE_CLR = GYM_BLINDS_TYPE_CLR
 SMODS.Atlas {
 	key = 'blinds_hoenn',
 	atlas_table = 'ANIMATION_ATLAS',
-	path = 'blinds_kanto.png',
+	path = 'blinds_hoenn.png',
 	px = 34,
 	py = 34,
 	frames = 21,
 }
+-- TODO:
+-- knuckle: Make it smaller
+-- feather: Make it smaller
+
+
+local basegame_card_set_ability = Card.set_ability
+function Card:set_ability(center, initial, delay_sprites)
+	if self.ability and self.ability.roxanne_stone_transform and SMODS.has_enhancement(self, 'm_stone') then
+		-- Reset Roxanne Stone card bonus (if not reset, the card will have -50 extra bonus)
+		self.ability.bonus = self.config.center.config.bonus
+	end
+
+	basegame_card_set_ability(self, center, initial, delay_sprites)
+end
 
 SMODS.Blind {
 	key = 'stone',
 	atlas = 'blinds_hoenn',
-	pos = { x = 0, y = 7 },
+	pos = { x = 0, y = 0 },
 	boss_colour = TYPE_CLR['rock'],
 
 	discovered = false,
 	dollars = 5,
 	mult = 2,
 	boss = { min = 1, max = 10 },
-	config = { card_count = 3 },
-	vars = { 3 },
+	config = {},
+	vars = {},
 
-	loc_vars = function(self)
-		return { vars = { self.config.card_count } }
-	end,
-
-	debuff_hand = function(self, cards, hand, handname, check)
-		for _, card in pairs(cards) do
-			local trigger_count = G.GAME.BL_EXTRA.temp_table['roxanne_triggered'] or 0
-
-			if
-				not card.ability.roxanne_stone_transform
-				-- and card.config.center.key ~= 'm_stone'
-				and trigger_count < self.config.card_count
-			then
+	press_play = function(self)
+		for i, card in ipairs(G.hand.highlighted) do
+			if card:is_face() and not SMODS.has_enhancement(card, 'm_stone') then
 				card.ability.roxanne_stone_transform = card.config.center
 
-				card:juice_up()
-				card:set_ability(G.P_CENTERS.m_stone, nil, true)
-				card.ability.bonus = 0
+				G.E_MANAGER:add_event(Event {
+					trigger = 'after',
+					delay = 0.5,
+					func = function()
 
-				attention_text {
-					text = localize('pkrm_gym_stone_ex'),
-					scale = 0.75,
-					hold = 1,
-					backdrop_colour = TYPE_CLR['rock'],
-					align = 'cm',
-					major = card,
-					offset = { x = 0, y = 0 },
-				}
+						card:juice_up()
+						card:set_ability(G.P_CENTERS.m_stone, nil, false)
+						card.ability.bonus = 0
 
-				G.ROOM.jiggle = G.ROOM.jiggle + 0.7
+						pkrm_gym_attention_text {
+							text = localize('pkrm_gym_stone_ex'),
+							backdrop_colour = TYPE_CLR['rock'],
+							major = card,
+						}
 
-				G.GAME.BL_EXTRA.temp_table['roxanne_triggered'] = trigger_count + 1
-				G.GAME.blind:wiggle()
-				G.GAME.blind.triggered = true
+						G.ROOM.jiggle = G.ROOM.jiggle + 0.7
+
+						G.GAME.blind:wiggle()
+						G.GAME.blind.triggered = true
+
+						return true
+					end
+				})
 			end
 		end
-
-		return false
 	end,
 
 	disable = function(self)
-		for _, card in pairs(G.playing_cards) do
-			if card.ability.roxanne_stone_transform then
+		for _, card in ipairs(G.playing_cards) do
+			if card.ability.roxanne_stone_transform 
+			and not card.ability.roxanne_stone_no_turn_back then
 				local prev_enhancement = card.ability.roxanne_stone_transform
 				card:set_ability(prev_enhancement, nil, false)
 				card:juice_up()
@@ -75,17 +82,18 @@ SMODS.Blind {
 	end,
 
 	defeat = function(self)
-		-- Remove so future encounter when disabled, won't revert changes in previous antes
+		-- So future encounter when disabled, won't revert changes in previous antes
 		for _, card in pairs(G.playing_cards) do
-			card.ability.roxanne_stone_transform = nil
+			card.ability.roxanne_stone_no_turn_back = true
 		end
 	end,
 }
 
+
 SMODS.Blind {
 	key = 'knuckle',
 	atlas = 'blinds_hoenn',
-	pos = { x = 0, y = 7 },
+	pos = { x = 0, y = 1 },
 	boss_colour = TYPE_CLR['fighting'],
 
 	discovered = false,
@@ -96,28 +104,6 @@ SMODS.Blind {
 	vars = {},
 }
 
--- local function recursive_draw(is_start)
-	
--- 	if is_start then
--- 		-- Don't draw if cycled card is a Hazard
--- 		if SMODS.has_enhancement(G.hand.cards[1], 'm_poke_hazard') then return end
--- 	end
-
--- 	draw_card(G.deck, G.hand, 100, 'up', false)
-
--- 	G.E_MANAGER:add_event(Event {
--- 		trigger = 'after',
--- 		delay = 0.2,
--- 		func = function()
--- 			-- Draw more if newly drawn card is a Hazard
--- 			if SMODS.has_enhancement(G.hand.cards[#G.hand.cards]) then
--- 				recursive_draw(false)
--- 			end
-
--- 			return true
--- 		end,
--- 	})	
--- end
 
 local basegame_card_highlight = Card.highlight
 function Card:highlight(is_highlighted)
@@ -149,10 +135,58 @@ function Card:highlight(is_highlighted)
 	basegame_card_highlight(self, is_highlighted)
 end
 
+
+
+local function table_shift_positions(tbl, from_index, to_index)
+    local value = tbl[from_index]
+
+    table.remove(tbl, from_index)
+    table.insert(tbl, to_index, value)
+end
+
+local function find_highest_rank_index_list(card_list)
+	local highest_rank = card_list[1]:get_id()
+	local highest_index_list = {1}
+
+	for i = 2, #card_list do
+		local card = card_list[i]
+		
+		if not SMODS.has_no_rank(card) then
+			if card:get_id() > highest_rank then
+				highest_rank = card:get_id()
+				highest_index_list = {i}
+			elseif card:get_id() == highest_rank then
+				table.insert(highest_index_list, i)
+			end
+		end
+	end
+
+	return highest_index_list
+end
+
+local function find_lowest_rank(card_list)
+	local lowest_card = card_list[1]
+	local lowest_index = 1
+
+	for i = 2, #card_list do
+		local card = card_list[i]
+		
+		if not SMODS.has_no_rank(card) then
+			if card:get_id() < lowest_card:get_id() then
+				lowest_card = card
+				lowest_index = i
+			end
+		end
+	end
+
+	return lowest_card, lowest_index
+end
+
+
 SMODS.Blind {
 	key = 'dynamo',
 	atlas = 'blinds_hoenn',
-	pos = { x = 0, y = 7 },
+	pos = { x = 0, y = 2 },
 	boss_colour = TYPE_CLR['electric'],
 
 	discovered = false,
@@ -161,12 +195,78 @@ SMODS.Blind {
 	boss = { min = 1, max = 10 },
 	config = {},
 	vars = {},
+
+	press_play = function(self)
+		local index_to_swap = find_highest_rank_index_list(G.hand.highlighted)
+
+		for k, play_index in ipairs(index_to_swap) do
+			G.E_MANAGER:add_event(Event {
+				trigger = 'after',
+				delay = 1,
+				func = function()
+					if #G.hand.cards < 1 then
+						return true
+					end
+
+					local play_swap = G.play.cards[play_index]
+					local hand_swap, hand_index = find_lowest_rank(G.hand.cards)
+
+					G.play:remove_card(play_swap)
+					G.hand:emplace(play_swap, 'front')
+					table_shift_positions(G.hand.cards, 1, hand_index)
+
+					G.hand:remove_card(hand_swap)
+					G.play:emplace(hand_swap, 'front')
+					table_shift_positions(G.play.cards, 1, play_index)
+
+					G.VIBRATION = G.VIBRATION + 0.6
+					play_sound('card1', 1, 0.6)
+
+					pkrm_gym_attention_text {
+						text = localize('pkrm_gym_dynamo_ex'),
+						backdrop_colour = TYPE_CLR['electric'],
+						major = hand_swap,
+					}
+
+					G.GAME.blind:wiggle()
+
+					return true
+				end,
+			})
+		end
+
+		-- Give a bit of pause for player to evaluate what's going on
+		G.E_MANAGER:add_event(Event {
+			trigger = 'after',
+			delay = 1,
+		})
+	end,
 }
+
+
+local function find_highest_rank(card_list)
+	local highest_card = card_list[1]
+	local highest_index = 1
+
+	for i = 2, #card_list do
+		local card = card_list[i]
+		
+		if not SMODS.has_no_rank(card) then
+			if card:get_id() > highest_card:get_id() then
+				highest_card = card
+				highest_index = i
+			end
+		end
+	end
+
+	return highest_card, highest_index
+end
+
 
 SMODS.Blind {
 	key = 'heat',
 	atlas = 'blinds_hoenn',
-	pos = { x = 0, y = 7 },
+	pos = { x = 0, y = 3 },
 	boss_colour = TYPE_CLR['fire'],
 
 	discovered = false,
@@ -175,12 +275,63 @@ SMODS.Blind {
 	boss = { min = 1, max = 10 },
 	config = {},
 	vars = {},
+
+	set_blind = function(self)
+		G.GAME.BL_EXTRA.temp_table = {
+			highest_rank_saved = 0,
+		}
+	end,
+
+	calculate = function(self, card, context)
+		if G.GAME.blind.disabled then return end
+
+		if context.after then
+			local highest_card, highest_index = find_highest_rank(context.scoring_hand)
+			local highest_rank = highest_card:get_id()
+
+			if highest_rank > G.GAME.BL_EXTRA.temp_table.highest_rank_saved then
+				G.GAME.BL_EXTRA.temp_table.highest_rank_saved = highest_rank
+			else
+				return
+			end
+
+			G.E_MANAGER:add_event(Event {
+				trigger = 'after',
+				delay = 0.5,
+				func = function()
+					for i, card in ipairs(G.playing_cards) do
+						if card:get_id() < highest_rank then
+							SMODS.debuff_card(card, true, 'flannery_heat_debuff')
+							card:juice_up()
+						end
+					end
+
+					pkrm_gym_attention_text {
+						text = (highest_card.base.value)..' '..localize('pkrm_gym_heat_ex'),
+						backdrop_colour = TYPE_CLR['fire'],
+						major = G.play,
+						hold = 2,
+					}
+
+					G.GAME.blind:wiggle()
+					return true
+				end
+			})
+		end
+	end,
+
+	disable = function(self)
+		remove_debuff_all_playing_cards('flannery_heat_debuff')
+	end,
+	defeat = function(self)
+		remove_debuff_all_playing_cards('flannery_heat_debuff')
+	end,
 }
 
 SMODS.Blind {
 	key = 'balance',
 	atlas = 'blinds_hoenn',
-	pos = { x = 0, y = 7 },
+	pos = { x = 0, y = 4 },
 	boss_colour = TYPE_CLR['normal'],
 
 	discovered = false,
@@ -223,10 +374,34 @@ SMODS.Blind {
 	end,
 }
 
+
+local ALL_NINES = {}
+for _, v in pairs(G.P_CARDS) do
+  if v.value == '9' then
+	table.insert(ALL_NINES, v)
+  end
+end
+
+local function get_unscored_indices(full_hand, scoring_hand)
+	local scored_map = {}
+	for _,v in ipairs(scoring_hand) do 
+		scored_map[v] = true
+	end
+
+	local unscored_indices = {}
+	for i,v in ipairs(full_hand) do 
+		if not scored_map[v] then
+			table.insert(unscored_indices, i)
+		end
+	end
+
+	return unscored_indices
+end
+
 SMODS.Blind {
 	key = 'feather',
 	atlas = 'blinds_hoenn',
-	pos = { x = 0, y = 7 },
+	pos = { x = 0, y = 5 },
 	boss_colour = TYPE_CLR['flying'],
 
 	discovered = false,
@@ -236,28 +411,96 @@ SMODS.Blind {
 	config = {},
 	vars = {},
 
-	set_blind = function(self)
-		G.E_MANAGER:add_event(Event {
-			trigger = 'after',
-			delay = 0.6,
-			-- TOCHECK: Might be slightly buggy with 0.6
-			-- Need a more concrete way of doing this, such as parent event releasing 'blocking' child event after 0.4
-			blocking = false,
-			func = function()
-				table.sort(G.deck.cards, function(a, b)
-					local chipa, chipb = a:get_chip_bonus(), b:get_chip_bonus()
-					return chipa == chipb and a:get_nominal() > b:get_nominal() or chipa > chipb
-				end)
-				return true
-			end,
-		})
-	end,
+	calculate = function(self, card, context)
+		if G.GAME.blind.disabled then return end
+
+		if context.final_scoring_step then
+			local unscored_indices = get_unscored_indices(G.play.cards, context.scoring_hand)
+
+			if #unscored_indices < 1 then return end
+
+			local nine_list = {}
+
+			G.E_MANAGER:add_event(Event {
+				trigger = 'before',
+				delay = 2,
+				func = function()
+					local added_card_count = 0
+
+					for _, index in ipairs(unscored_indices) do
+						local created_nine = create_playing_card({
+							front = pseudorandom_element(ALL_NINES, pseudoseed('winona')), 
+							center = G.P_CENTERS.c_base
+						}, G.play, nil, nil, { TYPE_CLR['flying'] })
+
+						added_card_count = added_card_count + 1
+
+						table_shift_positions(G.play.cards, #G.play.cards, index + added_card_count)
+
+						table.insert(nine_list, created_nine)
+					end
+
+					pkrm_gym_attention_text {
+						text = localize('pkrm_gym_feather_ex'),
+						backdrop_colour = TYPE_CLR['flying'],
+						major = G.play,
+					}
+
+					G.GAME.blind:wiggle()
+
+					return true
+				end
+			})
+
+			for i = 1, #unscored_indices do
+				G.E_MANAGER:add_event(Event {
+					trigger = 'before',
+					delay = 0.5,
+					func = function()
+						-- Divide by 2 so player doesn't draw them immediately and get a flush five
+						local random_index = pseudorandom('winona', 1, #G.deck.cards)
+
+						G.play:remove_card(nine_list[i])
+						G.deck:emplace(nine_list[i], 'front')
+
+						table_shift_positions(G.deck.cards, 1, random_index)
+						play_sound('card1', 1, 0.6)
+
+						return true
+					end
+				})
+			end
+
+			G.E_MANAGER:add_event(Event {
+				trigger = 'after',
+				delay = 1,
+			})
+		end
+	end
 }
+
+
+
+local function find_first_pair()
+    local seen = {}
+    
+    for i, card in ipairs(G.hand.cards) do
+        local check_rank = card:get_id()
+        
+        if seen[check_rank] then
+            return {seen[check_rank], card}
+        else
+            seen[check_rank] = card
+        end
+    end
+    
+    return nil  -- No pair found
+end
 
 SMODS.Blind {
 	key = 'mind',
 	atlas = 'blinds_hoenn',
-	pos = { x = 0, y = 7 },
+	pos = { x = 0, y = 6 },
 	boss_colour = TYPE_CLR['psychic'],
 
 	discovered = false,
@@ -267,9 +510,21 @@ SMODS.Blind {
 	config = {},
 	vars = {},
 
-	debuff_hand = function(self, cards, hand, handname, check)
-		-- TODO: what is check? "if not check then"
-		return not next(hand['Pair'])
+	drawn_to_hand = function(self)
+		local found_pair = find_first_pair()
+
+		if found_pair then
+			for i, card in ipairs(found_pair) do
+				card.ability.forced_selection = true
+				G.hand:add_to_highlighted(card)
+			end
+		end
+	end,
+
+	disable = function(self)
+		for i, card in ipairs(G.playing_cards) do
+            card.ability.forced_selection = nil
+        end
 	end,
 }
 
@@ -286,8 +541,31 @@ SMODS.Blind {
 	config = {},
 	vars = {},
 
-	modify_hand = function(self, cards, poker_hands, text, mult, hand_chips)
-		return 0, hand_chips, true
+	debuff_hand = function(self, cards, hand, handname, check)
+		local all_suits = {}
+		local all_ranks = {}
+
+		for i, card in ipairs(cards) do
+			if not SMODS.has_no_rank(card) then
+				all_ranks[card:get_id()] = true
+			end
+
+			if not SMODS.has_no_suit(card) then
+				all_suits[card.base.suit] = true
+			end
+		end
+		
+		local rank_count = 0
+		for _ in pairs(all_ranks) do
+			rank_count = rank_count + 1
+		end
+
+		local suit_count = 0
+		for _ in pairs(all_suits) do
+			suit_count = suit_count + 1
+		end
+
+		return rank_count <= suit_count
 	end,
 }
 

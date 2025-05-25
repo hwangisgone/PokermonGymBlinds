@@ -73,6 +73,44 @@ function reset_blinds()
 	end
 end
 
+local base_game_end_round = end_round
+function end_round()
+	-- Save the status to recover them later
+	-- Elite 4 isn't skippable and does not give tag
+	-- G.GAME.current_round.voucher = SMODS.get_next_vouchers()
+	local boss_status = G.GAME.round_resets.blind_states.Boss
+	local abilities_played_this_ante = {}
+	for k, v in ipairs(G.playing_cards) do
+		abilities_played_this_ante[k] = v.ability.played_this_ante
+	end
+
+	base_game_end_round()
+
+	G.E_MANAGER:add_event(Event({
+		trigger = 'immediate',
+		func = function()
+			G.E_MANAGER:add_event(Event({
+				trigger = 'immediate',
+				func = function()
+					if G.GAME.round_resets.blind_type_override and G.GAME.round_resets.blind_type_override[G.GAME.blind_on_deck] then
+						G.GAME.round_resets.blind_states[G.GAME.blind_on_deck] = 'Defeated'
+
+						-- Revert changes made by base game
+						G.GAME.round_resets.blind_states.Boss = boss_status
+						for k, v in ipairs(G.playing_cards) do
+							v.ability.played_this_ante = abilities_played_this_ante[k]
+						end
+					end
+				
+					return true
+				end
+			}))
+			return true
+		end
+	}))
+
+end
+
 local basegame_blind_get_type = Blind.get_type
 function Blind:get_type()
 	local valid_types = { Small = true, Big = true, Boss = true }

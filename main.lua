@@ -26,6 +26,11 @@ GYM_SHOWDOWN_CLR = {
 	-- 'steven'
 }
 -- NOTE: green needs to be slightly darker
+
+-- Convention for naming:
+-- + Debuff name: <gym leader>_<badge>_debuff | e.g. erika_rainbow_debuff
+-- + Pseudoseed: <gym leader>                 | e.g. pseudoseed('misty')
+
 -- TODO:
 -- TOCHECK:
 
@@ -94,8 +99,8 @@ function pkrm_gym_attention_text(args)
 		return
 	end
 
-	args.scale = args.scale or 1.3
-	args.hold = args.hold or 0.7
+	args.scale = args.scale or 0.75
+	args.hold = args.hold or 1.4
 	args.align = args.align or 'tm'
 
 	local offset_y

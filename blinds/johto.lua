@@ -434,53 +434,64 @@ SMODS.Blind {
 	config = {},
 	vars = {},
 
-	debuff_hand = function(self, cards, hand, handname, check)
-		local count = 0
-		local to_flip = {}
-
-		for _, card in pairs(G.hand.cards) do
-			if not card.ability.koga_flipped then
-				card.ability.koga_flipped = true
-				count = count + 1
-				table.insert(to_flip, card)
-			end
-		end
-
-		if count > 0 then
-			G.GAME.blind:wiggle()
-			G.GAME.blind.triggered = true
-
-			pkrm_gym_attention_text {
-				text = localize('pkrm_gym_e4_koga_ex'),
-				backdrop_colour = TYPE_CLR['poison'],
-				major = G.hand,
-			}
-		end
-
-		for i = 1, #to_flip do
-			local percent = 1.15 - (i - 0.999) / (#to_flip - 0.998) * 0.3
-			local this_card = to_flip[i]
-
-			G.E_MANAGER:add_event(Event {
-				trigger = 'after',
-				delay = 0.15,
-				func = function()
-					this_card:flip()
-					play_sound('card1', percent)
-					return true
-				end,
-			})
+	stay_flipped = function(self, area, card)
+		if area == G.hand then
+			return true
 		end
 
 		return false
 	end,
 
+	calculate = function(self, card, context)
+		if G.GAME.blind.disabled then return end
+
+		if context.before then
+			
+			G.E_MANAGER:add_event(Event {
+				trigger = 'immediate',
+				func = function()
+					pkrm_gym_attention_text {
+						text = localize('pkrm_gym_e4_koga_ex'),
+						backdrop_colour = TYPE_CLR['poison'],
+						major = G.hand,
+						hold = 0.75,
+						align = 'cm',
+					}
+
+					G.GAME.blind:wiggle()
+					G.GAME.blind.triggered = true
+
+					return true
+				end
+			})
+
+			for i = 1, #G.hand.cards do
+				local percent = 1.15 - (i - 0.999) / (#G.hand.cards - 0.998) * 0.3
+				local this_card = G.hand.cards[i]
+
+				-- previously check for front facing cards only: this_card.facing == 'front'
+
+				G.E_MANAGER:add_event(Event {
+					trigger = 'after',
+					delay = 0.15,
+					func = function()
+						this_card:flip()
+						play_sound('card1', percent)
+
+						return true
+					end,
+				})
+			end
+		end
+	end,
+
 	disable = function(self)
 		for _, card in pairs(G.hand.cards) do
 			if card.facing == 'back' then
-				if card.ability.koga_flipped then card:flip() end
+				card:flip()
 			end
 		end
+		G.GAME.blind.triggered = false
 	end,
 }
 
