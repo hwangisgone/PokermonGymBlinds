@@ -151,19 +151,32 @@ local function find_highest_rank_index_list(card_list)
 	for i = 2, #card_list do
 		local card = card_list[i]
 		
-		if not SMODS.has_no_rank(card) then
-			if card:get_id() > highest_rank then
-				highest_rank = card:get_id()
-				highest_index_list = {i}
-			elseif card:get_id() == highest_rank then
-				table.insert(highest_index_list, i)
-			end
+		if card:get_id() > highest_rank then
+			highest_rank = card:get_id()
+			highest_index_list = {i}
+		elseif card:get_id() == highest_rank then
+			table.insert(highest_index_list, i)
 		end
 	end
 
 	return highest_index_list
 end
 
+local function filter_with_rank_only(card_list)
+	local with_rank = {}
+
+	for i = 1, #card_list do
+		local card = card_list[i]
+		
+		if not SMODS.has_no_rank(card) then
+			table.insert(with_rank, card)
+		end
+	end
+
+	return with_rank
+end
+
+-- Input must include no cards with no rank (Stone)
 local function find_lowest_rank(card_list)
 	local lowest_card = card_list[1]
 	local lowest_index = 1
@@ -171,17 +184,30 @@ local function find_lowest_rank(card_list)
 	for i = 2, #card_list do
 		local card = card_list[i]
 		
-		if not SMODS.has_no_rank(card) then
-			if card:get_id() < lowest_card:get_id() then
-				lowest_card = card
-				lowest_index = i
-			end
+		if card:get_id() < lowest_card:get_id() then
+			lowest_card = card
+			lowest_index = i
 		end
 	end
 
 	return lowest_card, lowest_index
 end
 
+local function find_highest_rank(card_list)
+	local highest_card = card_list[1]
+	local highest_index = 1
+
+	for i = 2, #card_list do
+		local card = card_list[i]
+		
+		if card:get_id() > highest_card:get_id() then
+			highest_card = card
+			highest_index = i
+		end
+	end
+
+	return highest_card, highest_index
+end
 
 SMODS.Blind {
 	key = 'dynamo',
@@ -197,7 +223,23 @@ SMODS.Blind {
 	vars = {},
 
 	press_play = function(self)
-		local index_to_swap = find_highest_rank_index_list(G.hand.highlighted)
+		-- Check if either cards in play or in hand is full of no rank (Stone)
+		local play_with_ranks = {}
+		local hand_with_ranks = {}
+		for i, card in ipairs(G.hand.cards) do
+			if not SMODS.has_no_rank(card) then
+				if card.highlighted then
+					table.insert(play_with_ranks, card)
+				else
+					table.insert(hand_with_ranks, card)
+				end
+			end
+		end
+
+		if #play_with_ranks < 1 or #hand_with_ranks < 1 then return end
+
+
+		local index_to_swap = find_highest_rank_index_list(play_with_ranks)
 
 		for k, play_index in ipairs(index_to_swap) do
 			G.E_MANAGER:add_event(Event {
@@ -209,7 +251,8 @@ SMODS.Blind {
 					end
 
 					local play_swap = G.play.cards[play_index]
-					local hand_swap, hand_index = find_lowest_rank(G.hand.cards)
+					-- Hand may change after each swap so must do it dynamically
+					local hand_swap, hand_index = find_lowest_rank(filter_with_rank_only(G.hand.cards))
 
 					G.play:remove_card(play_swap)
 					G.hand:emplace(play_swap, 'front')
@@ -244,24 +287,6 @@ SMODS.Blind {
 }
 
 
-local function find_highest_rank(card_list)
-	local highest_card = card_list[1]
-	local highest_index = 1
-
-	for i = 2, #card_list do
-		local card = card_list[i]
-		
-		if not SMODS.has_no_rank(card) then
-			if card:get_id() > highest_card:get_id() then
-				highest_card = card
-				highest_index = i
-			end
-		end
-	end
-
-	return highest_card, highest_index
-end
-
 
 SMODS.Blind {
 	key = 'heat',
@@ -286,7 +311,11 @@ SMODS.Blind {
 		if G.GAME.blind.disabled then return end
 
 		if context.after then
-			local highest_card, highest_index = find_highest_rank(context.scoring_hand)
+			local play_with_ranks = filter_with_rank_only(context.scoring_hand)
+			
+			if #play_with_ranks < 1 then return end
+
+			local highest_card, highest_index = find_highest_rank(play_with_ranks)
 			local highest_rank = highest_card:get_id()
 
 			if highest_rank > G.GAME.BL_EXTRA.temp_table.highest_rank_saved then
@@ -299,7 +328,7 @@ SMODS.Blind {
 				trigger = 'after',
 				delay = 0.5,
 				func = function()
-					for i, card in ipairs(G.playing_cards) do
+					for i, card in ipairs(filter_with_rank_only(G.playing_cards)) do
 						if card:get_id() < highest_rank then
 							SMODS.debuff_card(card, true, 'flannery_heat_debuff')
 							card:juice_up()
