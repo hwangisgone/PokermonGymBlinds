@@ -201,4 +201,110 @@ set_blind = function(self)
     })
 end,
 
+-- Old Feather 2: Add a 9 to deck for every unscored card
+
+local ALL_NINES = {}
+for _, v in pairs(G.P_CARDS) do
+  if v.value == '9' then
+	table.insert(ALL_NINES, v)
+  end
+end
+
+local function get_unscored_indices(full_hand, scoring_hand)
+	local scored_map = {}
+	for _,v in ipairs(scoring_hand) do 
+		scored_map[v] = true
+	end
+
+	local unscored_indices = {}
+	for i,v in ipairs(full_hand) do 
+		if not scored_map[v] then
+			table.insert(unscored_indices, i)
+		end
+	end
+
+	return unscored_indices
+end
+
+SMODS.Blind {
+	key = 'feather',
+	atlas = 'blinds_hoenn',
+	pos = { x = 0, y = 5 },
+	boss_colour = TYPE_CLR['flying'],
+
+	discovered = false,
+	dollars = 5,
+	mult = 2,
+	boss = { min = 1, max = 10 },
+	config = {},
+	vars = {},
+
+	calculate = function(self, card, context)
+		if G.GAME.blind.disabled then return end
+
+		if context.final_scoring_step then
+			local unscored_indices = get_unscored_indices(G.play.cards, context.scoring_hand)
+
+			if #unscored_indices < 1 then return end
+
+			local nine_list = {}
+
+			G.E_MANAGER:add_event(Event {
+				trigger = 'before',
+				delay = 2,
+				func = function()
+					local added_card_count = 0
+
+					for _, index in ipairs(unscored_indices) do
+						local created_nine = create_playing_card({
+							front = pseudorandom_element(ALL_NINES, pseudoseed('winona')), 
+							center = G.P_CENTERS.c_base
+						}, G.play, nil, nil, { TYPE_CLR['flying'] })
+
+						added_card_count = added_card_count + 1
+
+						table_shift_positions(G.play.cards, #G.play.cards, index + added_card_count)
+
+						table.insert(nine_list, created_nine)
+					end
+
+					pkrm_gym_attention_text {
+						text = localize('pkrm_gym_feather_ex'),
+						backdrop_colour = TYPE_CLR['flying'],
+						major = G.play,
+					}
+
+					G.GAME.blind:wiggle()
+
+					return true
+				end
+			})
+
+			for i = 1, #unscored_indices do
+				G.E_MANAGER:add_event(Event {
+					trigger = 'before',
+					delay = 0.5,
+					func = function()
+						-- Divide by 2 so player doesn't draw them immediately and get a flush five
+						local random_index = pseudorandom('winona', 1, #G.deck.cards)
+
+						G.play:remove_card(nine_list[i])
+						G.deck:emplace(nine_list[i], 'front')
+
+						table_shift_positions(G.deck.cards, 1, random_index)
+						play_sound('card1', 1, 0.6)
+
+						return true
+					end
+				})
+			end
+
+			G.E_MANAGER:add_event(Event {
+				trigger = 'after',
+				delay = 1,
+			})
+		end
+	end
+}
+
 */

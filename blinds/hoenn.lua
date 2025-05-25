@@ -404,28 +404,6 @@ SMODS.Blind {
 }
 
 
-local ALL_NINES = {}
-for _, v in pairs(G.P_CARDS) do
-  if v.value == '9' then
-	table.insert(ALL_NINES, v)
-  end
-end
-
-local function get_unscored_indices(full_hand, scoring_hand)
-	local scored_map = {}
-	for _,v in ipairs(scoring_hand) do 
-		scored_map[v] = true
-	end
-
-	local unscored_indices = {}
-	for i,v in ipairs(full_hand) do 
-		if not scored_map[v] then
-			table.insert(unscored_indices, i)
-		end
-	end
-
-	return unscored_indices
-end
 
 SMODS.Blind {
 	key = 'feather',
@@ -437,75 +415,63 @@ SMODS.Blind {
 	dollars = 5,
 	mult = 2,
 	boss = { min = 1, max = 10 },
-	config = {},
+	config = { lose = 2 },
 	vars = {},
 
-	calculate = function(self, card, context)
-		if G.GAME.blind.disabled then return end
+	loc_vars = function(self)
+		return { vars = { self.config.lose } }
+	end,
+	collection_loc_vars = function(self)
+		return { vars = { self.config.lose } }
+	end,
 
-		if context.final_scoring_step then
-			local unscored_indices = get_unscored_indices(G.play.cards, context.scoring_hand)
+	press_play = function(self)
+		G.E_MANAGER:add_event(Event {
+			trigger = 'after',
+			delay = 0.5,
+			func = function()
+				local not_released_nine_count = 0
 
-			if #unscored_indices < 1 then return end
+				pkrm_gym_attention_text {
+					text = localize('pkrm_gym_feather_ex'),
+					backdrop_colour = TYPE_CLR['flying'],
+					major = G.play,
+				}
 
-			local nine_list = {}
+				for i, card in ipairs(G.deck.cards) do
+					if card.base.value == '9' then
+						not_released_nine_count = not_released_nine_count + 1
 
-			G.E_MANAGER:add_event(Event {
-				trigger = 'before',
-				delay = 2,
-				func = function()
-					local added_card_count = 0
-
-					for _, index in ipairs(unscored_indices) do
-						local created_nine = create_playing_card({
-							front = pseudorandom_element(ALL_NINES, pseudoseed('winona')), 
-							center = G.P_CENTERS.c_base
-						}, G.play, nil, nil, { TYPE_CLR['flying'] })
-
-						added_card_count = added_card_count + 1
-
-						table_shift_positions(G.play.cards, #G.play.cards, index + added_card_count)
-
-						table.insert(nine_list, created_nine)
+						card:juice_up()
 					end
-
-					pkrm_gym_attention_text {
-						text = localize('pkrm_gym_feather_ex'),
-						backdrop_colour = TYPE_CLR['flying'],
-						major = G.play,
-					}
-
-					G.GAME.blind:wiggle()
-
-					return true
 				end
-			})
 
-			for i = 1, #unscored_indices do
-				G.E_MANAGER:add_event(Event {
-					trigger = 'before',
-					delay = 0.5,
-					func = function()
-						-- Divide by 2 so player doesn't draw them immediately and get a flush five
-						local random_index = pseudorandom('winona', 1, #G.deck.cards)
+				for i, card in ipairs(G.hand.cards) do
+					if card.base.value == '9' then
+						not_released_nine_count = not_released_nine_count + 1
 
-						G.play:remove_card(nine_list[i])
-						G.deck:emplace(nine_list[i], 'front')
+						pkrm_gym_attention_text {
+							text = '-'..localize('$')..(self.config.lose),
+							backdrop_colour = TYPE_CLR['flying'],
+							major = card,
+						}
 
-						table_shift_positions(G.deck.cards, 1, random_index)
-						play_sound('card1', 1, 0.6)
-
-						return true
+						card:juice_up()
 					end
-				})
-			end
+				end
 
-			G.E_MANAGER:add_event(Event {
-				trigger = 'after',
-				delay = 1,
-			})
-		end
-	end
+				ease_dollars(-not_released_nine_count * self.config.lose)
+				G.VIBRATION = G.VIBRATION + 0.6
+				G.GAME.blind:wiggle()
+
+				return true
+			end
+		})
+		G.E_MANAGER:add_event(Event {
+			trigger = 'after',
+			delay = 0.5,
+		})
+	end,
 }
 
 
@@ -610,6 +576,73 @@ SMODS.Blind {
 	boss = { min = 8, max = 10, showdown = true },
 	config = {},
 	vars = {},
+
+	drawn_to_hand = function(self)
+		local to_check_hand = filter_with_rank_only(G.hand.cards)
+		local to_check_deck = filter_with_rank_only(G.deck.cards)
+
+		local ranks_in_hand = {}
+		for _, card in pairs(to_check_hand) do
+			ranks_in_hand[card.base.id] = true
+		end
+		
+		local ranks_only_in_deck = {}
+		for _, card in pairs(to_check_deck) do
+			if not ranks_in_hand[card.base.id]
+			and not card.debuff then
+				table.insert(ranks_only_in_deck, card.base.id)
+			end
+		end
+
+		if #ranks_only_in_deck < 1 then return end
+
+		-- Select 2 random ranks
+		local selected_ranks = {}
+		for i = 1, 2 do
+			local rank_id, rank_index = pseudorandom_element(ranks_only_in_deck, pseudoseed('sidney'))
+			selected_ranks[rank_id] = true
+
+			table.remove(ranks_only_in_deck, rank_index)
+
+			if #ranks_only_in_deck < 1 then
+				break
+			end
+		end
+
+		-- Debuff
+		for _, card in pairs(to_check_deck) do
+			if selected_ranks[card.base.id] then
+				SMODS.debuff_card(card, true, 'e4_sidney_debuff')
+				card:juice_up()
+			end
+		end
+
+		if #G.deck.cards > 0 then
+			G.deck.cards[1]:juice_up()
+		end
+
+		local display_text = localize('pkrm_gym_e4_sidney_ex_1')
+		if pseudorandom(pseudoseed('sidney')) < 0.25 then
+			display_text = localize('pkrm_gym_e4_sidney_ex_2')
+		end
+
+		pkrm_gym_attention_text {
+			text = display_text,
+			backdrop_colour = TYPE_CLR['dark'],
+			major = G.deck,
+			offset_y = -0.5,
+		}
+
+		G.GAME.blind:wiggle()
+		G.VIBRATION = G.VIBRATION + 1
+	end,
+
+	disable = function(self)
+		remove_debuff_all_playing_cards('e4_sidney_debuff')
+	end,
+	defeat = function(self)
+		remove_debuff_all_playing_cards('e4_sidney_debuff')
+	end,
 }
 
 SMODS.Blind {
@@ -714,6 +747,20 @@ SMODS.Blind {
 
 SMODS.Blind {
 	key = 'champion_hoenn',
+	atlas = 'blinds_hoenn',
+	pos = { x = 0, y = 12 },
+	boss_colour = TYPE_CLR['steel'],
+
+	discovered = false,
+	dollars = 12,
+	mult = 4,
+	boss = { min = 10, max = 10, showdown = true },
+	config = {},
+	vars = {},
+}
+
+SMODS.Blind {
+	key = 'champion_hoenn_wallace',
 	atlas = 'blinds_hoenn',
 	pos = { x = 0, y = 12 },
 	boss_colour = TYPE_CLR['water'],

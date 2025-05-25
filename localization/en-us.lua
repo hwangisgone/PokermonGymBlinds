@@ -39,11 +39,11 @@ return {
 			bl_pkrm_gym_dynamo  = {name = 'The Dynamo' ,text = {"Switch highest rank in play", "with lowest rank in hand"}},
 			bl_pkrm_gym_heat    = {name = 'The Heat'   ,text = {"Ranks lower than","highest scored rank","are debuffed"}},
 			bl_pkrm_gym_balance = {name = 'The Balance',text = {"Can only play", "last discarded poker hand"}},
-			bl_pkrm_gym_feather = {name = 'The Feather',text = {"Add a 9 to deck", "for every unscored card"}},
+			bl_pkrm_gym_feather = {name = 'The Feather',text = {"Lose $#1# for every 9", "in deck or held in hand"}},
 			bl_pkrm_gym_mind    = {name = 'The Mind'   ,text = {"Forces a Pair to", "always be selected"}},
 			bl_pkrm_gym_rain    = {name = 'The Rain'   ,text = {"Must play", "more ranks than suits"}},
 			bl_pkrm_gym_rain_juan = {name = 'The Rain'   ,text = {"Mult is capped by Chips"}},
-			bl_pkrm_gym_e4_sidney = {name = 'Slick Shades'    ,text = {"Elite Four - 1"}},
+			bl_pkrm_gym_e4_sidney = {name = 'Slick Scythe'    ,text = {"After each Draw,", "debuff two random ranks", "not in hand"}},
 			bl_pkrm_gym_e4_phoebe = {name = 'Pale Petal'      ,text = {"Elite Four - 2"}},
 			bl_pkrm_gym_e4_glacia = {name = 'Glistening Gown' ,text = {"Lose $#1#.", "-1 hand size per {C:red}-$#2#{}", "in current debt"}},
 			bl_pkrm_gym_e4_drake  = {name = 'Midnight Mast'   ,text = {"Elite Four - 4"}},
@@ -100,6 +100,8 @@ return {
 			pkrm_gym_dynamo_ex = "Volt Switch",
 			pkrm_gym_heat_ex = "Overheated!",
 			pkrm_gym_feather_ex = "Cloud Nine",
+			pkrm_gym_e4_sidney_ex_1 = "Night Slash",
+			pkrm_gym_e4_sidney_ex_2 = "Crunch",
 
 			pkrm_gym_champion_no_disable = "Champion Blind cannot be disabled",
 
