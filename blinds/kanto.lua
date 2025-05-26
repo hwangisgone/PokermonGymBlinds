@@ -529,7 +529,7 @@ SMODS.Enhancement {
 	end,
 
 	loc_vars = function(self, info_queue, card)
-		local answer_key = card.ability.extra.answer_key
+		local answer_key = (card.ability.extra and card.ability.extra.answer_key) or 'Broken'
 		if type(answer_key) == 'number' then answer_key = answer_key .. '.' end
 		return { vars = { answer_key } }
 	end,
@@ -865,10 +865,6 @@ BL_FUNCTION_TABLE['earth_ease_dollars'] = function(mod)
 
 	calculated_mult = math.max(calculated_mult - math.floor(total_earned / every_earned), 2)
 
-	print(total_earned)
-	print(total_earned / every_earned)
-	print(calculated_mult)
-
 	local calculated_chips = original_chips * calculated_mult * G.GAME.starting_params.ante_scaling
 
 	-- Animate change in chips
@@ -1124,14 +1120,15 @@ SMODS.Blind {
 	end,
 }
 
-local pokermon_chip_drain = poke_stabilize_chip_drain
-poke_stabilize_chip_drain = function(card)
-	card.ability.nominal_drain = 0
-	-- if card.ability.boss_drain then
-	-- 	card.ability.boss_drain = nil
-	-- else
-	-- 	pokermon_chip_drain(card)
-	-- end
+
+
+local basegame_card_get_chip_bonus = Card.get_chip_bonus
+function Card:get_chip_bonus()
+	if G.GAME.blind and G.GAME.blind.name == 'bl_pkrm_gym_champion_kanto' and not G.GAME.blind.disabled then
+		return 0
+	end
+
+	return basegame_card_get_chip_bonus()
 end
 
 SMODS.Blind {
@@ -1147,29 +1144,7 @@ SMODS.Blind {
 	config = { blue_penalty_chips = 12 },
 	vars = { 12 },
 
-	calculate = function(self, card, context)
-		if G.GAME.blind.disabled then return end
-
-		if context.before then
-			for k, v in pairs(G.play.cards) do
-				-- G.E_MANAGER:add_event(Event({trigger = 'immediate',func = function()
-				v:juice_up(0.5, 0.1)
-				-- card.ability.nominal_drain = self.config.blue_penalty_chips
-				-- card.ability.boss_drain = true
-				v.ability.perma_bonus = v.ability.perma_bonus - self.config.blue_penalty_chips
-				print(v:get_chip_bonus())
-			end
-		elseif context.after then
-			G.E_MANAGER:add_event(Event {
-				trigger = 'immediate',
-				func = function()
-					for k, card in pairs(G.play.cards) do
-						print('TRIGGERED')
-						card.ability.perma_bonus = card.ability.perma_bonus + self.config.blue_penalty_chips
-					end
-					return true
-				end,
-			})
-		end
+	modify_hand = function(self, cards, poker_hands, text, mult, hand_chips)
+		return  mult, 0, true
 	end,
 }

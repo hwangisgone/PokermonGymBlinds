@@ -171,7 +171,7 @@ SMODS.Blind {
 	dollars = 5,
 	mult = 2,
 	boss = { min = 1, max = 10 },
-	config = { rollout = 120 },
+	config = { rollout = 150 },
 	vars = {},
 
 	press_play = function(self)
