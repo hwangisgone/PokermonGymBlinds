@@ -1128,7 +1128,7 @@ function Card:get_chip_bonus()
 		return 0
 	end
 
-	return basegame_card_get_chip_bonus()
+	return basegame_card_get_chip_bonus(self)
 end
 
 SMODS.Blind {
