@@ -297,43 +297,57 @@ SMODS.Blind {
 
 	press_play = function(self)
 		local flavor_text = ''
-		local has_one_steel_stone = false
+		local has_steel_or_stone = false
 		local has_steel = false
 		local has_stone = false
 	
 		for _, card in pairs(G.hand.cards) do
-			has_steel = SMODS.has_enhancement(card, 'm_steel')
-			has_stone = SMODS.has_enhancement(card, 'm_stone')
-			
-			if has_steel or has_stone then
-				has_one_steel_stone = true
+			if not card.highlighted then
+				has_steel = SMODS.has_enhancement(card, 'm_steel')
+				has_stone = SMODS.has_enhancement(card, 'm_stone')
+				
+				if has_steel or has_stone then
+					has_steel_or_stone = true
 
-				if has_steel then
-					flavor_text = localize('pkrm_gym_mineral_ex_steel')
-				else
-					flavor_text = localize('pkrm_gym_mineral_ex_stone')
-				end
+					if has_steel then
+						flavor_text = localize('pkrm_gym_mineral_ex_steel')
+					else
+						flavor_text = localize('pkrm_gym_mineral_ex_stone')
+					end
 
-				break
-			end
-		end
-
-		if has_steel_stone then
-			G.GAME.blind:wiggle()
-
-			pkrm_gym_attention_text {
-				text = flavor_text,
-				backdrop_colour = TYPE_CLR['steel'],
-				major = G.hand,
-			}
-
-			for _, card in pairs(G.hand.cards) do
-				if not card.highlighted then
-					card:juice_up()
-					draw_card(G.hand, G.discard, 100, 'up', false, card, 0.2)
+					break
 				end
 			end
 		end
+
+		if not has_steel_or_stone then return end
+
+		G.E_MANAGER:add_event(Event {
+			trigger = 'after',
+			delay = 0.5,
+			func = function()
+				G.GAME.blind:wiggle()
+
+				pkrm_gym_attention_text {
+					text = flavor_text,
+					backdrop_colour = TYPE_CLR['steel'],
+					major = G.hand,
+				}
+
+				local any_selected = false
+				for _, card in pairs(G.hand.cards) do
+					card:highlight(true)
+					G.hand.highlighted[#G.hand.highlighted+1] = card
+					any_selected = true
+					play_sound('card1', 1)
+				end
+				if any_selected then G.FUNCS.discard_cards_from_highlighted(nil, true) end
+
+				return true
+			end
+		})
+
+		delay(0.7)
 	end,
 }
 

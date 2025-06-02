@@ -279,10 +279,7 @@ SMODS.Blind {
 		end
 
 		-- Give a bit of pause for player to evaluate what's going on
-		G.E_MANAGER:add_event(Event {
-			trigger = 'after',
-			delay = 1,
-		})
+		delay(1)
 	end,
 }
 
@@ -467,10 +464,8 @@ SMODS.Blind {
 				return true
 			end
 		})
-		G.E_MANAGER:add_event(Event {
-			trigger = 'after',
-			delay = 0.5,
-		})
+		
+		delay(0.5)
 	end,
 }
 
