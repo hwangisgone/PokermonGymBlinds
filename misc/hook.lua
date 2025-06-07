@@ -3,41 +3,46 @@ local league_length = 10
 local basegame_get_new_boss = get_new_boss
 function get_new_boss(blind)
 	-- TODO: Special blind for ante < 1?
-	if not pkrm_gym_config.setting_only_gym or G.GAME.round_resets.ante < 1 then
-		return basegame_get_new_boss()
-	end
+	if not pkrm_gym_config.setting_only_gym or G.GAME.round_resets.ante < 1 then return basegame_get_new_boss() end
 
-	-- Get new league and set up winning ante
-	if not G.GAME.pkrm_league then
-		G.GAME.pkrm_league = generate_league()
+	local league_index = 1
+	local gym_index = (G.GAME.round_resets.ante - 1) % league_length + 1
+
+	print("THIS WAS CALLED ")
+	print(blind)
+
+	-- Initialize league and set up winning ante
+	if not G.GAME.pkrm_league_pool then
+		G.GAME.pkrm_league_pool = get_league_pool()
 		G.GAME.win_ante = 10
+	else
+		league_index = math.floor((G.GAME.round_resets.ante - 1) / league_length) % #G.GAME.pkrm_league_pool + 1
+
+		if league_index == 1 and gym_index == 1 then
+			G.GAME.pkrm_league_pool = get_league_pool() 			
+		end
 	end
 
-	local league_index = G.GAME.round_resets.ante % league_length
-
-	if league_index == 9 then
+	local current_league = G.GAME.pkrm_league_pool[league_index]
+	
+	if gym_index == 9 then
 		-- Elite four
 		if blind == 'big' then
-			selected_boss = G.GAME.pkrm_league.e4[1]
+			selected_boss = current_league.e4[1]
 		else
-			selected_boss = G.GAME.pkrm_league.e4[2]
+			selected_boss = current_league.e4[2]
 		end
-	elseif league_index == 0 then
-		-- Elite four & champion
+	elseif gym_index == 10 then
+		-- Elite four & Champion
 		if blind == 'small' then
-			selected_boss = G.GAME.pkrm_league.e4[3]
+			selected_boss = current_league.e4[3]
 		elseif blind == 'big' then
-			selected_boss = G.GAME.pkrm_league.e4[4]
+			selected_boss = current_league.e4[4]
 		else
-			selected_boss = G.GAME.pkrm_league.champion
+			selected_boss = current_league.champion
 		end
 	else
-		selected_boss = G.GAME.pkrm_league.gym[league_index]
-	end
-
-	-- Reset league
-	if league_index == 0 then
-		G.GAME.league = nil
+		selected_boss = current_league.gym[gym_index]
 	end
 
 	return selected_boss
@@ -46,17 +51,21 @@ end
 -- Override for Elite Four blinds at ante 9 and 10
 local basegame_reset_blinds = reset_blinds
 function reset_blinds()
+	local boss_defeated = G.GAME.round_resets.blind_states.Boss == 'Defeated'
+
 	basegame_reset_blinds()
 
-	if pkrm_gym_config.setting_only_gym then
-		local league_index = G.GAME.round_resets.ante % league_length
+	if not boss_defeated then return end
 
-		if league_index == 9 then
+	if pkrm_gym_config.setting_only_gym then
+		local gym_index = (G.GAME.round_resets.ante - 1) % league_length + 1
+
+		if gym_index == 9 then
 			G.GAME.round_resets.blind_type_override = { Big = true }
 
 			G.GAME.round_resets.blind_tags.Big = nil
 			G.GAME.round_resets.blind_choices.Big = get_new_boss('big')
-		elseif league_index == 0 then
+		elseif gym_index == 10 then
 			G.GAME.round_resets.blind_type_override = { Big = true, Small = true }
 
 			G.GAME.round_resets.blind_tags.Small = nil
@@ -86,29 +95,31 @@ function end_round()
 
 	base_game_end_round()
 
-	G.E_MANAGER:add_event(Event({
+	G.E_MANAGER:add_event(Event {
 		trigger = 'immediate',
 		func = function()
-			G.E_MANAGER:add_event(Event({
+			G.E_MANAGER:add_event(Event {
 				trigger = 'immediate',
 				func = function()
-					if G.GAME.round_resets.blind_type_override and G.GAME.round_resets.blind_type_override[G.GAME.blind_on_deck] then
+					-- If current blind is an Elite Four (Boss)
+					if G.GAME.round_resets.blind_type_override
+						and G.GAME.round_resets.blind_type_override[G.GAME.blind_on_deck]
+					then
 						G.GAME.round_resets.blind_states[G.GAME.blind_on_deck] = 'Defeated'
 
-						-- Revert changes made by base game
+						-- Revert changes made by base game (if Showdown/Boss is Defeated then it won't go new ante)
 						G.GAME.round_resets.blind_states.Boss = boss_status
 						for k, v in ipairs(G.playing_cards) do
 							v.ability.played_this_ante = abilities_played_this_ante[k]
 						end
 					end
-				
-					return true
-				end
-			}))
-			return true
-		end
-	}))
 
+					return true
+				end,
+			})
+			return true
+		end,
+	})
 end
 
 local basegame_blind_get_type = Blind.get_type

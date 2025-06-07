@@ -78,9 +78,8 @@ end
 function remove_debuff_all_playing_cards(source)
 	for _, card in pairs(G.playing_cards) do
 		SMODS.debuff_card(card, false, source)
-	end	
+	end
 end
-
 
 function card_is_even(card)
 	-- Lua has modulo???
@@ -135,9 +134,9 @@ function champion_no_disable_attention_text()
 end
 
 local files_to_load = {
-	 -- Loading blind hooks
+	-- Loading blind hooks
 	'misc/blind_hook.lua',
-	 -- Loading blinds
+	-- Loading blinds
 	'blinds/kanto.lua',
 	'blinds/johto.lua',
 	'blinds/hoenn.lua',
@@ -146,9 +145,9 @@ local files_to_load = {
 
 for k, file_path in pairs(files_to_load) do
 	local load_the_file, load_error = SMODS.load_file(file_path)
-	if load_error then 
+	if load_error then
 		sendDebugMessage('The error is: ' .. load_error)
-	else 
+	else
 		load_the_file()
 	end
 end
@@ -237,65 +236,94 @@ for k, league in pairs(all_leagues) do
 	table.insert(all_champions, league.champion)
 end
 
-function generate_league()
-	local selected_league = {
-		gym = {},
-		e4 = {},
-		champion = '',
-	}
+-- -- League generation -- --
+-- Special cases swapping
+local swap_rules = {
+	['soul'] = {
+		if_encountered = 'e4_koga',
+		replace_with = 'soul_janine',
+	},
+}
+
+local function process_blind(blind, encountered)
+	encountered[blind] = (encountered[blind] or 0) + 1
+
+	local rule = swap_rules[blind]
+	if rule and encountered[rule.if_encountered] then return rule.replace_with end
+
+	return blind
+end
+
+local function process_special_cases_in_timeline(pool)
+	local encountered = {}
+
+	for _, league in ipairs(pool) do
+		-- Process arrays in-place
+		for i = 1, #league.gym do
+			league.gym[i] = process_blind(league.gym[i], encountered)
+		end
+		for i = 1, #league.e4 do
+			league.e4[i] = process_blind(league.e4[i], encountered)
+		end
+
+		league.champion = process_blind(league.champion, encountered)
+	end
+end
+
+-- Generating pool
+function get_league_pool()
+	local pool = {}
+	local seed = pseudoseed('pokermon_league')
 
 	if pkrm_gym_config.setting_random_gym then
 		local shuffled_gyms = copy_table(all_gyms)
 		local shuffled_e4 = copy_table(all_e4)
-		pseudoshuffle(all_gyms, pseudoseed('pokermon_league'))
-		pseudoshuffle(all_e4, pseudoseed('pokermon_league'))
+		local shuffled_champions = copy_table(all_champions)
 
-		for i = 1, 8 do
-			table.insert(selected_league.gym, shuffled_gyms[i])
+		pseudoshuffle(shuffled_gyms, seed)
+		pseudoshuffle(shuffled_e4, seed)
+		pseudoshuffle(shuffled_champions, seed)
+
+		local count = #shuffled_champions
+		for i = 1, count do
+			local league = {
+				gym = { -- 8 gyms
+					table.remove(shuffled_gyms),
+					table.remove(shuffled_gyms),
+					table.remove(shuffled_gyms),
+					table.remove(shuffled_gyms),
+					table.remove(shuffled_gyms),
+					table.remove(shuffled_gyms),
+					table.remove(shuffled_gyms),
+					table.remove(shuffled_gyms),
+				},
+				e4 = { -- elite four
+					table.remove(shuffled_e4),
+					table.remove(shuffled_e4),
+					table.remove(shuffled_e4),
+					table.remove(shuffled_e4),
+				},
+				champion = table.remove(shuffled_champions),
+			}
+
+			table.insert(pool, league)
 		end
-
-		for i = 1, 4 do
-			table.insert(selected_league.e4, shuffled_e4[i])
-		end
-
-		selected_league.champion = pseudorandom_element(all_champions, pseudoseed('pokermon_league'))
 	else
-		selected_league = pseudorandom_element(all_leagues, pseudoseed('pokermon_league'))
+		pool = copy_table(all_leagues)
+		pseudoshuffle(pool, seed)
+
+		if pkrm_gym_config.setting_random_elite4 then
+			for _, league in ipairs(pool) do
+				pseudoshuffle(league.e4, seed)
+			end
+		end
 	end
 
-	if pkrm_gym_config.setting_random_elite4 then pseudoshuffle(selected_league.e4) end
-
-	return selected_league
+	return pool
 end
 
--- Testing stage
-function table_to_string(tbl)
-	local result = '{'
 
-	for k, v in pairs(tbl) do
-		-- Handle the key
-		if type(k) == 'string' then
-			result = result .. '["' .. k .. '"]='
-		else
-			result = result .. '[' .. tostring(k) .. ']='
-		end
 
-		-- Handle the value
-		if type(v) == 'table' then
-			result = result .. table_to_string(v) -- Recursive call for nested tables
-		elseif type(v) == 'string' then
-			result = result .. '"' .. v .. '"'
-		else
-			result = result .. tostring(v)
-		end
-
-		result = result .. ','
-	end
-
-	-- Remove trailing comma and close the table
-	if result ~= '{' then result = result:sub(1, -2) end
-	return result .. '}'
-end
 
 -- UI Config stuff
 local modtag = 'pkrm_gym'

@@ -70,7 +70,7 @@ SMODS.Blind {
 			-- Remove jokers without energy
 			for k, v in pairs(find_pokemon_type('Water')) do
 				-- if v.ability.extra.energy_count and v.ability.extra.energy_count > 0 then
-					table.insert(water_list, v)
+				table.insert(water_list, v)
 				-- end
 			end
 
@@ -202,14 +202,13 @@ SMODS.Blind {
 		if G.GAME.blind.disabled then return end
 
 		if context.pre_discard or context.before then
-
 			G.E_MANAGER:add_event(Event {
 				trigger = 'immediate',
 				func = function()
 					G.GAME.blind:wiggle()
 					G.GAME.blind.triggered = true
 					return true
-				end
+				end,
 			})
 
 			for i = 1, #G.hand.cards do
@@ -487,6 +486,8 @@ local function redrawQuizUI(quiz_table)
 	}
 end
 
+
+
 BL_FUNCTION_TABLE['volcano_reload'] = function(temp_table)
 	if type(temp_table) == 'table' then
 		G.GAME.blind.config.blind.custom_UI = redrawQuizUI(temp_table)
@@ -568,42 +569,67 @@ SMODS.Enhancement {
 	end,
 }
 
-local function correct_attention_text(major)
-	attention_text {
-		text = localize('pkrm_gym_blaine_quizzes_ex_right'),
-		backdrop_colour = G.C.GREEN,
-		scale = 1,
-		hold = 2,
-		major = major,
-		align = (major == G.play and 'tm') or 'cm',
-		offset = { x = 0, y = 0 },
-		silent = false,
-	}
+local function correct_attention_text(major, delay, offset_y, sound)
+	G.E_MANAGER:add_event(Event {
+		trigger = 'after',
+		delay = (delay or 0),
+		func = function()
+			attention_text {
+				text = localize('pkrm_gym_blaine_quizzes_ex_right'),
+				backdrop_colour = G.C.GREEN,
+				backdrop_scale = 1.2,
+				scale = 1,
+				hold = 2,
+				major = major,
+				align = (major == G.play and 'tm') or 'cm',
+				offset = { x = 0, y = (offset_y or -0.1*G.CARD_H) },
+				silent = false,
+			}
 
-	G.GAME.blind:wiggle()
-	play_sound('gong')
+			if major ~= G.play and major.juice_up then
+				major:juice_up()
+			end
+
+			G.GAME.blind:wiggle()
+			play_sound((sound or 'gong'))
+
+			return true
+		end
+	})
 end
 
-local function wrong_attention_text(major)
-	attention_text {
-		text = localize('pkrm_gym_blaine_quizzes_ex_wrong'),
-		backdrop_colour = G.C.RED,
-		scale = 1,
-		hold = 2,
-		major = major,
-		align = (major == G.play and 'tm') or 'cm',
-		offset = { x = 0, y = 0 },
-		silent = false,
-	}
+local function wrong_attention_text(major, delay, offset_y)
+	G.E_MANAGER:add_event(Event {
+		trigger = 'after',
+		delay = (delay or 0),
+		func = function()
+			attention_text {
+				text = localize('pkrm_gym_blaine_quizzes_ex_wrong'),
+				backdrop_colour = G.C.RED,
+				backdrop_scale = 1.2,
+				scale = 1,
+				hold = 2,
+				major = major,
+				align = (major == G.play and 'tm') or 'cm',
+				offset = { x = 0, y = (offset_y or 0) },
+				silent = false,
+			}
 
-	G.GAME.blind:wiggle()
+			if major.juice_up then
+				major:juice_up()
+			end
+
+			G.GAME.blind:wiggle()
+			return true
+		end
+	})
 end
 
-local function bad_answer_attention_text(text, major)
+local function bad_answer_attention_text(text, major, delay)
 	local config = {
-		scale = 1.4,
-		hold = 1.5,
-		align = 'tm'
+		scale = 1,
+		hold = 2,
+		align = 'tm',
 	}
 
 	-- Align to card
@@ -612,27 +638,34 @@ local function bad_answer_attention_text(text, major)
 		config.align = 'cm'
 	end
 
-	attention_text {
-		text = text,
-		backdrop_colour = G.C.BLACK,
-		backdrop_scale = 1.8,
-		scale = config.scale,
-		hold = config.hold,
-		major = major,
-		align = config.align,
-		offset = { x = 0, y = 0 },
-		silent = false,
-	}
+	G.E_MANAGER:add_event(Event {
+		trigger = 'after',
+		delay = (delay or 0),
+		func = function()
+			attention_text {
+				text = text,
+				backdrop_colour = G.C.BLACK,
+				backdrop_scale = 2,
+				scale = config.scale,
+				hold = config.hold,
+				major = major,
+				align = config.align,
+				offset = { x = 0, y = 0 },
+				silent = false,
+			}
 
-	G.ROOM.jiggle = G.ROOM.jiggle + 0.7
-	play_sound('cancel')
+			G.ROOM.jiggle = G.ROOM.jiggle + 0.7
+			play_sound('cancel')
+			return true
+		end
+	})
 end
 
 local function total_add_new_chips(score)
 	if (SMODS.Mods['Talisman'] or {}).can_load then
-		return (to_big(G.GAME.chips))+(to_big(score))
+		return (to_big(G.GAME.chips)) + (to_big(score))
 	else
-		return  G.GAME.chips + score
+		return G.GAME.chips + score
 	end
 end
 
@@ -641,15 +674,17 @@ local function score_part_of_blind(division)
 	local new_chips = total_add_new_chips(math.ceil(G.GAME.blind.chips / division))
 
 	--Ease from current chips to the new number of chips
-	G.E_MANAGER:add_event(Event({
+	G.E_MANAGER:add_event(Event {
 		trigger = 'ease',
 		blockable = false,
 		ref_table = G.GAME,
 		ref_value = 'chips',
 		ease_to = new_chips,
-		delay =  0.3,
-		func = (function(t) return math.floor(t) end)
-	}))
+		delay = 0.3,
+		func = function(t)
+			return math.floor(t)
+		end,
+	})
 	--Popup text next to the chips in UI showing number of chips gained/lost
 	chip_UI:juice_up()
 end
@@ -719,7 +754,6 @@ SMODS.Blind {
 						if is_yes_no and type(card.ability.extra.answer_key) ~= 'string' then
 							G.hand:remove_from_highlighted(card)
 							bad_answer_attention_text(localize('pkrm_gym_blaine_quizzes_warn_yesno'), card)
-
 						elseif not is_yes_no and type(card.ability.extra.answer_key) ~= 'number' then
 							G.hand:remove_from_highlighted(card)
 							bad_answer_attention_text(localize('pkrm_gym_blaine_quizzes_warn_number'), card)
@@ -735,7 +769,8 @@ SMODS.Blind {
 		else
 			for _, card in ipairs(cards) do
 				if card.config.center.key == 'm_pkrm_gym_answer_card'
-				and type(card.ability.extra.answer_key) ~= 'string' then
+					and type(card.ability.extra.answer_key) ~= 'number'
+				then
 					G.hand:remove_from_highlighted(card)
 					bad_answer_attention_text(localize('pkrm_gym_blaine_quizzes_warn_number'), card)
 				end
@@ -750,7 +785,7 @@ SMODS.Blind {
 		local quiz_table = self.quiz_table
 		local is_yes_no = isYesNo(quiz_table)
 
-		G.E_MANAGER:add_event(Event{
+		G.E_MANAGER:add_event(Event {
 			trigger = 'after',
 			delay = 0.1,
 			func = function()
@@ -760,91 +795,90 @@ SMODS.Blind {
 					for k, v in pairs(G.play.cards) do
 						if v.config.center.key == 'm_pkrm_gym_answer_card' then
 							if is_yes_no then
-								correct =  v.ability.extra.answer_key == quiz_table.right_answers[1]
+								correct = v.ability.extra.answer_key == quiz_table.right_answers[1]
 							else
 								correct = quiz_table.answers[v.ability.extra.answer_key] == quiz_table.right_answers[1]
 							end
-							
+
 							if correct then
-								correct_attention_text(v)
+								correct_attention_text(v, 1)
 								score_part_of_blind(3)
 							else
-								wrong_attention_text(v)
+								wrong_attention_text(v, 1)
 							end
+
 							return true
 						end
 					end
-					
 				elseif quiz_table.type == 'multiple' then
-					local right_answers = copy_table(quiz_table.right_answers)
+					local right_answers_set = {}
+					local all_correct = true
+
+					for _, answer in pairs(quiz_table.right_answers) do
+						right_answers_set[answer] = true
+					end
 
 					for k, v in pairs(G.play.cards) do
 						if v.config.center.key == 'm_pkrm_gym_answer_card' then
-							local include_answer = false
-							
-							for i, right_answer in ipairs(right_answers) do
-								if quiz_table.answers[v.ability.extra.answer_key] == right_answer then
-									include_answer = true
-									table.remove(right_answers, i)
-									break
-								end
-							end
-
-							if include_answer then
-								correct_attention_text(v)
-								score_part_of_blind(3)
+							local answer = quiz_table.answers[v.ability.extra.answer_key]
+							if right_answers_set[answer] then
+								correct_attention_text(v, 0.8, -0.2*G.CARD_H, 'multhit1')
+								right_answers_set[answer] = nil -- Remove from table
 							else
-								wrong_attention_text(v)
-							end
-
-							if #right_answers == 0 then
-								correct_attention_text(G.play)
-								return true
+								wrong_attention_text(v, 0.8, 0.2*G.CARD_H)
+								all_correct = false
 							end
 						end
 					end
 
 					-- Not all correct
-					wrong_attention_text(G.play)
+					if not all_correct then
+						bad_answer_attention_text(localize('pkrm_gym_blaine_quizzes_ex_not_all_answer'), G.play, 1)
+						return true
+					end
+			
+					-- Missing answer
+					for _, answer in pairs(right_answers_set) do
+						bad_answer_attention_text(localize('pkrm_gym_blaine_quizzes_ex_missing_answer'), G.play, 1)
+						return true
+					end
+
+					correct_attention_text(G.play, 1)
+					score_part_of_blind(3)
+					return true
 				end
 
-				bad_answer_attention_text(localize('pkrm_gym_blaine_quizzes_warn_no_answer'), G.play)
+				bad_answer_attention_text(localize('pkrm_gym_blaine_quizzes_ex_no_answer'), G.play, 1)
 				return true
-			end
+			end,
 		})
 	end,
 
 	disable = function(self)
-		if self.custom_UI then
-			self.custom_UI:remove()
-		end
+		if self.custom_UI then self.custom_UI:remove() end
 
 		for _, card in pairs(G.playing_cards) do
-			if SMODS.has_enhancement(card, 'm_pkrm_gym_answer_card') then
-				card:start_dissolve()
-			end
+			if SMODS.has_enhancement(card, 'm_pkrm_gym_answer_card') then card:start_dissolve() end
 		end
 
-		G.E_MANAGER:add_event(Event({
+		G.E_MANAGER:add_event(Event {
 			trigger = 'after',
 			delay = 0.1,
 			func = function()
-				G.E_MANAGER:add_event(Event({
+				G.E_MANAGER:add_event(Event {
 					trigger = 'immediate',
 					func = function()
 						G.FUNCS.draw_from_deck_to_hand()
 						return true
-					end
-				}))
+					end,
+				})
 				return true
-			end
-		}))
+			end,
+		})
 	end,
 
 	defeat = function(self)
-		if self.custom_UI then
-			self.custom_UI:remove()
-		end
+		if self.custom_UI then self.custom_UI:remove() end
 	end,
 
 	-- Remove debuff text at the start
@@ -852,6 +886,8 @@ SMODS.Blind {
 		return ''
 	end,
 }
+
+
 
 BL_FUNCTION_TABLE['earth_ease_dollars'] = function(mod)
 	local blind = G.GAME.blind
@@ -911,22 +947,6 @@ SMODS.Blind {
 	collection_loc_vars = function(self)
 		return { vars = { self.config.every_earned } }
 	end,
-
-	-- drawn_to_hand = function(self)
-	-- 	if G.GAME.blind.prepped then
-	-- 		G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.5, blockable = false, blocking = false, func = function()
-	-- 			if not G.GAME.blind.disabled then
-	-- 				G.ROOM.jiggle = G.ROOM.jiggle + 4
-	-- 				ease_dollars(- self.config.lose, true)
-
-	-- 				G.GAME.blind.triggered = true
-	-- 				save_run()
-	-- 			end
-
-	-- 			return true
-	-- 		end}))
-	-- 	end
-	-- end,
 
 	disable = function(self)
 		G.GAME.BL_EXTRA.ease_dollars = nil
@@ -1109,7 +1129,7 @@ SMODS.Blind {
 						G.GAME.blind:wiggle()
 
 						return true
-					end
+					end,
 				})
 			end
 		end
@@ -1145,6 +1165,6 @@ SMODS.Blind {
 	vars = { 12 },
 
 	modify_hand = function(self, cards, poker_hands, text, mult, hand_chips)
-		return  mult, 0, true
+		return mult, 0, true
 	end,
 }

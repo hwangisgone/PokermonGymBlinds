@@ -25,13 +25,13 @@ return {
 			bl_pkrm_gym_fog     = {name = 'The Fog'    , text = {"Only Spade, Club cards", "are drawn face up"}},
 			bl_pkrm_gym_storm   = {name = 'The Storm'  , text = {"#1# are debuffed.","Suit changes in order","after scoring"}},
 			bl_pkrm_gym_mineral = {name = 'The Mineral', text = {"If Steel or Stone card", "is held in hand,", "discard entire hand on Play"}},
-			bl_pkrm_gym_glacier = {name = 'The Glacier', text = {"Enhanced cards held in hand", "turns into glass"}},
+			bl_pkrm_gym_glacier = {name = 'The Glacier', text = {"TODO?", ""}},
 			bl_pkrm_gym_rising  = {name = 'The Rising' , text = {"Card ranks increase", "before scoring"}},
 			bl_pkrm_gym_e4_will  = {name = 'Magenta Mask'  , text = {"Must play at least", "2 face cards"}},
 
 			bl_pkrm_gym_e4_koga  = {name = 'Fuchsia Poison', text = {"Cards drawn face down.", "After Play, flip cards", "held in hand"}},
 
-			bl_pkrm_gym_e4_karen = {name = 'Temp Karen'    , text = {"Elite Four - 4"}},
+			bl_pkrm_gym_e4_karen = {name = 'Temp Karen'    , text = {"Most played rank returns to deck when drawn"}},
 			bl_pkrm_gym_champion_johto = {name = 'The Scarlet Scale', text = {"Debuff one rightmost Joker", "for each remaining hand"}},
 			-- Hoenn
 			bl_pkrm_gym_stone   = {name = 'The Stone'  ,text = {"Played face cards", "become Stone cards", "and give no chip"}},
@@ -117,11 +117,14 @@ return {
 			pkrm_gym_blaine_quizzes_warn_single = "One answer only!",
 			pkrm_gym_blaine_quizzes_warn_number = "Number only!",
 			pkrm_gym_blaine_quizzes_warn_yesno = "Yes/No only!",
-			pkrm_gym_blaine_quizzes_warn_no_answer = "No Answer!",
+			
+			pkrm_gym_blaine_quizzes_ex_no_answer = "No answer!",
+			pkrm_gym_blaine_quizzes_ex_missing_answer = "Missing answer!",
+			pkrm_gym_blaine_quizzes_ex_not_all_answer = "Not all correct!",
 
 			pkrm_gym_blaine_quizzes_type_loc = {
 				single = "Choose one answer",
-				multiple = "Choose multiple answers",
+				multiple = "Choose ALL correct answers",
 			},
 			pkrm_gym_blaine_quizzes = {
 				-- Jokers knowledge
@@ -200,7 +203,7 @@ return {
 				},
 				{
 					type = "single",
-					quiz = {"Can an Energy card be used","on a Joker with different typing?"},
+					quiz = {"In any case, could an Energy card be used","on a Joker with different typing?"},
 					wrong_answers = {"No"},
 					right_answers = {"Yes"}
 				},
