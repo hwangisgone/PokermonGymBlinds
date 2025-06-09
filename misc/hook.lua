@@ -8,9 +8,6 @@ function get_new_boss(blind)
 	local league_index = 1
 	local gym_index = (G.GAME.round_resets.ante - 1) % league_length + 1
 
-	print("THIS WAS CALLED ")
-	print(blind)
-
 	-- Initialize league and set up winning ante
 	if not G.GAME.pkrm_league_pool then
 		G.GAME.pkrm_league_pool = get_league_pool()

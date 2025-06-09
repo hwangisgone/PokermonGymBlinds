@@ -14,7 +14,9 @@ return {
 			bl_pkrm_gym_volcano = {name = 'The Volcano', text = {"Pokermon Trivia","Answer 3 correct to win!"}},
 			bl_pkrm_gym_earth   = {name = 'The Earth'  , text = {"Very big blind.", "-1X in size for every {C:gold}$#1#{}","earned this round"}},
 			bl_pkrm_gym_e4_lorelei = {name = 'Seaglass Song' , text = {"Cards held in hand", "are destroyed after #1# hands"}},
-			bl_pkrm_gym_e4_bruno   = {name = 'Saffron Shackles', text = {"Discarded poker hand", "will not score"}},
+			-- bl_pkrm_gym_e4_bruno   = {name = 'Saffron Shackles', text = {"Discarded poker hand", "will not score"}},
+			bl_pkrm_gym_e4_bruno   = {name = 'Saffron Shackles', text = {"Add a temporary Stone card", "per card below 52", "in full deck"}},
+			
 			bl_pkrm_gym_e4_agatha  = {name = 'Cursed Cane'    , text = {"Unscored and", "discarded cards", "return to deck"}},
 			bl_pkrm_gym_e4_lance   = {name = 'Sunset Scale'  , text = {"Debuff one rightmost","scoring card", "for each remaining hand"}},
 			bl_pkrm_gym_champion_kanto = {name = 'The Blue Chip', text = {"0 Base Chip.", "All cards score no chip"}},
@@ -82,6 +84,15 @@ return {
                 },
             },
         },
+		Other = {
+			pkrm_gym_temporary = {
+				name = "Temporary",
+				text = { 
+					"Destroyed at",
+					"end of round"
+				},
+			},
+		},
 	},
 	misc = {
 		dictionary = {
@@ -279,6 +290,9 @@ return {
 		},
 		v_dictionary = {
 			bl_pkrm_gym_balance_debuff_text = "Must play the last discarded hand (#1#)",
-		}
+		},
+		labels = {
+			pkrm_gym_temporary = "Temporary"
+		},
 	}
 }

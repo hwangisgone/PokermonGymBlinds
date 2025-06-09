@@ -31,6 +31,13 @@ GYM_SHOWDOWN_CLR = {
 -- + Debuff name: <gym leader>_<badge>_debuff | e.g. erika_rainbow_debuff
 -- + Pseudoseed: <gym leader>                 | e.g. pseudoseed('misty')
 
+SMODS.Atlas {
+	key = 'stickers',
+	path = 'stickers.png',
+	px = 71,
+	py = 95,
+}
+
 -- TODO:
 -- TOCHECK:
 
@@ -140,7 +147,6 @@ local files_to_load = {
 	'blinds/kanto.lua',
 	'blinds/johto.lua',
 	'blinds/hoenn.lua',
-	'test.lua',
 }
 
 for k, file_path in pairs(files_to_load) do
@@ -382,3 +388,11 @@ SMODS.Atlas {
 	path = 'modicon.png',
 }
 -- TODO: Edit this icon, make it bigger and remove outline (because outline blends with bg)
+
+
+SMODS.load_file('testing/test.lua')
+if Balatest then
+    assert(SMODS.load_file('testing/test.lua'))()
+    assert(SMODS.load_file('testing/kanto.lua'))()
+    assert(SMODS.load_file('testing/johto.lua'))()
+end

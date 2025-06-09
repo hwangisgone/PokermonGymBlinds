@@ -673,20 +673,28 @@ local function score_part_of_blind(division)
 	local chip_UI = G.HUD:get_UIE_by_ID('chip_UI_count')
 	local new_chips = total_add_new_chips(math.ceil(G.GAME.blind.chips / division))
 
-	--Ease from current chips to the new number of chips
+	-- Event so that it happens after "Correct!"
 	G.E_MANAGER:add_event(Event {
-		trigger = 'ease',
-		blockable = false,
-		ref_table = G.GAME,
-		ref_value = 'chips',
-		ease_to = new_chips,
-		delay = 0.3,
-		func = function(t)
-			return math.floor(t)
-		end,
+		trigger = 'immediate',
+		func = function()
+		--Ease from current chips to the new number of chips
+		G.E_MANAGER:add_event(Event {
+			trigger = 'ease',
+			blockable = false,
+			ref_table = G.GAME,
+			ref_value = 'chips',
+			ease_to = new_chips,
+			delay = 0.3,
+			func = function(t)
+				return math.floor(t)
+			end,
+		})
+		--Popup text next to the chips in UI showing number of chips gained/lost
+		chip_UI:juice_up()
+
+			return true
+		end
 	})
-	--Popup text next to the chips in UI showing number of chips gained/lost
-	chip_UI:juice_up()
 end
 
 SMODS.Blind {
@@ -1008,6 +1016,42 @@ SMODS.Blind {
 						end,
 					})
 				end
+			end
+		end
+	end,
+}
+
+local singleton_destroying = false
+
+SMODS.Sticker {
+	key = 'temporary',
+	atlas = 'stickers',
+	badge_colour =  G.C.PERISHABLE,
+	pos = { x = 0, y = 0 },
+	rate = 0,
+
+	calculate = function(self, card, context)
+		if context.playing_card_end_of_round then
+			card:start_dissolve()
+
+			if not singleton_destroying then
+				singleton_destroying = true
+				
+				G.E_MANAGER:add_event(Event {
+					trigger = 'immediate',
+					func = function()
+						print("TESTSING destruction")
+						
+						for _, card in pairs(G.playing_cards) do
+							if card.ability and card.ability["pkrm_gym_temporary"] then 
+								card:start_dissolve()
+							end
+						end
+
+						singleton_destroying = false
+						return true
+					end
+				})
 			end
 		end
 	end,
