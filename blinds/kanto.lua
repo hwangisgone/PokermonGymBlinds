@@ -673,24 +673,24 @@ local function score_part_of_blind(division)
 	local chip_UI = G.HUD:get_UIE_by_ID('chip_UI_count')
 	local new_chips = total_add_new_chips(math.ceil(G.GAME.blind.chips / division))
 
-	-- Event so that it happens after "Correct!"
+	-- Blockable Event so that it happens after "Correct!"
+	--Ease from current chips to the new number of chips
+	G.E_MANAGER:add_event(Event {
+		trigger = 'ease',
+		ref_table = G.GAME,
+		ref_value = 'chips',
+		ease_to = new_chips,
+		delay = 0.3,
+		func = function(t)
+			return math.floor(t)
+		end,
+	})
+
 	G.E_MANAGER:add_event(Event {
 		trigger = 'immediate',
 		func = function()
-		--Ease from current chips to the new number of chips
-		G.E_MANAGER:add_event(Event {
-			trigger = 'ease',
-			blockable = false,
-			ref_table = G.GAME,
-			ref_value = 'chips',
-			ease_to = new_chips,
-			delay = 0.3,
-			func = function(t)
-				return math.floor(t)
-			end,
-		})
-		--Popup text next to the chips in UI showing number of chips gained/lost
-		chip_UI:juice_up()
+			--Popup text next to the chips in UI showing number of chips gained/lost
+			chip_UI:juice_up()
 
 			return true
 		end
