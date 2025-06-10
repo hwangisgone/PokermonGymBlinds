@@ -16,7 +16,6 @@ return {
 			bl_pkrm_gym_e4_lorelei = {name = 'Seaglass Song' , text = {"Cards held in hand", "are destroyed after #1# hands"}},
 			-- bl_pkrm_gym_e4_bruno   = {name = 'Saffron Shackles', text = {"Discarded poker hand", "will not score"}},
 			bl_pkrm_gym_e4_bruno   = {name = 'Saffron Shackles', text = {"Add a temporary Stone card", "per card below 52", "in full deck"}},
-			
 			bl_pkrm_gym_e4_agatha  = {name = 'Cursed Cane'    , text = {"Unscored and", "discarded cards", "return to deck"}},
 			bl_pkrm_gym_e4_lance   = {name = 'Sunset Scale'  , text = {"Debuff one rightmost","scoring card", "for each remaining hand"}},
 			bl_pkrm_gym_champion_kanto = {name = 'The Blue Chip', text = {"0 Base Chip.", "All cards score no chip"}},
@@ -29,10 +28,8 @@ return {
 			bl_pkrm_gym_mineral = {name = 'The Mineral', text = {"If Steel or Stone card", "is held in hand,", "discard entire hand on Play"}},
 			bl_pkrm_gym_glacier = {name = 'The Glacier', text = {"TODO?", ""}},
 			bl_pkrm_gym_rising  = {name = 'The Rising' , text = {"Card ranks increase", "before scoring"}},
-			bl_pkrm_gym_e4_will  = {name = 'Magenta Mask'  , text = {"Must play at least", "2 face cards"}},
-
+			bl_pkrm_gym_e4_will  = {name = 'Magenta Mask'  , text = {"Must play at least", "2 different face cards"}},
 			bl_pkrm_gym_e4_koga  = {name = 'Fuchsia Poison', text = {"Cards drawn face down.", "After Play, flip cards", "held in hand"}},
-
 			bl_pkrm_gym_e4_karen = {name = 'Temp Karen'    , text = {"Most played rank returns to deck when drawn"}},
 			bl_pkrm_gym_champion_johto = {name = 'The Scarlet Scale', text = {"Debuff one rightmost Joker", "for each remaining hand"}},
 			-- Hoenn

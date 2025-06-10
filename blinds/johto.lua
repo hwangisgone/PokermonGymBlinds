@@ -157,6 +157,8 @@ SMODS.Blind {
 					return true
 				end,
 			})
+
+			SMODS.calculate_context({scoring_hand = context.scoring_hand, remove_playing_cards = true, removed = { cutting_card }})
 		end
 	end,
 }
@@ -422,9 +424,19 @@ SMODS.Blind {
 	vars = {},
 
 	debuff_hand = function(self, cards, hand, handname, check)
+		local face_ranks = {}
 		local face_count = 0
-		for i = 1, #cards do
-			if cards[i]:is_face() and (cards[i].facing == 'front' or not check) then face_count = face_count + 1 end
+
+		for i, card in ipairs(cards) do
+			if card:is_face() 
+			and (card.facing == 'front' or not check) then
+				local rank_id = (SMODS.has_no_rank(card) and -1) or card:get_id()
+				
+				if not face_ranks[rank_id] then
+					face_ranks[rank_id] = true
+					face_count = face_count + 1
+				end
+			end
 		end
 
 		if face_count < 2 then

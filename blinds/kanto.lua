@@ -1040,8 +1040,6 @@ SMODS.Sticker {
 				G.E_MANAGER:add_event(Event {
 					trigger = 'immediate',
 					func = function()
-						print("TESTSING destruction")
-						
 						for _, card in pairs(G.playing_cards) do
 							if card.ability and card.ability["pkrm_gym_temporary"] then 
 								card:start_dissolve()

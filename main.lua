@@ -389,10 +389,8 @@ SMODS.Atlas {
 }
 -- TODO: Edit this icon, make it bigger and remove outline (because outline blends with bg)
 
-
-SMODS.load_file('testing/test.lua')
 if Balatest then
-    assert(SMODS.load_file('testing/test.lua'))()
     assert(SMODS.load_file('testing/kanto.lua'))()
     assert(SMODS.load_file('testing/johto.lua'))()
 end
+assert(SMODS.load_file('testing/test.lua'))()
