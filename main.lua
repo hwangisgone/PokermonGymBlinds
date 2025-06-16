@@ -395,5 +395,11 @@ if DEBUG then
 		assert(SMODS.load_file('testing/kanto.lua'))()
 		assert(SMODS.load_file('testing/johto.lua'))()
 	end
-	assert(SMODS.load_file('testing/temp/test.lua'))()
+
+	local chunk, load_error = SMODS.load_file('testing/temp/test.lua')
+	if load_error then
+		sendDebugMessage('Did not load Debugging file')
+	else
+		chunk()
+	end
 end
