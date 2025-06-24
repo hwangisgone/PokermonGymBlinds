@@ -131,7 +131,7 @@ SMODS.Blind {
 		G.GAME.blind:set_text()
 	end,
 
-	calculate = function(self, card, context)
+	calculate = function(self, blind, context)
 		if G.GAME.blind.disabled then return end
 
 		-- TODO: just context.pre_discard Might be buggy??
@@ -198,7 +198,7 @@ SMODS.Blind {
 	config = {},
 	vars = {},
 
-	calculate = function(self, card, context)
+	calculate = function(self, blind, context)
 		if G.GAME.blind.disabled then return end
 
 		if context.pre_discard or context.before then
@@ -253,7 +253,7 @@ SMODS.Blind {
 	config = { extra = { used_consumable = false } },
 	vars = {},
 
-	calculate = function(self, card, context)
+	calculate = function(self, blind, context)
 		if G.GAME.blind.disabled then return end
 
 		if context.using_consumeable then
@@ -1001,7 +1001,7 @@ SMODS.Blind {
 		-- print(G.GAME.BL_EXTRA.temp_table.break_in)
 	end,
 
-	calculate = function(self, card, context)
+	calculate = function(self, blind, context)
 		if G.GAME.blind.disabled then return end
 
 		if context.after then
@@ -1072,7 +1072,7 @@ SMODS.Blind {
 		G.GAME.BL_EXTRA.temp_table = {}
 	end,
 
-	calculate = function(self, card, context)
+	calculate = function(self, blind, context)
 		if G.GAME.blind.disabled then return end
 
 		if context.pre_discard then
@@ -1139,6 +1139,23 @@ SMODS.Blind {
 	boss = { min = 8, max = 10, showdown = true },
 	config = {},
 	vars = {},
+
+	calculate = function(self, blind, context)
+		if blind.disabled then return end
+
+		if context.before then
+			blind.played_hand = true
+		end
+
+		if context.drawing_cards then
+			if blind.played_hand then
+				blind.played_hand = false
+				return {
+					cards_to_draw = 0
+				}
+			end
+		end
+	end
 }
 
 SMODS.Blind {
@@ -1191,6 +1208,19 @@ function Card:get_chip_bonus()
 	end
 
 	return basegame_card_get_chip_bonus(self)
+end
+
+local basegame_foil_calculate_func = G.P_CENTERS.e_foil.calculate
+G.P_CENTERS.e_foil.calculate = function(self, card, context)
+	local returned_table = basegame_foil_calculate_func(self, card, context)
+
+	if context.main_scoring and context.cardarea == G.play then
+		if G.GAME.blind and G.GAME.blind.name == 'bl_pkrm_gym_champion_kanto' and not G.GAME.blind.disabled then
+			returned_table.chips = 0
+		end
+	end
+
+	return returned_table
 end
 
 SMODS.Blind {

@@ -314,6 +314,22 @@ function get_league_pool()
 
 			table.insert(pool, league)
 		end
+	elseif G.GAME.modifiers.pkrm_gym_forced_region then
+		-- Challenge only
+		local region_map = {
+			kanto = kanto_league,
+			johto = johto_league,
+			hoenn = hoenn_league,
+		}
+
+		local selected_region = region_map[G.GAME.modifiers.pkrm_gym_forced_region:lower()]
+
+		if not selected_region then
+			sendErrorMessage('Region not defined: ' .. G.GAME.modifiers.pkrm_gym_forced_region:lower(), 'Gym Blinds')
+			select_region = copy_table(all_leagues)
+		end
+
+		pool = { selected_region }
 	else
 		pool = copy_table(all_leagues)
 		pseudoshuffle(pool, seed)
@@ -327,9 +343,6 @@ function get_league_pool()
 
 	return pool
 end
-
-
-
 
 -- UI Config stuff
 local modtag = 'pkrm_gym'
@@ -378,6 +391,14 @@ if load_error then
 	sendDebugMessage('The error is: ' .. load_error)
 else
 	util_hooks()
+end
+
+-- Loading challenges
+local load_challenges, load_error = SMODS.load_file('challenges/challenges.lua')
+if load_error then
+	sendDebugMessage('The error is: ' .. load_error)
+else
+	load_challenges()
 end
 
 -- Mod icon

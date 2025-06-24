@@ -304,7 +304,7 @@ SMODS.Blind {
 		}
 	end,
 
-	calculate = function(self, card, context)
+	calculate = function(self, blind, context)
 		if G.GAME.blind.disabled then return end
 
 		if context.after then
@@ -385,7 +385,7 @@ SMODS.Blind {
 		end
 	end,
 
-	calculate = function(self, card, context)
+	calculate = function(self, blind, context)
 		if G.GAME.blind.disabled then return end
 
 		if context.pre_discard then
@@ -559,6 +559,15 @@ SMODS.Blind {
 	end,
 }
 
+local function shuffle_numberlist(list, seed)
+	math.randomseed(seed)
+
+	for i = #list, 2, -1 do
+		local j = math.random(i)
+		list[i], list[j] = list[j], list[i]
+	end
+end
+
 SMODS.Blind {
 	key = 'e4_sidney',
 	atlas = 'blinds_hoenn',
@@ -573,18 +582,14 @@ SMODS.Blind {
 	vars = {},
 
 	drawn_to_hand = function(self)
-		local to_check_hand = filter_with_rank_only(G.hand.cards)
 		local to_check_deck = filter_with_rank_only(G.deck.cards)
-
-		local ranks_in_hand = {}
-		for _, card in pairs(to_check_hand) do
-			ranks_in_hand[card.base.id] = true
-		end
 		
+		local checked_ranks = {}
 		local ranks_only_in_deck = {}
 		for _, card in pairs(to_check_deck) do
-			if not ranks_in_hand[card.base.id]
+			if not checked_ranks[card.base.id]
 			and not card.debuff then
+				checked_ranks[card.base.id] = true
 				table.insert(ranks_only_in_deck, card.base.id)
 			end
 		end
@@ -592,16 +597,12 @@ SMODS.Blind {
 		if #ranks_only_in_deck < 1 then return end
 
 		-- Select 2 random ranks
+		shuffle_numberlist(ranks_only_in_deck, pseudoseed('sidney'))
 		local selected_ranks = {}
-		for i = 1, 2 do
-			local rank_id, rank_index = pseudorandom_element(ranks_only_in_deck, pseudoseed('sidney'))
-			selected_ranks[rank_id] = true
 
-			table.remove(ranks_only_in_deck, rank_index)
-
-			if #ranks_only_in_deck < 1 then
-				break
-			end
+		selected_ranks[ranks_only_in_deck[1]] = true
+		if #ranks_only_in_deck > 1 then
+			selected_ranks[ranks_only_in_deck[2]] = true
 		end
 
 		-- Debuff

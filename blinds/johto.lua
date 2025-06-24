@@ -73,7 +73,7 @@ SMODS.Blind {
 	config = {},
 	vars = {},
 
-	calculate = function(self, card, context)
+	calculate = function(self, blind, context)
 		if G.GAME.blind.disabled then return end
 
 		if context.before then
@@ -126,7 +126,7 @@ SMODS.Blind {
 	config = {},
 	vars = {},
 
-	calculate = function(self, card, context)
+	calculate = function(self, blind, context)
 		if G.GAME.blind.disabled then return end
 
 		if context.final_scoring_step then
@@ -240,7 +240,7 @@ SMODS.Blind {
 		return { vars = { self.config.suits[self.config.index] } }
 	end,
 
-	calculate = function(self, card, context)
+	calculate = function(self, blind, context)
 		if G.GAME.blind.disabled then return end
 
 		if context.after then
@@ -380,7 +380,7 @@ SMODS.Blind {
 	config = {},
 	vars = {},
 
-	calculate = function(self, card, context)
+	calculate = function(self, blind, context)
 		if G.GAME.blind.disabled then return end
 
 		if context.before then
@@ -468,7 +468,7 @@ SMODS.Blind {
 		return false
 	end,
 
-	calculate = function(self, card, context)
+	calculate = function(self, blind, context)
 		if G.GAME.blind.disabled then return end
 
 		if context.before then
@@ -573,7 +573,7 @@ SMODS.Blind {
 		if G.GAME.blind.prepped then lance_debuff() end
 	end,
 
-	calculate = function(self, card, context)
+	calculate = function(self, blind, context)
 		-- if G.GAME.blind.disabled then G.GAME.blind.disabled = false end
 
 		if context.before or (context.selling_card and context.cardarea == G.jokers) then
