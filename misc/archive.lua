@@ -307,4 +307,193 @@ SMODS.Blind {
 	end
 }
 
+
+-- bl_pkrm_gym_cascade = {name = 'The Cascade', text = {"After Play, #1# in #2# chance","to lose Energy", "in one Water Joker"}},
+SMODS.Blind {
+	key = 'cascade',
+	atlas = 'blinds_kanto',
+	pos = { x = 0, y = 1 },
+	boss_colour = TYPE_CLR['water'],
+
+	discovered = false,
+	dollars = 5,
+	mult = 2,
+	boss = { min = 1, max = 10 },
+	config = { odd = 2 },
+	vars = { 1, 2 },
+	loc_vars = function(self)
+		return { vars = { math.max(G.GAME.probabilities.normal, 1), self.config.odd } }
+	end,
+	collection_loc_vars = function(self)
+		return { vars = { (G.GAME and G.GAME.probabilities.normal or 1), self.config.odd } }
+	end,
+
+	press_play = function(self)
+		if pseudorandom(pseudoseed('misty')) < G.GAME.probabilities.normal / self.config.odd then
+			local water_list = {}
+
+			-- Remove jokers without energy
+			for k, v in pairs(find_pokemon_type('Water')) do
+				-- if v.ability.extra.energy_count and v.ability.extra.energy_count > 0 then
+				table.insert(water_list, v)
+				-- end
+			end
+
+			if #water_list > 0 then
+				local chosen_joker = pseudorandom_element(water_list, pseudoseed('misty'))
+
+				local original_escale = chosen_joker.ability.extra.escale
+				chosen_joker.ability.extra.energy_count = (chosen_joker.ability.extra.energy_count or 0) - 1
+				chosen_joker.ability.extra.escale = -1
+				energize(chosen_joker, false, nil, true) -- energize(card, etype, evolving, silent)
+				chosen_joker.ability.extra.escale = original_escale
+
+				card_eval_status_text(chosen_joker, 'extra', nil, nil, nil, {
+					message = localize('poke_reverse_energized_ex'),
+					colour = TYPE_CLR['water'],
+				})
+
+				G.GAME.blind:wiggle()
+				play_sound('whoosh1', 0.55, 0.62)
+				chosen_joker:juice_up(0.1, 1)
+			else
+				G.GAME.blind:wiggle()
+				play_sound('cancel')
+			end
+		end
+	end,
+}
+
+-- Lorelei: Cards are destroyed after 3 hands
+SMODS.Blind {
+	key = 'e4_lorelei',
+	atlas = 'blinds_kanto',
+	pos = { x = 0, y = 8 },
+	boss_colour = TYPE_CLR['ice'],
+
+	discovered = false,
+	dollars = 8,
+	mult = 2,
+	boss = { min = 8, max = 10, showdown = true },
+	config = { break_turns = 3 },
+	vars = { 3 },
+	loc_vars = function(self)
+		return { vars = { self.config.break_turns } }
+	end,
+
+	set_blind = function(self)
+		G.GAME.BL_EXTRA.temp_table = {
+			break_in = self.config.break_turns,
+		}
+	end,
+
+	press_play = function(self)
+		local current_turn = G.GAME.BL_EXTRA.temp_table.break_in
+		if current_turn == 0 then
+			G.GAME.BL_EXTRA.temp_table.break_in = self.config.break_turns - 1
+		else
+			G.GAME.BL_EXTRA.temp_table.break_in = current_turn - 1
+		end
+
+		-- print(G.GAME.BL_EXTRA.temp_table.break_in)
+	end,
+
+	calculate = function(self, blind, context)
+		if G.GAME.blind.disabled then return end
+
+		if context.after then
+			if G.GAME.BL_EXTRA.temp_table.break_in == 0 then
+				for _, card in ipairs(G.hand.cards) do
+					G.E_MANAGER:add_event(Event {
+						trigger = 'after',
+						delay = 0.2,
+						func = function()
+							card:shatter()
+							return true
+						end,
+					})
+				end
+			end
+		end
+	end,
+}
+
+-- bl_pkrm_gym_e4_bruno   = {name = 'Saffron Shackles', text = {"Discarded poker hand", "will not score"}},
+SMODS.Blind {
+	key = 'e4_bruno',
+	atlas = 'blinds_kanto',
+	pos = { x = 0, y = 9 },
+	boss_colour = TYPE_CLR['fighting'],
+
+	discovered = false,
+	dollars = 8,
+	mult = 2,
+	boss = { min = 8, max = 10, showdown = true },
+	config = {},
+	vars = {},
+
+	set_blind = function(self)
+		G.GAME.BL_EXTRA.temp_table = {}
+	end,
+
+	calculate = function(self, blind, context)
+		if G.GAME.blind.disabled then return end
+
+		if context.pre_discard then
+			local text = G.FUNCS.get_poker_hand_info(G.hand.highlighted)
+
+			G.GAME.BL_EXTRA.temp_table[text] = true
+
+			G.GAME.blind:wiggle()
+			play_sound('cancel', 2, 0.9)
+		end
+	end,
+
+	debuff_hand = function(self, cards, hand, handname, check)
+		local is_debuffed = false
+		local disabled_hands = G.GAME.BL_EXTRA.temp_table
+
+		for k, v in pairs(disabled_hands) do
+			if k == handname then
+				is_debuffed = true
+				break
+			end
+		end
+
+		return is_debuffed
+	end,
+
+	get_loc_debuff_text = function(self)
+		local disabled_hands = G.GAME.BL_EXTRA.temp_table
+		local text = 'Discarded poker hand will no longer score'
+
+		local total = 0
+		for _ in pairs(disabled_hands) do
+			total = total + 1
+		end
+
+		if total > 0 then
+			text = ''
+			local i = 1
+			for k, v in pairs(disabled_hands) do
+				text = text .. k
+				if i < (total - 1) then
+					text = text .. ', '
+				elseif i == (total - 1) then
+					text = text .. ' and '
+				end
+				i = i + 1
+			end
+			text = text .. ' will not score'
+		end
+
+		return text
+	end,
+}
+
+
+-- bl_pkrm_gym_e4_agatha  = {name = 'Cursed Cane'    , text = {"Unscored and", "discarded cards", "return to deck"}},
+
+
+
 */

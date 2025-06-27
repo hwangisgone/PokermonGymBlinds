@@ -34,9 +34,9 @@ function Blind:load(blindTable)
 	end
 end
 
-local _ease_dollars = ease_dollars
+local basegame_ease_dollars = ease_dollars
 function ease_dollars(mod, instant)
-	_ease_dollars(mod, instant)
+	basegame_ease_dollars(mod, instant)
 
 	if G.GAME.BL_EXTRA and G.GAME.BL_EXTRA.ease_dollars then
 		local ease_dollars_func = BL_FUNCTION_TABLE[G.GAME.BL_EXTRA.ease_dollars]

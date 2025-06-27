@@ -3,22 +3,18 @@ return {
 		Blind = {
 			-- Kanto
 			bl_pkrm_gym_boulder = {name = 'The Boulder', text = {"{X:lightning,C:white}Lightning{} and {X:fire,C:white}Fire{}","Jokers are debuffed"}},
-			bl_pkrm_gym_cascade = {name = 'The Cascade', text = {"-20 chips","#1# in #2# chance to repeat"}}, -- 8!
-			-- bl_pkrm_gym_cascade = {name = 'The Cascade', text = {"After Play, #1# in #2# chance","to lose Energy", "in one Water Joker"}},
+			bl_pkrm_gym_cascade = {name = 'The Cascade', text = {"-20 chips","#1# in #2# chance to repeat"}}, -- 8!!
 			bl_pkrm_gym_thunder = {name = 'The Thunder', text = {"Lose $#1# when Discard", "without #2#"}},
 			bl_pkrm_gym_rainbow = {name = 'The Rainbow', text = {"Wild and Polychrome cards", "are debuffed"}},
 			bl_pkrm_gym_soul    = {name = 'The Soul'   , text = {"After Play or Discard,", "flip cards held in hand"}},
-			-- bl_pkrm_gym_soul_janine = {name = 'The Soul'   , text = {"Played ranks have", "1 in 6 chance to be drawn face down"}},
-			-- bl_pkrm_gym_soul_janine  = {name = 'The Soul', text = {"After selecting card,", "flip down cards", "held in hand"}},
+			bl_pkrm_gym_soul_janine = {name = 'The Soul'   , text = {"After Play or Discard,", "flip cards in deck"}}, -- 9!!
 			-- TODO: Soul with Janine after Johto instead of Koga
-			bl_pkrm_gym_marsh   = {name = 'The Marsh'  , text = {"Cards drawn are debuffed", "until 1 Consumable used"}},
+			bl_pkrm_gym_marsh   = {name = 'The Marsh'  , text = {"Drawn cards are debuffed", "until 1 Consumable used"}},
 			bl_pkrm_gym_volcano = {name = 'The Volcano', text = {"Pokermon Trivia","Answer 3 correct to win!"}},
 			bl_pkrm_gym_earth   = {name = 'The Earth'  , text = {"Very big blind.", "-1X in size for every {C:gold}$#1#{}","earned this round"}},
-			bl_pkrm_gym_e4_lorelei = {name = 'Seaglass Song' , text = {"Cards held in hand", "are destroyed after #1# hands"}}, -- 7!
-			-- bl_pkrm_gym_e4_bruno   = {name = 'Saffron Shackles', text = {"Discarded poker hand", "will not score"}},
-			-- bl_pkrm_gym_e4_agatha  = {name = 'Cursed Cane'    , text = {"Unscored and", "discarded cards", "return to deck"}},
-			bl_pkrm_gym_e4_bruno   = {name = 'Saffron Shackles', text = {"Add a temporary Stone card", "per card below 52", "in full deck"}},
-			bl_pkrm_gym_e4_agatha  = {name = 'Cursed Cane'    , text = {"Cards are not drawn", "after Play"}}, -- 5!
+			bl_pkrm_gym_e4_lorelei = {name = 'Frozen Flow' , text = {"Only draw cards when", "hand has #1# or fewer cards"}},
+			bl_pkrm_gym_e4_bruno   = {name = 'Slate Shackles', text = {"Add a temporary Stone card", "per card below 52", "in full deck"}},
+			bl_pkrm_gym_e4_agatha  = {name = 'Cursed Cane'    , text = {"???"}}, -- 5!!
 			bl_pkrm_gym_e4_lance   = {name = 'Sunset Scale'  , text = {"Debuff one rightmost","scoring card", "for each remaining hand"}},
 			bl_pkrm_gym_champion_kanto = {name = 'The Blue Chip', text = {"0 Base Chip.", "All cards score no chip"}},
 			-- Johto
@@ -28,15 +24,15 @@ return {
 			bl_pkrm_gym_fog     = {name = 'The Fog'    , text = {"Only Spade, Club cards", "are drawn face up"}},
 			bl_pkrm_gym_storm   = {name = 'The Storm'  , text = {"#1# are debuffed.","Suit changes in order","after scoring"}},
 			bl_pkrm_gym_mineral = {name = 'The Mineral', text = {"If Steel or Stone card", "is held in hand,", "discard entire hand on Play"}},
-			bl_pkrm_gym_glacier = {name = 'The Glacier', text = {"TODO?", ""}}, -- 6!
+			bl_pkrm_gym_glacier = {name = 'The Glacier', text = {"Cards are not drawn", "after Play"}},
 			bl_pkrm_gym_rising  = {name = 'The Rising' , text = {"Card ranks increase", "before scoring"}},
 			bl_pkrm_gym_e4_will  = {name = 'Magenta Mask'  , text = {"Must play at least", "2 different face cards"}},
-			bl_pkrm_gym_e4_koga  = {name = 'Fuchsia Fume', text = {"Cards drawn face down.", "After Play, flip cards", "held in hand"}},
-			bl_pkrm_gym_e4_karen = {name = 'Temp Karen'    , text = {"Selecting #1#", "discards all other cards"}}, -- 4!
+			bl_pkrm_gym_e4_koga  = {name = 'Fuchsia Fume', text = {"Draw all cards face down.", "After Play, flip cards", "held in hand"}},
+			bl_pkrm_gym_e4_karen = {name = 'Saffron Star'    , text = {"Drawn cards are debuffed", "until #1# is played"}},
 			bl_pkrm_gym_champion_johto = {name = 'The Scarlet Scale', text = {"Debuff one rightmost Joker", "for each remaining hand"}},
 			-- Hoenn
 			bl_pkrm_gym_stone   = {name = 'The Stone'  ,text = {"Played face cards", "become Stone cards", "and give no chip"}},
-			bl_pkrm_gym_knuckle = {name = 'The Knuckle',text = {"Selecting a card cycles", "cards in hand"}},
+			bl_pkrm_gym_knuckle = {name = 'The Knuckle',text = {"Selecting a card discards", "leftmost cards in hand"}},
 			bl_pkrm_gym_dynamo  = {name = 'The Dynamo' ,text = {"Switch highest rank in play", "with lowest rank in hand"}},
 			bl_pkrm_gym_heat    = {name = 'The Heat'   ,text = {"Ranks lower than","highest scored rank","are debuffed"}},
 			bl_pkrm_gym_balance = {name = 'The Balance',text = {"Can only play", "last discarded poker hand"}},
@@ -45,21 +41,20 @@ return {
 			bl_pkrm_gym_rain    = {name = 'The Rain'   ,text = {"Must play", "more ranks than suits"}},
 			bl_pkrm_gym_rain_juan = {name = 'The Rain'   ,text = {"Mult is capped by Chips"}},
 			bl_pkrm_gym_e4_sidney = {name = 'Slick Scythe'    ,text = {"After each Draw,", "debuff two random ranks", "in deck"}},
-			bl_pkrm_gym_e4_phoebe = {name = 'Pale Petal'      ,text = {"Elite Four - 2"}}, -- 1!
+			bl_pkrm_gym_e4_phoebe = {name = 'Pale Petal'      ,text = {"Elite Four - 2"}}, -- 1!!
 			-- Hollow Hibiscus (Her flowe) | Lost Lantern (Dusclop)
 			bl_pkrm_gym_e4_glacia = {name = 'Glistening Gown' ,text = {"Lose $#1#.", "-1 hand size per {C:red}-$#2#{}", "in current debt"}},
-			bl_pkrm_gym_e4_drake  = {name = 'Midnight Mast'   ,text = {"Elite Four - 4"}}, -- 2!
-			bl_pkrm_gym_champion_hoenn = {name = 'The Platinum Pin',text = {"Champion"}}, -- 3!
-			-- Platinum Pot lmao (poker ref)
+			bl_pkrm_gym_e4_drake  = {name = 'Midnight Mast'   ,text = {"Elite Four - 4"}}, -- 2!!
+			bl_pkrm_gym_champion_hoenn = {name = 'The Platinum Pin',text = {"Each unique rank", "held in hand", "gives X#1# Mult"}}, -- 3!!
+			-- maybe i should name him Platinum Pot lmao (poker ref)
+			-- Alternative names:
 			-- Platinum Pendant
 			-- Azure Amulet
 			-- Teal Token
 			-- Steel Signet/Stickpin
-			-- Platinum Pin
-			-- Mint Marker
 			-- Titanium Token
-			-- TODO: Alt Champion with Wallace
-			-- ! The Dazzling Drop - Suits are debuffed after play | Willow
+			bl_pkrm_gym_champion_hoenn_wallace = {name = 'The Dazzing Drop', text = {"Played suits", "are debuffed"}}, -- 7!!
+
 			-- Sinnoh
 			bl_pkrm_gym_coal   = {name = 'The Coal'  , text = {"Nothing yet"}},
 			bl_pkrm_gym_forest = {name = 'The Forest', text = {"Nothing yet"}},
@@ -311,7 +306,7 @@ return {
 			bl_pkrm_gym_balance_debuff_text = "Must play the last discarded hand (#1#)",
 		},
 		v_text = {
-			ch_c_pkrm_gym_forced_regional_jokers = { "Only Items and {C:attention}#1#{} Pokermons appear" },
+			ch_c_pkrm_gym_forced_regional_jokers = { "Only Pokermon Jokers in {C:attention}#1#{} appear" },
             ch_c_pkrm_gym_forced_region = { "Become the Pokermon Champion in {C:attention}#1#{}!" },
 		},
 	}

@@ -158,7 +158,11 @@ SMODS.Blind {
 				end,
 			})
 
-			SMODS.calculate_context({scoring_hand = context.scoring_hand, remove_playing_cards = true, removed = { cutting_card }})
+			SMODS.calculate_context {
+				scoring_hand = context.scoring_hand,
+				remove_playing_cards = true,
+				removed = { cutting_card },
+			}
 		end
 	end,
 }
@@ -302,12 +306,12 @@ SMODS.Blind {
 		local has_steel_or_stone = false
 		local has_steel = false
 		local has_stone = false
-	
+
 		for _, card in pairs(G.hand.cards) do
 			if not card.highlighted then
 				has_steel = SMODS.has_enhancement(card, 'm_steel')
 				has_stone = SMODS.has_enhancement(card, 'm_stone')
-				
+
 				if has_steel or has_stone then
 					has_steel_or_stone = true
 
@@ -339,14 +343,14 @@ SMODS.Blind {
 				local any_selected = false
 				for _, card in pairs(G.hand.cards) do
 					card:highlight(true)
-					G.hand.highlighted[#G.hand.highlighted+1] = card
+					G.hand.highlighted[#G.hand.highlighted + 1] = card
 					any_selected = true
 					play_sound('card1', 1)
 				end
 				if any_selected then G.FUNCS.discard_cards_from_highlighted(nil, true) end
 
 				return true
-			end
+			end,
 		})
 
 		delay(0.7)
@@ -365,6 +369,21 @@ SMODS.Blind {
 	boss = { min = 1, max = 10 },
 	config = {},
 	vars = {},
+
+	calculate = function(self, blind, context)
+		if blind.disabled then return end
+
+		if context.before then blind.played_hand = true end
+
+		if context.drawing_cards then
+			if blind.played_hand then
+				blind.played_hand = false
+				return {
+					cards_to_draw = 0,
+				}
+			end
+		end
+	end,
 }
 
 SMODS.Blind {
@@ -428,10 +447,9 @@ SMODS.Blind {
 		local face_count = 0
 
 		for i, card in ipairs(cards) do
-			if card:is_face() 
-			and (card.facing == 'front' or not check) then
+			if card:is_face() and (card.facing == 'front' or not check) then
 				local rank_id = (SMODS.has_no_rank(card) and -1) or card:get_id()
-				
+
 				if not face_ranks[rank_id] then
 					face_ranks[rank_id] = true
 					face_count = face_count + 1
@@ -461,9 +479,7 @@ SMODS.Blind {
 	vars = {},
 
 	stay_flipped = function(self, area, card)
-		if area == G.hand then
-			return true
-		end
+		if area == G.hand then return true end
 
 		return false
 	end,
@@ -472,7 +488,6 @@ SMODS.Blind {
 		if G.GAME.blind.disabled then return end
 
 		if context.before then
-			
 			G.E_MANAGER:add_event(Event {
 				trigger = 'immediate',
 				func = function()
@@ -488,7 +503,7 @@ SMODS.Blind {
 					G.GAME.blind.triggered = true
 
 					return true
-				end
+				end,
 			})
 
 			for i = 1, #G.hand.cards do
@@ -513,13 +528,22 @@ SMODS.Blind {
 
 	disable = function(self)
 		for _, card in pairs(G.hand.cards) do
-			if card.facing == 'back' then
-				card:flip()
-			end
+			if card.facing == 'back' then card:flip() end
 		end
 		G.GAME.blind.triggered = false
 	end,
 }
+
+local function get_most_played_hand_now()
+	local _handname, _played, _order = 'High Card', -1, 100
+	for k, v in pairs(G.GAME.hands) do
+		if v.played > _played or (v.played == _played and _order > v.order) then
+			_played = v.played
+			_handname = k
+		end
+	end
+	return _handname
+end
 
 SMODS.Blind {
 	key = 'e4_karen',
@@ -533,6 +557,76 @@ SMODS.Blind {
 	boss = { min = 8, max = 10, showdown = true },
 	config = {},
 	vars = {},
+	loc_vars = function(self)
+		return { vars = { localize(get_most_played_hand_now(), 'poker_hands') } }
+	end,
+	collection_loc_vars = function(self)
+		return { vars = { localize('ph_most_played') } }
+	end,
+
+	set_blind = function(self)
+		G.GAME.blind:set_text()
+	end,
+
+	drawn_to_hand = function(self)
+		for _, card in pairs(G.hand.cards) do
+			if not card.already_in_hand then
+				SMODS.debuff_card(card, true, 'e4_karen_debuff')
+				card:juice_up(0.1, 0.1)
+			end
+		end
+
+		G.GAME.blind:wiggle()
+	end,
+
+	calculate = function(self, blind, context)
+		if blind.disabled then return end
+
+		if context.before then
+			local most_played_hand_currently = get_most_played_hand_now()
+
+			if G.GAME.blind.last_most_played_hand ~= most_played_hand_currently then
+				G.GAME.blind.last_most_played_hand = most_played_hand_currently
+
+				SMODS.juice_up_blind()
+				play_sound('gong', 1)
+
+				-- Reset text when newer hand is most played
+				G.GAME.blind:set_text()
+				delay(0.5)
+			end
+
+			if context.scoring_name == most_played_hand_currently then
+				for _, card in pairs(G.hand.cards) do
+					if card.debuff then
+						G.E_MANAGER:add_event(Event {
+							trigger = 'after',
+							delay = 0.1,
+							func = function()
+								SMODS.debuff_card(card, false, 'e4_karen_debuff')
+								play_sound('tarot1', 0.5)
+								card:juice_up(0.1, 0.1)
+								return true
+							end,
+						})
+					end
+				end
+			end
+		end
+
+		if context.drawing_cards then
+			for _, card in pairs(G.hand.cards) do
+				card.already_in_hand = true
+			end
+		end
+	end,
+
+	disable = function(self)
+		remove_debuff_all_playing_cards('e4_karen_debuff')
+	end,
+	defeat = function(self)
+		remove_debuff_all_playing_cards('e4_karen_debuff')
+	end,
 }
 
 local lance_debuff = function(self)

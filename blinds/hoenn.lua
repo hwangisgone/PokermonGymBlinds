@@ -13,7 +13,6 @@ SMODS.Atlas {
 -- knuckle: Make it smaller
 -- feather: Make it smaller
 
-
 local basegame_card_set_ability = Card.set_ability
 function Card:set_ability(center, initial, delay_sprites)
 	if self.ability and self.ability.roxanne_stone_transform and SMODS.has_enhancement(self, 'm_stone') then
@@ -46,7 +45,6 @@ SMODS.Blind {
 					trigger = 'after',
 					delay = 0.5,
 					func = function()
-
 						card:juice_up()
 						card:set_ability(G.P_CENTERS.m_stone, nil, false)
 						card.ability.bonus = 0
@@ -63,7 +61,7 @@ SMODS.Blind {
 						G.GAME.blind.triggered = true
 
 						return true
-					end
+					end,
 				})
 			end
 		end
@@ -71,8 +69,7 @@ SMODS.Blind {
 
 	disable = function(self)
 		for _, card in ipairs(G.playing_cards) do
-			if card.ability.roxanne_stone_transform 
-			and not card.ability.roxanne_stone_no_turn_back then
+			if card.ability.roxanne_stone_transform and not card.ability.roxanne_stone_no_turn_back then
 				local prev_enhancement = card.ability.roxanne_stone_transform
 				card:set_ability(prev_enhancement, nil, false)
 				card:juice_up()
@@ -89,7 +86,6 @@ SMODS.Blind {
 	end,
 }
 
-
 SMODS.Blind {
 	key = 'knuckle',
 	atlas = 'blinds_hoenn',
@@ -103,7 +99,6 @@ SMODS.Blind {
 	config = {},
 	vars = {},
 }
-
 
 local basegame_card_highlight = Card.highlight
 function Card:highlight(is_highlighted)
@@ -119,15 +114,17 @@ function Card:highlight(is_highlighted)
 				-- Where if selected card is also leftmost (or close to left), when moving it to deck
 				-- it also opens the UI when you hover over the deck
 				-- So instead of moving directly Hand -> Deck, we move Hand -> Discard -> Deck
-				G.E_MANAGER:add_event(Event {
-					trigger = 'after',
-					delay = 0.4,
-					func = function()
-						draw_card(G.discard, G.deck, 100, 'down', false, leftmost_card)
 
-						return true
-					end,
-				})
+				-- -- Update June 26: No need, blind now just discards
+				-- G.E_MANAGER:add_event(Event {
+				-- 	trigger = 'after',
+				-- 	delay = 0.4,
+				-- 	func = function()
+				-- 		draw_card(G.discard, G.deck, 100, 'down', false, leftmost_card)
+
+				-- 		return true
+				-- 	end,
+				-- })
 			end
 		end
 	end
@@ -135,25 +132,23 @@ function Card:highlight(is_highlighted)
 	basegame_card_highlight(self, is_highlighted)
 end
 
-
-
 local function table_shift_positions(tbl, from_index, to_index)
-    local value = tbl[from_index]
+	local value = tbl[from_index]
 
-    table.remove(tbl, from_index)
-    table.insert(tbl, to_index, value)
+	table.remove(tbl, from_index)
+	table.insert(tbl, to_index, value)
 end
 
 local function find_highest_rank_index_list(card_list)
 	local highest_rank = card_list[1]:get_id()
-	local highest_index_list = {1}
+	local highest_index_list = { 1 }
 
 	for i = 2, #card_list do
 		local card = card_list[i]
-		
+
 		if card:get_id() > highest_rank then
 			highest_rank = card:get_id()
-			highest_index_list = {i}
+			highest_index_list = { i }
 		elseif card:get_id() == highest_rank then
 			table.insert(highest_index_list, i)
 		end
@@ -167,10 +162,8 @@ local function filter_with_rank_only(card_list)
 
 	for i = 1, #card_list do
 		local card = card_list[i]
-		
-		if not SMODS.has_no_rank(card) then
-			table.insert(with_rank, card)
-		end
+
+		if not SMODS.has_no_rank(card) then table.insert(with_rank, card) end
 	end
 
 	return with_rank
@@ -183,7 +176,7 @@ local function find_lowest_rank(card_list)
 
 	for i = 2, #card_list do
 		local card = card_list[i]
-		
+
 		if card:get_id() < lowest_card:get_id() then
 			lowest_card = card
 			lowest_index = i
@@ -199,7 +192,7 @@ local function find_highest_rank(card_list)
 
 	for i = 2, #card_list do
 		local card = card_list[i]
-		
+
 		if card:get_id() > highest_card:get_id() then
 			highest_card = card
 			highest_index = i
@@ -238,7 +231,6 @@ SMODS.Blind {
 
 		if #play_with_ranks < 1 or #hand_with_ranks < 1 then return end
 
-
 		local index_to_swap = find_highest_rank_index_list(play_with_ranks)
 
 		for k, play_index in ipairs(index_to_swap) do
@@ -246,9 +238,7 @@ SMODS.Blind {
 				trigger = 'after',
 				delay = 1,
 				func = function()
-					if #G.hand.cards < 1 then
-						return true
-					end
+					if #G.hand.cards < 1 then return true end
 
 					local play_swap = G.play.cards[play_index]
 					-- Hand may change after each swap so must do it dynamically
@@ -283,8 +273,6 @@ SMODS.Blind {
 	end,
 }
 
-
-
 SMODS.Blind {
 	key = 'heat',
 	atlas = 'blinds_hoenn',
@@ -309,7 +297,7 @@ SMODS.Blind {
 
 		if context.after then
 			local play_with_ranks = filter_with_rank_only(context.scoring_hand)
-			
+
 			if #play_with_ranks < 1 then return end
 
 			local highest_card, highest_index = find_highest_rank(play_with_ranks)
@@ -333,7 +321,7 @@ SMODS.Blind {
 					end
 
 					pkrm_gym_attention_text {
-						text = (highest_card.base.value)..' '..localize('pkrm_gym_heat_ex'),
+						text = highest_card.base.value .. ' ' .. localize('pkrm_gym_heat_ex'),
 						backdrop_colour = TYPE_CLR['fire'],
 						major = G.play,
 						hold = 2,
@@ -341,7 +329,7 @@ SMODS.Blind {
 
 					G.GAME.blind:wiggle()
 					return true
-				end
+				end,
 			})
 		end
 	end,
@@ -400,8 +388,6 @@ SMODS.Blind {
 	end,
 }
 
-
-
 SMODS.Blind {
 	key = 'feather',
 	atlas = 'blinds_hoenn',
@@ -423,11 +409,33 @@ SMODS.Blind {
 	end,
 
 	press_play = function(self)
+		local not_released_nines = {}
+
+		for i, card in ipairs(G.deck.cards) do
+			if card.base.value == '9' then table.insert(not_released_nines, card) end
+		end
+
+		for i, card in ipairs(G.hand.cards) do
+			if card.base.value == '9' and not card.highlighted then table.insert(not_released_nines, card) end
+		end
+
+		if #not_released_nines < 1 then return end
+
 		G.E_MANAGER:add_event(Event {
 			trigger = 'after',
 			delay = 0.5,
 			func = function()
-				local not_released_nine_count = 0
+				for k, card in pairs(not_released_nines) do
+					card:juice_up()
+
+					if card.area == G.hand then
+						pkrm_gym_attention_text {
+							text = '-' .. localize('$') .. self.config.lose,
+							backdrop_colour = TYPE_CLR['flying'],
+							major = card,
+						}
+					end
+				end
 
 				pkrm_gym_attention_text {
 					text = localize('pkrm_gym_feather_ex'),
@@ -435,56 +443,32 @@ SMODS.Blind {
 					major = G.play,
 				}
 
-				for i, card in ipairs(G.deck.cards) do
-					if card.base.value == '9' then
-						not_released_nine_count = not_released_nine_count + 1
-
-						card:juice_up()
-					end
-				end
-
-				for i, card in ipairs(G.hand.cards) do
-					if card.base.value == '9' then
-						not_released_nine_count = not_released_nine_count + 1
-
-						pkrm_gym_attention_text {
-							text = '-'..localize('$')..(self.config.lose),
-							backdrop_colour = TYPE_CLR['flying'],
-							major = card,
-						}
-
-						card:juice_up()
-					end
-				end
-
 				ease_dollars(-not_released_nine_count * self.config.lose)
 				G.VIBRATION = G.VIBRATION + 0.6
 				G.GAME.blind:wiggle()
 
 				return true
-			end
+			end,
 		})
-		
+
 		delay(0.5)
 	end,
 }
 
-
-
 local function find_first_pair()
-    local seen = {}
-    
-    for i, card in ipairs(G.hand.cards) do
-        local check_rank = card:get_id()
-        
-        if seen[check_rank] then
-            return {seen[check_rank], card}
-        else
-            seen[check_rank] = card
-        end
-    end
-    
-    return nil  -- No pair found
+	local seen = {}
+
+	for i, card in ipairs(G.hand.cards) do
+		local check_rank = card:get_id()
+
+		if seen[check_rank] then
+			return { seen[check_rank], card }
+		else
+			seen[check_rank] = card
+		end
+	end
+
+	return nil -- No pair found
 end
 
 SMODS.Blind {
@@ -513,8 +497,8 @@ SMODS.Blind {
 
 	disable = function(self)
 		for i, card in ipairs(G.playing_cards) do
-            card.ability.forced_selection = nil
-        end
+			card.ability.forced_selection = nil
+		end
 	end,
 }
 
@@ -536,15 +520,11 @@ SMODS.Blind {
 		local all_ranks = {}
 
 		for i, card in ipairs(cards) do
-			if not SMODS.has_no_rank(card) then
-				all_ranks[card:get_id()] = true
-			end
+			if not SMODS.has_no_rank(card) then all_ranks[card:get_id()] = true end
 
-			if not SMODS.has_no_suit(card) then
-				all_suits[card.base.suit] = true
-			end
+			if not SMODS.has_no_suit(card) then all_suits[card.base.suit] = true end
 		end
-		
+
 		local rank_count = 0
 		for _ in pairs(all_ranks) do
 			rank_count = rank_count + 1
@@ -583,12 +563,11 @@ SMODS.Blind {
 
 	drawn_to_hand = function(self)
 		local to_check_deck = filter_with_rank_only(G.deck.cards)
-		
+
 		local checked_ranks = {}
 		local ranks_only_in_deck = {}
 		for _, card in pairs(to_check_deck) do
-			if not checked_ranks[card.base.id]
-			and not card.debuff then
+			if not checked_ranks[card.base.id] and not card.debuff then
 				checked_ranks[card.base.id] = true
 				table.insert(ranks_only_in_deck, card.base.id)
 			end
@@ -601,9 +580,7 @@ SMODS.Blind {
 		local selected_ranks = {}
 
 		selected_ranks[ranks_only_in_deck[1]] = true
-		if #ranks_only_in_deck > 1 then
-			selected_ranks[ranks_only_in_deck[2]] = true
-		end
+		if #ranks_only_in_deck > 1 then selected_ranks[ranks_only_in_deck[2]] = true end
 
 		-- Debuff
 		for _, card in pairs(to_check_deck) do
@@ -613,14 +590,10 @@ SMODS.Blind {
 			end
 		end
 
-		if #G.deck.cards > 0 then
-			G.deck.cards[1]:juice_up()
-		end
+		if #G.deck.cards > 0 then G.deck.cards[1]:juice_up() end
 
 		local display_text = localize('pkrm_gym_e4_sidney_ex_1')
-		if pseudorandom(pseudoseed('sidney')) < 0.25 then
-			display_text = localize('pkrm_gym_e4_sidney_ex_2')
-		end
+		if pseudorandom(pseudoseed('sidney')) < 0.25 then display_text = localize('pkrm_gym_e4_sidney_ex_2') end
 
 		pkrm_gym_attention_text {
 			text = display_text,
@@ -721,7 +694,7 @@ SMODS.Blind {
 	end,
 
 	defeat = function(self)
-		local change = G.GAME.BL_EXTRA.temp_table.original_hand_size - G.hand.config.card_limit 
+		local change = G.GAME.BL_EXTRA.temp_table.original_hand_size - G.hand.config.card_limit
 		-- change = target_hand_size - current_hand_size
 		G.hand:change_size(change)
 	end,
@@ -751,8 +724,47 @@ SMODS.Blind {
 	dollars = 12,
 	mult = 4,
 	boss = { min = 10, max = 10, showdown = true },
-	config = {},
+	config = { lower_xmult = 0.75 },
 	vars = {},
+
+	loc_vars = function(self)
+		return { vars = { self.config.lower_xmult } }
+	end,
+	collection_loc_vars = function(self)
+		return { vars = { self.config.lower_xmult } }
+	end,
+
+	calculate = function(self, blind, context)
+		if blind.disabled then return end
+
+		if context.before then
+			local rank_counts = {}
+
+			for _, card in pairs(G.hand.cards) do
+				if not SMODS.has_no_rank(card) then rank_counts[card.base.id] = (rank_counts[card.base.id] or 0) + 1 end
+			end
+
+			for _, card in pairs(G.hand.cards) do
+				if SMODS.has_no_rank(card) then
+					if SMODS.has_enhancement(card, 'm_stone') then card.rank_is_unique = true end
+				else
+					if rank_counts[card.base.id] and rank_counts[card.base.id] < 2 then card.rank_is_unique = true end
+				end
+			end
+		end
+
+		if context.individual then
+			if context.other_card.rank_is_unique then return {
+				xmult = self.config.lower_xmult,
+			} end
+		end
+
+		if context.after then
+			for _, card in pairs(G.hand.cards) do
+				if card.rank_is_unique then card.rank_is_unique = nil end
+			end
+		end
+	end,
 }
 
 SMODS.Blind {

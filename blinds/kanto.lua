@@ -293,7 +293,7 @@ SMODS.Blind {
 			and not self.config.extra.used_consumable
 			and not card.ability.sabrina_marsh_debuff
 		then
-			-- ability is to prevent purified cards from being debuffed again
+			-- Ability is to prevent purified cards from being debuffed again
 			return true
 		else
 			return false
@@ -486,8 +486,6 @@ local function redrawQuizUI(quiz_table)
 	}
 end
 
-
-
 BL_FUNCTION_TABLE['volcano_reload'] = function(temp_table)
 	if type(temp_table) == 'table' then
 		G.GAME.blind.config.blind.custom_UI = redrawQuizUI(temp_table)
@@ -552,8 +550,7 @@ SMODS.Enhancement {
 
 	calculate = function(self, card, context)
 		-- Return to hand after Play/Discard
-		if (context.after and context.cardarea == G.play)
-		or (context.pre_discard and card.highlighted) then
+		if (context.after and context.cardarea == G.play) or (context.pre_discard and card.highlighted) then
 			G.E_MANAGER:add_event(Event {
 				trigger = 'immediate',
 				func = function()
@@ -563,9 +560,7 @@ SMODS.Enhancement {
 			})
 		end
 
-		if context.playing_card_end_of_round and context.cardarea == G.hand then
-			card:start_dissolve()
-		end
+		if context.playing_card_end_of_round and context.cardarea == G.hand then card:start_dissolve() end
 	end,
 }
 
@@ -582,19 +577,17 @@ local function correct_attention_text(major, delay, offset_y, sound)
 				hold = 2,
 				major = major,
 				align = (major == G.play and 'tm') or 'cm',
-				offset = { x = 0, y = (offset_y or -0.1*G.CARD_H) },
+				offset = { x = 0, y = (offset_y or -0.1 * G.CARD_H) },
 				silent = false,
 			}
 
-			if major ~= G.play and major.juice_up then
-				major:juice_up()
-			end
+			if major ~= G.play and major.juice_up then major:juice_up() end
 
 			G.GAME.blind:wiggle()
 			play_sound((sound or 'gong'))
 
 			return true
-		end
+		end,
 	})
 end
 
@@ -615,13 +608,11 @@ local function wrong_attention_text(major, delay, offset_y)
 				silent = false,
 			}
 
-			if major.juice_up then
-				major:juice_up()
-			end
+			if major.juice_up then major:juice_up() end
 
 			G.GAME.blind:wiggle()
 			return true
-		end
+		end,
 	})
 end
 
@@ -657,7 +648,7 @@ local function bad_answer_attention_text(text, major, delay)
 			G.ROOM.jiggle = G.ROOM.jiggle + 0.7
 			play_sound('cancel')
 			return true
-		end
+		end,
 	})
 end
 
@@ -693,7 +684,7 @@ local function score_part_of_blind(division)
 			chip_UI:juice_up()
 
 			return true
-		end
+		end,
 	})
 end
 
@@ -776,7 +767,8 @@ SMODS.Blind {
 			end
 		else
 			for _, card in ipairs(cards) do
-				if card.config.center.key == 'm_pkrm_gym_answer_card'
+				if
+					card.config.center.key == 'm_pkrm_gym_answer_card'
 					and type(card.ability.extra.answer_key) ~= 'number'
 				then
 					G.hand:remove_from_highlighted(card)
@@ -830,10 +822,10 @@ SMODS.Blind {
 						if v.config.center.key == 'm_pkrm_gym_answer_card' then
 							local answer = quiz_table.answers[v.ability.extra.answer_key]
 							if right_answers_set[answer] then
-								correct_attention_text(v, 0.8, -0.2*G.CARD_H, 'multhit1')
+								correct_attention_text(v, 0.8, -0.2 * G.CARD_H, 'multhit1')
 								right_answers_set[answer] = nil -- Remove from table
 							else
-								wrong_attention_text(v, 0.8, 0.2*G.CARD_H)
+								wrong_attention_text(v, 0.8, 0.2 * G.CARD_H)
 								all_correct = false
 							end
 						end
@@ -844,7 +836,7 @@ SMODS.Blind {
 						bad_answer_attention_text(localize('pkrm_gym_blaine_quizzes_ex_not_all_answer'), G.play, 1)
 						return true
 					end
-			
+
 					-- Missing answer
 					for _, answer in pairs(right_answers_set) do
 						bad_answer_attention_text(localize('pkrm_gym_blaine_quizzes_ex_missing_answer'), G.play, 1)
@@ -894,8 +886,6 @@ SMODS.Blind {
 		return ''
 	end,
 }
-
-
 
 BL_FUNCTION_TABLE['earth_ease_dollars'] = function(mod)
 	local blind = G.GAME.blind
@@ -968,6 +958,7 @@ SMODS.Blind {
 	end,
 }
 
+
 SMODS.Blind {
 	key = 'e4_lorelei',
 	atlas = 'blinds_kanto',
@@ -978,44 +969,34 @@ SMODS.Blind {
 	dollars = 8,
 	mult = 2,
 	boss = { min = 8, max = 10, showdown = true },
-	config = { break_turns = 3 },
-	vars = { 3 },
+	config = { cards_left_to_draw = 2 },
+	vars = { 2 },
 	loc_vars = function(self)
-		return { vars = { self.config.break_turns } }
-	end,
-
-	set_blind = function(self)
-		G.GAME.BL_EXTRA.temp_table = {
-			break_in = self.config.break_turns,
-		}
-	end,
-
-	press_play = function(self)
-		local current_turn = G.GAME.BL_EXTRA.temp_table.break_in
-		if current_turn == 0 then
-			G.GAME.BL_EXTRA.temp_table.break_in = self.config.break_turns - 1
-		else
-			G.GAME.BL_EXTRA.temp_table.break_in = current_turn - 1
-		end
-
-		-- print(G.GAME.BL_EXTRA.temp_table.break_in)
+		return { vars = { self.config.cards_left_to_draw } }
 	end,
 
 	calculate = function(self, blind, context)
-		if G.GAME.blind.disabled then return end
+		if blind.disabled then return end
 
-		if context.after then
-			if G.GAME.BL_EXTRA.temp_table.break_in == 0 then
-				for _, card in ipairs(G.hand.cards) do
-					G.E_MANAGER:add_event(Event {
-						trigger = 'after',
-						delay = 0.2,
-						func = function()
-							card:shatter()
-							return true
-						end,
-					})
+		if context.before or context.pre_discard then
+			local cards_left = 0
+			for _, card in pairs(G.hand.cards) do
+				if not card.highlighted then
+					cards_left = cards_left + 1
 				end
+			end
+
+			if cards_left > self.config.cards_left_to_draw then
+				blind.no_draw = true
+			end
+		end
+
+		if context.drawing_cards then
+			if blind.no_draw then
+				blind.no_draw = false
+				return {
+					cards_to_draw = 0,
+				}
 			end
 		end
 	end,
@@ -1026,7 +1007,7 @@ local singleton_destroying = false
 SMODS.Sticker {
 	key = 'temporary',
 	atlas = 'stickers',
-	badge_colour =  G.C.PERISHABLE,
+	badge_colour = G.C.PERISHABLE,
 	pos = { x = 0, y = 0 },
 	rate = 0,
 
@@ -1036,19 +1017,17 @@ SMODS.Sticker {
 
 			if not singleton_destroying then
 				singleton_destroying = true
-				
+
 				G.E_MANAGER:add_event(Event {
 					trigger = 'immediate',
 					func = function()
 						for _, card in pairs(G.playing_cards) do
-							if card.ability and card.ability["pkrm_gym_temporary"] then 
-								card:start_dissolve()
-							end
+							if card.ability and card.ability['pkrm_gym_temporary'] then card:start_dissolve() end
 						end
 
 						singleton_destroying = false
 						return true
-					end
+					end,
 				})
 			end
 		end
@@ -1139,23 +1118,6 @@ SMODS.Blind {
 	boss = { min = 8, max = 10, showdown = true },
 	config = {},
 	vars = {},
-
-	calculate = function(self, blind, context)
-		if blind.disabled then return end
-
-		if context.before then
-			blind.played_hand = true
-		end
-
-		if context.drawing_cards then
-			if blind.played_hand then
-				blind.played_hand = false
-				return {
-					cards_to_draw = 0
-				}
-			end
-		end
-	end
 }
 
 SMODS.Blind {
@@ -1199,8 +1161,6 @@ SMODS.Blind {
 	end,
 }
 
-
-
 local basegame_card_get_chip_bonus = Card.get_chip_bonus
 function Card:get_chip_bonus()
 	if G.GAME.blind and G.GAME.blind.name == 'bl_pkrm_gym_champion_kanto' and not G.GAME.blind.disabled then
@@ -1216,7 +1176,7 @@ G.P_CENTERS.e_foil.calculate = function(self, card, context)
 
 	if context.main_scoring and context.cardarea == G.play then
 		if G.GAME.blind and G.GAME.blind.name == 'bl_pkrm_gym_champion_kanto' and not G.GAME.blind.disabled then
-			returned_table.chips = 0
+			if type(returned_table) == 'table' then returned_table.chips = 0 end
 		end
 	end
 

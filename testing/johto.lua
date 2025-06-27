@@ -1,3 +1,6 @@
+-- The Hive
+-- Test with destroy jokers
+
 -- The Fog
 function fog_check_flip(hd_flip, sc_flip)
 	local all_hd_flipped_correctly = true
@@ -65,6 +68,134 @@ Balatest.TestPlay {
 
 		Balatest.assert(hd_correct)
 		Balatest.assert(sc_correct)
+	end,
+}
+
+-- The Glacier
+Balatest.TestPlay {
+	name = 'glacier_effect_play',
+	category = { 'johto', 'blind' },
+
+	blind = 'bl_pkrm_gym_glacier',
+
+	hand_size = 6,
+	deck = {
+		cards = { -- 10 - 2S
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+		},
+	},
+
+	execute = function()
+		Balatest.play_hand { '2S', '2S', '2S' }
+	end,
+	assert = function()
+		Balatest.assert_eq(#G.hand.cards, 3)
+	end,
+}
+
+Balatest.TestPlay {
+	name = 'glacier_effect_discard',
+	category = { 'johto', 'blind' },
+
+	blind = 'bl_pkrm_gym_glacier',
+
+	hand_size = 6,
+	deck = {
+		cards = { -- 10 - 2S
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+		},
+	},
+
+	execute = function()
+		Balatest.play_hand { '2S', '2S', '2S' }
+		Balatest.discard { '2S' }
+	end,
+	assert = function()
+		Balatest.assert_eq(#G.hand.cards, G.hand.config.card_limit)
+	end,
+}
+
+Balatest.TestPlay {
+	name = 'glacier_disable_chicot',
+	category = { 'johto', 'blind', 'disable' },
+
+	blind = 'bl_pkrm_gym_glacier',
+	jokers = { 'j_chicot' },
+
+	hand_size = 6,
+	deck = {
+		cards = { -- 10 - 2S
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+		},
+	},
+
+	execute = function()
+		Balatest.play_hand { '2S', '2S', '2S' }
+	end,
+	assert = function()
+		Balatest.assert_eq(#G.hand.cards, G.hand.config.card_limit)
+	end,
+}
+
+Balatest.TestPlay {
+	name = 'glacier_disable_weezing',
+	category = { 'johto', 'blind', 'disable' },
+
+	blind = 'bl_pkrm_gym_glacier',
+	jokers = { 'j_poke_weezing' },
+
+	hand_size = 6,
+	deck = {
+		cards = { -- 10 - 2S
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+		},
+	},
+
+	execute = function()
+		Balatest.play_hand { '2S', '2S' }
+		Balatest.q(function()
+			G.jokers.cards[1]:sell_card()
+		end)
+		Balatest.play_hand { '2S', '2S' }
+	end,
+	assert = function()
+		Balatest.assert_eq(#G.hand.cards, G.hand.config.card_limit)
 	end,
 }
 
@@ -186,3 +317,5 @@ Balatest.TestPlay {
 		Balatest.assert_chips(0)
 	end,
 }
+
+-- Test for Karen

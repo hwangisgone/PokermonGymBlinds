@@ -3,7 +3,12 @@ local league_length = 10
 local basegame_get_new_boss = get_new_boss
 function get_new_boss(blind)
 	-- TODO: Special blind for ante < 1?
-	if not pkrm_gym_config.setting_only_gym or G.GAME.round_resets.ante < 1 then return basegame_get_new_boss() end
+	if
+		(not pkrm_gym_config.setting_only_gym and not G.GAME.modifiers.pkrm_gym_forced_region) -- Not challenge
+		or G.GAME.round_resets.ante < 1
+	then
+		return basegame_get_new_boss()
+	end
 
 	local league_index = 1
 	local gym_index = (G.GAME.round_resets.ante - 1) % league_length + 1
@@ -15,13 +20,11 @@ function get_new_boss(blind)
 	else
 		league_index = math.floor((G.GAME.round_resets.ante - 1) / league_length) % #G.GAME.pkrm_league_pool + 1
 
-		if league_index == 1 and gym_index == 1 then
-			G.GAME.pkrm_league_pool = get_league_pool() 			
-		end
+		if league_index == 1 and gym_index == 1 then G.GAME.pkrm_league_pool = get_league_pool() end
 	end
 
 	local current_league = G.GAME.pkrm_league_pool[league_index]
-	
+
 	if gym_index == 9 then
 		-- Elite four
 		if blind == 'big' then
@@ -99,7 +102,8 @@ function end_round()
 				trigger = 'immediate',
 				func = function()
 					-- If current blind is an Elite Four (Boss)
-					if G.GAME.round_resets.blind_type_override
+					if
+						G.GAME.round_resets.blind_type_override
 						and G.GAME.round_resets.blind_type_override[G.GAME.blind_on_deck]
 					then
 						G.GAME.round_resets.blind_states[G.GAME.blind_on_deck] = 'Defeated'
@@ -150,4 +154,47 @@ function get_blind_amount(ante)
 	end
 
 	return basegame_get_blind_amount(ante)
+end
+
+-- Challenge Pool modification
+
+local all_regional_pokedexes = {}
+local load_pokedex, load_error = SMODS.load_file('challenges/pokedex.lua')
+if load_error then
+	sendDebugMessage('The error is: ' .. load_error)
+else
+	all_regional_pokedexes = load_pokedex()
+end
+
+local basegame_get_current_pool = get_current_pool
+function get_current_pool(_type, _rarity, legendary, key_append)
+	local _pool, _pool_key = basegame_get_current_pool(_type, _rarity, legendary, key_append)
+
+	if G.GAME.modifiers.pkrm_gym_forced_region then
+		if _type == 'Joker' then
+			-- Spawn Magikarp when out of things to generate
+			if #_pool == 1 then
+				_pool = EMPTY(G.ARGS.TEMP_POOL)
+				_pool[#_pool + 1] = 'j_poke_magikarp'
+			end
+		end
+	end
+
+	return _pool, _pool_key
+end
+
+-- Function pokemon_in_pool also sets the .in_pool of that pokemon
+-- Modify for Pokeballs, Egg and the like
+local basegame_pokermon_pokemon_in_pool = pokemon_in_pool
+function pokemon_in_pool(self)
+	if G.GAME.modifiers.pkrm_gym_forced_region then
+		if
+			not all_regional_pokedexes[G.GAME.modifiers.pkrm_gym_forced_region:lower()][self.name]
+			and not all_regional_pokedexes.other[self.name]
+		then
+			return false
+		end
+	end
+
+	return basegame_pokermon_pokemon_in_pool(self)
 end

@@ -1,3 +1,184 @@
+-- Frozen Flow
+Balatest.TestPlay {
+	name = 'e4_lorelei_effect_play',
+	category = { 'kanto', 'blind' },
+
+	blind = 'bl_pkrm_gym_e4_lorelei',
+
+    hand_size = 6,
+	deck = {
+		cards = { -- 10 - 2S
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+		},
+	},
+
+	execute = function()
+        Balatest.play_hand { '2S', '2S', '2S' }
+    end,
+	assert = function()
+		Balatest.assert_eq(#G.hand.cards, 3)
+	end,
+}
+
+Balatest.TestPlay {
+	name = 'e4_lorelei_effect_discard',
+	category = { 'kanto', 'blind' },
+
+	blind = 'bl_pkrm_gym_e4_lorelei',
+
+    hand_size = 6,
+	deck = {
+		cards = { -- 10 - 2S
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+		},
+	},
+
+	execute = function()
+        Balatest.play_hand { '2S', '2S' }
+        Balatest.discard { '2S' }
+    end,
+	assert = function()
+		Balatest.assert_eq(#G.hand.cards, 3)
+	end,
+}
+
+Balatest.TestPlay {
+	name = 'e4_lorelei_effect_limit_draw',
+	category = { 'kanto', 'blind' },
+
+	blind = 'bl_pkrm_gym_e4_lorelei',
+
+    hand_size = 6,
+	deck = {
+		cards = { -- 10 - 2S
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+		},
+	},
+
+	execute = function()
+        Balatest.discard { '2S', '2S' }
+        Balatest.play_hand { '2S', '2S' }
+    end,
+	assert = function()
+		Balatest.assert_eq(#G.hand.cards, G.hand.config.card_limit)
+	end,
+}
+
+
+Balatest.TestPlay {
+	name = 'e4_lorelei_disable_chicot',
+	category = { 'kanto', 'blind', 'disable' },
+
+	blind = 'bl_pkrm_gym_e4_lorelei',
+	jokers = { 'j_chicot' },
+
+    hand_size = 8,
+	deck = {
+		cards = { -- 16 - 2S
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+
+            { r = '2', s = 'S' },
+            { r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+		},
+	},
+
+	execute = function()
+        Balatest.play_hand { '2S', '2S', '2S' }
+		Balatest.discard { '2S', '2S' }
+    end,
+	assert = function()
+		Balatest.assert_eq(#G.hand.cards, G.hand.config.card_limit)
+	end,
+}
+
+Balatest.TestPlay {
+	name = 'e4_lorelei_disable_weezing',
+	category = { 'kanto', 'blind', 'disable' },
+
+	blind = 'bl_pkrm_gym_e4_lorelei',
+	jokers = { 'j_poke_weezing' },
+
+    hand_size = 8,
+	deck = {
+		cards = { -- 16 - 2S
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+		},
+	},
+
+	execute = function()
+        Balatest.discard { '2S', '2S', '2S' }
+		Balatest.q(function()
+			G.jokers.cards[1]:sell_card()
+		end)
+        Balatest.play_hand { '2S', '2S' }
+	end,
+	assert = function()
+		Balatest.assert_eq(#G.hand.cards, G.hand.config.card_limit)
+	end,
+}
+
+
+-- Saffron Shackles
 Balatest.TestPlay {
 	name = 'temporary_destroyed',
 	category = { 'kanto', 'sticker' },
@@ -19,6 +200,21 @@ Balatest.TestPlay {
 	end,
 }
 
+-- The Blue Chip
+Balatest.TestPlay {
+	name = 'champion_kanto_normal',
+	category = { 'kanto', 'blind' },
+
+	blind = 'bl_pkrm_gym_champion_kanto',
+
+	execute = function()
+		Balatest.play_hand { '2S', '2C', '4S', '4C' } -- 2 Pair
+		Balatest.play_hand { '10S', 'JS', 'QS', 'KS', 'AS' } -- Royal Flush
+	end,
+	assert = function()
+		Balatest.assert_chips(0)
+	end,
+}
 
 Balatest.TestPlay {
 	name = 'champion_kanto_editions',
@@ -56,7 +252,7 @@ Balatest.TestPlay {
 	deck = {
 		cards = {
 			{ r = 'K', s = 'S' },
-            { r = 'A', s = 'S', e = 'm_stone', d = 'holo' },
+			{ r = 'A', s = 'S', e = 'm_stone', d = 'holo' },
 			{ r = '2', s = 'S', e = 'm_bonus' },
 			{ r = '2', s = 'C', e = 'm_lucky', d = 'foil' },
 			{ r = '4', s = 'S', e = 'm_mult' },
@@ -65,13 +261,13 @@ Balatest.TestPlay {
 	},
 
 	execute = function()
-        G.GAME.probabilities.normal = 15 -- Guaranteed Lucky trigger
+		G.GAME.probabilities.normal = 15 -- Guaranteed Lucky trigger
 
 		Balatest.play_hand { 'AS', '2S', '2C', '4S', '4C' } -- Play a 2 Pair
 	end,
 	assert = function()
 		-- Foil Beedrill x (2 Pair + Lucky + Mult + 2 Holo)
 		Balatest.assert_chips((50 + 80) * (2 + 20 + 4 + 10 + 10))
-        Balatest.assert_eq(G.GAME.dollars, 20)
+		Balatest.assert_eq(G.GAME.dollars, 20)
 	end,
 }
