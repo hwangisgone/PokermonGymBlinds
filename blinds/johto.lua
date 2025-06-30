@@ -74,7 +74,7 @@ SMODS.Blind {
 	vars = {},
 
 	calculate = function(self, blind, context)
-		if G.GAME.blind.disabled then return end
+		if blind.disabled then return end
 
 		if context.before then
 			local seen_ranks = {}
@@ -127,7 +127,7 @@ SMODS.Blind {
 	vars = {},
 
 	calculate = function(self, blind, context)
-		if G.GAME.blind.disabled then return end
+		if blind.disabled then return end
 
 		if context.final_scoring_step then
 			local cutting_card = G.play.cards[#G.play.cards]
@@ -137,6 +137,7 @@ SMODS.Blind {
 				func = function()
 					play_sound('slice1', 0.96 + math.random() * 0.08)
 					cutting_card:start_dissolve({ HEX('57ecab') }, true, 1.6, false)
+					SMODS.juice_up_blind()
 
 					-- Remove from discard, fix ghost card bug
 					G.E_MANAGER:add_event(Event {
@@ -400,7 +401,7 @@ SMODS.Blind {
 	vars = {},
 
 	calculate = function(self, blind, context)
-		if G.GAME.blind.disabled then return end
+		if blind.disabled then return end
 
 		if context.before then
 			for i = 1, #context.scoring_hand do
@@ -420,7 +421,7 @@ SMODS.Blind {
 						this_card:flip()
 
 						SMODS.juice_up_blind()
-						G.GAME.blind.triggered = true
+						blind.triggered = true
 						return true
 					end,
 				})
@@ -485,7 +486,7 @@ SMODS.Blind {
 	end,
 
 	calculate = function(self, blind, context)
-		if G.GAME.blind.disabled then return end
+		if blind.disabled then return end
 
 		if context.before then
 			G.E_MANAGER:add_event(Event {
@@ -499,8 +500,8 @@ SMODS.Blind {
 						align = 'cm',
 					}
 
-					G.GAME.blind:wiggle()
-					G.GAME.blind.triggered = true
+					blind:wiggle()
+					blind.triggered = true
 
 					return true
 				end,

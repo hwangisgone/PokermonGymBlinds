@@ -95,6 +95,8 @@ SMODS.Booster {
 			card.ability.extra = #card.ability.starter_cards
 		end
 
+		if card.T.h > G.CARD_H then return end -- Is in Collection & also not in Challenge
+
 		card.T.w = card.T.w * 1.27
 		card.T.h = card.T.h * 1.27
 

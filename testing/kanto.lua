@@ -5,25 +5,25 @@ Balatest.TestPlay {
 
 	blind = 'bl_pkrm_gym_e4_lorelei',
 
-    hand_size = 6,
+	hand_size = 6,
 	deck = {
 		cards = { -- 10 - 2S
 			{ r = '2', s = 'S' },
 			{ r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
 		},
 	},
 
 	execute = function()
-        Balatest.play_hand { '2S', '2S', '2S' }
-    end,
+		Balatest.play_hand { '2S', '2S', '2S' }
+	end,
 	assert = function()
 		Balatest.assert_eq(#G.hand.cards, 3)
 	end,
@@ -35,26 +35,26 @@ Balatest.TestPlay {
 
 	blind = 'bl_pkrm_gym_e4_lorelei',
 
-    hand_size = 6,
+	hand_size = 6,
 	deck = {
 		cards = { -- 10 - 2S
 			{ r = '2', s = 'S' },
 			{ r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
 		},
 	},
 
 	execute = function()
-        Balatest.play_hand { '2S', '2S' }
-        Balatest.discard { '2S' }
-    end,
+		Balatest.play_hand { '2S', '2S' }
+		Balatest.discard { '2S' }
+	end,
 	assert = function()
 		Balatest.assert_eq(#G.hand.cards, 3)
 	end,
@@ -66,31 +66,30 @@ Balatest.TestPlay {
 
 	blind = 'bl_pkrm_gym_e4_lorelei',
 
-    hand_size = 6,
+	hand_size = 6,
 	deck = {
 		cards = { -- 10 - 2S
 			{ r = '2', s = 'S' },
 			{ r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
 		},
 	},
 
 	execute = function()
-        Balatest.discard { '2S', '2S' }
-        Balatest.play_hand { '2S', '2S' }
-    end,
+		Balatest.discard { '2S', '2S' }
+		Balatest.play_hand { '2S', '2S' }
+	end,
 	assert = function()
 		Balatest.assert_eq(#G.hand.cards, G.hand.config.card_limit)
 	end,
 }
-
 
 Balatest.TestPlay {
 	name = 'e4_lorelei_disable_chicot',
@@ -99,35 +98,35 @@ Balatest.TestPlay {
 	blind = 'bl_pkrm_gym_e4_lorelei',
 	jokers = { 'j_chicot' },
 
-    hand_size = 8,
+	hand_size = 8,
 	deck = {
 		cards = { -- 16 - 2S
 			{ r = '2', s = 'S' },
 			{ r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
-
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
 			{ r = '2', s = 'S' },
 			{ r = '2', s = 'S' },
 
-            { r = '2', s = 'S' },
-            { r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
 			{ r = '2', s = 'S' },
 			{ r = '2', s = 'S' },
 		},
 	},
 
 	execute = function()
-        Balatest.play_hand { '2S', '2S', '2S' }
+		Balatest.play_hand { '2S', '2S', '2S' }
 		Balatest.discard { '2S', '2S' }
-    end,
+	end,
 	assert = function()
 		Balatest.assert_eq(#G.hand.cards, G.hand.config.card_limit)
 	end,
@@ -140,7 +139,7 @@ Balatest.TestPlay {
 	blind = 'bl_pkrm_gym_e4_lorelei',
 	jokers = { 'j_poke_weezing' },
 
-    hand_size = 8,
+	hand_size = 8,
 	deck = {
 		cards = { -- 16 - 2S
 			{ r = '2', s = 'S' },
@@ -166,17 +165,16 @@ Balatest.TestPlay {
 	},
 
 	execute = function()
-        Balatest.discard { '2S', '2S', '2S' }
+		Balatest.discard { '2S', '2S', '2S' }
 		Balatest.q(function()
 			G.jokers.cards[1]:sell_card()
 		end)
-        Balatest.play_hand { '2S', '2S' }
+		Balatest.play_hand { '2S', '2S' }
 	end,
 	assert = function()
 		Balatest.assert_eq(#G.hand.cards, G.hand.config.card_limit)
 	end,
 }
-
 
 -- Saffron Shackles
 Balatest.TestPlay {
@@ -190,13 +188,155 @@ Balatest.TestPlay {
 			end
 		end
 
-		Balatest.play_hand { '2S', '3S', '4S', '6S', '8C' } -- Play a High Card
-		Balatest.play_hand { '2C', '3C', '4C', '6C', '8S' } -- Play a High Card
+		Balatest.play_hand { '2S', '3S', '4S', '6S', '8C' }
+		Balatest.play_hand { '2C', '3C', '4C', '6C', '8S' }
 		Balatest.discard { '10S', 'JS', 'QS', 'KS', 'AS' }
 		Balatest.next_round()
 	end,
 	assert = function()
 		Balatest.assert_eq(#G.playing_cards, 26)
+	end,
+}
+
+Balatest.TestPlay {
+	name = 'temporary_destroyed_only_in_deck',
+	category = { 'kanto', 'sticker' },
+
+	hand_size = 8,
+
+	execute = function()
+		for _, card in pairs(G.playing_cards) do
+			if card:is_suit('Spades') then 
+				SMODS.Stickers['pkrm_gym_temporary']:apply(card, true)
+				if card.area == G.hand then
+					G.hand:remove_card(card)
+					G.deck:emplace(card, nil, true)
+				end
+			end
+		end
+
+		local new_card = SMODS.create_card {
+			set = 'Base',
+			area = G.hand,
+			skip_materialize = true,
+			rank = '2',
+			suit = 'C'
+		}
+		G.hand:emplace(new_card, nil, true)
+
+		Balatest.play_hand { '2C' }
+		Balatest.next_round()
+	end,
+	assert = function()
+		Balatest.assert_eq(#G.playing_cards, 39) -- 1 suit gone
+	end,
+}
+
+Balatest.TestPlay {
+	name = 'e4_bruno_effect',
+	category = { 'kanto', 'blind' },
+
+	blind = 'bl_pkrm_gym_e4_bruno',
+
+	hand_size = 8,
+	deck = {
+		cards = { -- 16 - 2S
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+		},
+	},
+
+	execute = function() end,
+	assert = function()
+		Balatest.assert_eq(#G.playing_cards, 52)
+
+		local total_temp_stone_cards = 0
+		for _, card in pairs(G.playing_cards) do
+			if card.ability['pkrm_gym_temporary'] and SMODS.has_enhancement(card, 'm_stone') then
+				total_temp_stone_cards = total_temp_stone_cards + 1
+			end
+		end
+
+		Balatest.assert_eq(total_temp_stone_cards, 52 - 16) -- 16 2 of Spades
+	end,
+}
+
+Balatest.TestPlay {
+	name = 'e4_bruno_disable_chicot',
+	category = { 'kanto', 'blind', 'disable' },
+
+	blind = 'bl_pkrm_gym_e4_bruno',
+	jokers = { 'j_chicot' },
+
+	hand_size = 8,
+	deck = {
+		cards = { -- 8 - 2S
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+		},
+	},
+
+	execute = function() end,
+	assert = function()
+		Balatest.assert_eq(#G.playing_cards, 8)
+	end,
+}
+
+Balatest.TestPlay {
+	name = 'e4_bruno_disable_weezing',
+	category = { 'kanto', 'blind', 'disable' },
+
+	blind = 'bl_pkrm_gym_e4_bruno',
+	jokers = { 'j_poke_weezing' },
+
+	hand_size = 8,
+	deck = {
+		cards = { -- 16 - 2S
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+			{ r = '2', s = 'S' },
+		},
+	},
+
+	execute = function()
+		Balatest.discard { '2S', '2S', '2S' }
+		Balatest.q(function()
+			G.jokers.cards[1]:sell_card()
+		end)
+		Balatest.play_hand { '2S' }
+	end,
+	assert = function()
+		Balatest.assert_eq(#G.playing_cards, 8)
 	end,
 }
 

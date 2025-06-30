@@ -39,8 +39,13 @@ SMODS.Atlas {
 	py = 95,
 }
 
+-- SMODS configs
+-- Allows self destroying card to actually destroy themselves in deck
+SMODS.current_mod.optional_features = function()
+	return { cardareas = { deck = true } }
+end
+
 -- TODO:
--- TOCHECK:
 
 -- Utilities:
 function get_current_dollars()
@@ -335,7 +340,7 @@ function get_league_pool()
 		pool = copy_table(all_leagues)
 		pseudoshuffle(pool, seed)
 
-		if pkrm_gym_config.setting_random_elite4 then
+		if pkrm_gym_config.setting_random_elite4_order then
 			for _, league in ipairs(pool) do
 				pseudoshuffle(league.e4, seed)
 			end
@@ -349,41 +354,49 @@ end
 local modtag = 'pkrm_gym'
 pkrm_gym_config = SMODS.current_mod.config
 
-local create_menu_checkbox = function(ref_value, tooltip)
+local create_menu_checkbox = function(ref_value, tooltip, can_display)
+	if can_display == false then return {
+		n = G.UIT.R,
+		config = { align = 'cm' },
+	} end
+
+	local tooltip_obj = tooltip and { text = localize(modtag .. '_' .. ref_value, 'tooltips') }
+	local extra_indent = can_display == true and 0.5
+
 	return {
 		n = G.UIT.R,
-		config = { align = 'cm', tooltip = { title = 'Explanation', text = tooltip } },
+		config = { align = 'cl', tooltip = tooltip_obj },
 		nodes = {
-			-- Localize here
+			-- Padding
+			{n = G.UIT.C, config = { minw = extra_indent } },
+
 			create_toggle {
 				label = localize(modtag .. '_' .. ref_value),
 				ref_table = pkrm_gym_config,
 				ref_value = ref_value,
-			},
-		},
-	}
-end
-
-local pkrm_gym_config_ui_nodes = function()
-	return {
-		{
-			n = G.UIT.C,
-			config = { align = 'cm', padding = 0.1 },
-			nodes = {
-				create_menu_checkbox(
-					'setting_only_gym',
-					{ 'Testing 1', '' .. tostring(pkrm_gym_config.setting_only_gym) }
-				),
-				create_menu_checkbox('setting_random_gym', { 'Testing 2' }),
-				create_menu_checkbox('setting_random_elite4', { 'Testing 3' }),
-				create_menu_checkbox('setting_reduce_scaling', { 'Testing 4' }),
+				callback = function(e)
+					-- Refresh Tab config (required to make update with can_display)
+					G.FUNCS.change_tab(G.OVERLAY_MENU:get_UIE_by_ID('tab_but_Config'))
+				end,
 			},
 		},
 	}
 end
 
 SMODS.current_mod.config_tab = function()
-	return { n = G.UIT.ROOT, config = {}, nodes = pkrm_gym_config_ui_nodes() }
+	return { n = G.UIT.ROOT, config = { colour = G.C.UI.TEXT_DARK }, nodes = {
+		{
+			n = G.UIT.C,
+			config = { align = 'cl', padding = 0.1 },
+			nodes = {
+				create_menu_checkbox('setting_only_gym', true),
+				create_menu_checkbox('setting_random_gym', true, pkrm_gym_config.setting_only_gym),
+				create_menu_checkbox('setting_pokermon_league', true),
+				create_menu_checkbox('setting_random_elite4_order', nil, pkrm_gym_config.setting_pokermon_league),
+				create_menu_checkbox('setting_reduce_scaling', nil, pkrm_gym_config.setting_pokermon_league),
+			},
+		},
+	}}
 end
 
 -- Loading hooks
