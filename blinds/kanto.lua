@@ -1034,11 +1034,54 @@ SMODS.Sticker {
 	end,
 }
 
+local function move_card_to(to, percent, dir, card, delay, mute, vol)
+    percent = percent or 50
+	delay = delay or 0.1 
+    if dir == 'down' then 
+        percent = 1-percent
+    end
+
+    G.E_MANAGER:add_event(Event({
+        trigger = 'before',
+        delay = delay,
+        func = function()
+			local stay_flipped = G.GAME and G.GAME.blind and G.GAME.blind:stay_flipped(to, card)
+			if (to == G.hand) and G.GAME.modifiers.flipped_cards then
+				if pseudorandom(pseudoseed('flipped_card')) < 1/G.GAME.modifiers.flipped_cards then
+					stay_flipped = true
+				end
+			end
+			to:emplace(card, nil, stay_flipped)
+
+			if not mute then
+				G.VIBRATION = G.VIBRATION + 0.6
+
+				play_sound('card1', 0.85 + percent*0.2/100, 0.6*(vol or 1))
+			end
+			return true
+		end
+	}))
+end
+
+local function my_ease_value(ref_table, ref_value, target, not_blockable, delay, ease_type)
+	--Ease from current chips to the new number of chips
+	G.E_MANAGER:add_event(Event({
+		trigger = 'ease',
+		blockable = (not_blockable == false),
+		blocking = false,
+		ref_table = ref_table,
+		ref_value = ref_value,
+		ease_to = target,
+		delay =  delay or 0.3,
+		type = ease_type or nil,
+	}))
+end
+
 SMODS.Blind {
 	key = 'e4_bruno',
 	atlas = 'blinds_kanto',
 	pos = { x = 0, y = 9 },
-	boss_colour = TYPE_CLR['fighting'],
+	boss_colour = GYM_SHOWDOWN_CLR['bruno'],
 
 	discovered = false,
 	dollars = 8,
@@ -1047,62 +1090,55 @@ SMODS.Blind {
 	config = {},
 	vars = {},
 
-	set_blind = function(self)
-		G.GAME.BL_EXTRA.temp_table = {}
-	end,
-
 	calculate = function(self, blind, context)
-		if G.GAME.blind.disabled then return end
+		if blind.disabled then return end
+		if not context.first_hand_drawn then return end
 
-		if context.pre_discard then
-			local text = G.FUNCS.get_poker_hand_info(G.hand.highlighted)
+		local stone_count = 52 - #G.playing_cards
 
-			G.GAME.BL_EXTRA.temp_table[text] = true
+		if stone_count > 0 then
+			for i = 1, stone_count do
+				G.E_MANAGER:add_event(Event {
+					trigger = 'after',
+					delay = 0.2,
+					func = function()
+						local created_stone = SMODS.create_card({
+							set = 'Base',
+							enhancement = 'm_stone',
+							skip_materialize = false,
+							stickers = { 'pkrm_gym_temporary' }
+						})
 
-			G.GAME.blind:wiggle()
-			play_sound('cancel', 2, 0.9)
+						(math.random() - 1) * 2
+
+						created_stone:hard_set_T(G.GAME.blind.T.x, G.GAME.blind.T.y)
+						-- created_stone:start_materialize
+
+						-- SMODS.Stickers['pkrm_gym_temporary']:apply(created_stone, true)
+
+						if pseudorandom(pseudoseed('e4_bruno')) < 0.1 then
+							move_card_to(G.hand, 100, 'up', created_stone)
+						else
+							move_card_to(G.deck, 100, 'up', created_stone)
+						end
+
+						return true
+					end
+				})
+			end
 		end
 	end,
 
-	debuff_hand = function(self, cards, hand, handname, check)
-		local is_debuffed = false
-		local disabled_hands = G.GAME.BL_EXTRA.temp_table
-
-		for k, v in pairs(disabled_hands) do
-			if k == handname then
-				is_debuffed = true
-				break
-			end
+	disable = function(self)
+		local to_remove = {}
+		for k, card in pairs(G.playing_cards) do
+			table.insert(to_remove, card)
 		end
 
-		return is_debuffed
-	end,
-
-	get_loc_debuff_text = function(self)
-		local disabled_hands = G.GAME.BL_EXTRA.temp_table
-		local text = 'Discarded poker hand will no longer score'
-
-		local total = 0
-		for _ in pairs(disabled_hands) do
-			total = total + 1
-		end
-
-		if total > 0 then
-			text = ''
-			local i = 1
-			for k, v in pairs(disabled_hands) do
-				text = text .. k
-				if i < (total - 1) then
-					text = text .. ', '
-				elseif i == (total - 1) then
-					text = text .. ' and '
-				end
-				i = i + 1
-			end
-			text = text .. ' will not score'
-		end
-
-		return text
+		SMODS.calculate_context {
+			remove_playing_cards = true,
+			removed = to_remove,
+		}
 	end,
 }
 

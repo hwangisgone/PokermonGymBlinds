@@ -443,7 +443,7 @@ SMODS.Blind {
 					major = G.play,
 				}
 
-				ease_dollars(-not_released_nine_count * self.config.lose)
+				ease_dollars(-#not_released_nines * self.config.lose)
 				G.VIBRATION = G.VIBRATION + 0.6
 				G.GAME.blind:wiggle()
 

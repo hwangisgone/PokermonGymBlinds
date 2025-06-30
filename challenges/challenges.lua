@@ -161,6 +161,24 @@ SMODS.Booster {
 	group_key = 'k_pkrm_gym_starter_pack',
 }
 
+SMODS.Gradient {
+	key = 'RBY',
+	colours = {
+		G.C.MULT,
+		G.C.CHIPS,
+		G.C.FILTER, -- attention / hand_size color
+	}
+}
+
+SMODS.Gradient {
+	key = 'GSC',
+	colours = {
+		G.C.MULT,
+		G.C.CHIPS,
+		G.C.GOLD,
+	}
+}
+
 local available_challenges = {
 	kanto = true,
 	johto = true,
@@ -184,6 +202,7 @@ for region_id, available in pairs(available_challenges) do
 			consumeables = {
 				{ id = 'p_pkrm_gym_starter_pack' },
 			},
+			button_colour = SMODS.Gradients.pkrm_gym_RBY
 		}
 	end
 end

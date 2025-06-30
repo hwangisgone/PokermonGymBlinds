@@ -20,6 +20,7 @@ GYM_BLINDS_TYPE_CLR = {
 }
 
 GYM_SHOWDOWN_CLR = {
+	bruno = HEX('636068'), -- Slate
 	blue = G.C.UI_CHIPS,
 	will = HEX('BC2649'), -- Viva Magenta
 	lance = HEX('AC3C26'),
