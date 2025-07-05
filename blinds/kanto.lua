@@ -26,8 +26,10 @@ SMODS.Blind {
 	drawn_to_hand = function(self)
 		if G.GAME.blind.prepped then
 			for _, card in pairs(G.jokers.cards) do
-				if goose_disable(G.GAME.blind.disabled, card, { 'Fire' })
-				or goose_disable(G.GAME.blind.disabled, card, { 'Lightning' }) then
+				if
+					goose_disable(G.GAME.blind.disabled, card, { 'Fire' })
+					or goose_disable(G.GAME.blind.disabled, card, { 'Lightning' })
+				then
 					SMODS.debuff_card(card, true, 'brock_boulder_debuff')
 					card:juice_up()
 					G.GAME.blind:wiggle()
@@ -54,47 +56,65 @@ SMODS.Blind {
 	dollars = 5,
 	mult = 2,
 	boss = { min = 1, max = 10 },
-	config = { odd = 2 },
-	vars = { 1, 2 },
+	config = { ante_reduced_chips = 10 },
+	vars = {},
+
 	loc_vars = function(self)
-		return { vars = { math.max(G.GAME.probabilities.normal, 1), self.config.odd } }
+		return { vars = { self.config.ante_reduced_chips * G.GAME.round_resets.ante, '' } }
 	end,
 	collection_loc_vars = function(self)
-		return { vars = { (G.GAME and G.GAME.probabilities.normal or 1), self.config.odd } }
+		return {
+			vars = { self.config.ante_reduced_chips * 2, localize('pkrm_gym_cascade_collection_note') },
+		}
 	end,
 
-	press_play = function(self)
-		if pseudorandom(pseudoseed('misty')) < G.GAME.probabilities.normal / self.config.odd then
-			local water_list = {}
+	calculate = function(self, blind, context)
+		if blind.disabled then return end
 
-			-- Remove jokers without energy
-			for k, v in pairs(find_pokemon_type('Water')) do
-				-- if v.ability.extra.energy_count and v.ability.extra.energy_count > 0 then
-				table.insert(water_list, v)
-				-- end
-			end
+		if context.final_scoring_step then
+			local amount = self.config.ante_reduced_chips * G.GAME.round_resets.ante
+			local count = 1
 
-			if #water_list > 0 then
-				local chosen_joker = pseudorandom_element(water_list, pseudoseed('misty'))
+			repeat -- Do at least once
+				local count_msg = count > 1 and ' (x' .. count .. ')' or ''
+				local offset_y = count
 
-				local original_escale = chosen_joker.ability.extra.escale
-				chosen_joker.ability.extra.energy_count = (chosen_joker.ability.extra.energy_count or 0) - 1
-				chosen_joker.ability.extra.escale = -1
-				energize(chosen_joker, false, nil, true) -- energize(card, etype, evolving, silent)
-				chosen_joker.ability.extra.escale = original_escale
+				hand_chips = mod_chips(hand_chips - amount)
+				update_hand_text({ delay = 0 }, { chips = math.max(hand_chips, 0) })
 
-				card_eval_status_text(chosen_joker, 'extra', nil, nil, nil, {
-					message = localize('poke_reverse_energized_ex'),
-					colour = TYPE_CLR['water'],
+				G.E_MANAGER:add_event(Event {
+					trigger = 'before',
+					delay = 0.5,
+					func = function()
+						blind.triggered = true
+						blind:wiggle()
+						play_sound('chips1', math.random() * 0.1 + 0.55, 0.12)
+
+						pkrm_gym_attention_text {
+							text = '-' .. amount .. count_msg,
+							backdrop_colour = TYPE_CLR['water'],
+							major = G.jokers,
+							offset_x = -2,
+							offset_y = offset_y + 0.5,
+						}
+
+						return true
+					end,
 				})
 
-				G.GAME.blind:wiggle()
-				play_sound('whoosh1', 0.55, 0.62)
-				chosen_joker:juice_up(0.1, 1)
-			else
-				G.GAME.blind:wiggle()
-				play_sound('cancel')
-			end
+				count = count + 1
+			until pseudorandom(pseudoseed('misty')) > 0.5
+
+			G.E_MANAGER:add_event(Event {
+				trigger = 'before',
+				delay = 2.5,
+				func = function()
+					G.GAME.blind:wiggle()
+					play_sound('cancel')
+
+					return true
+				end,
+			})
 		end
 	end,
 }
@@ -496,7 +516,7 @@ end
 local function blaine_get_quiz()
 	-- Save quiz between blinds so that you get new quiz when rematched
 	if not G.GAME.BL_PERSISTENCE or #G.GAME.BL_PERSISTENCE == 0 then
-		G.GAME.BL_PERSISTENCE = copy_table(G.localization.misc.dictionary.pkrm_gym_blaine_quizzes)
+		G.GAME.BL_PERSISTENCE = copy_table(G.localization.misc.blaine_quizzes.all_quizzes)
 	end
 
 	local quiz_table, key = pseudorandom_element(G.GAME.BL_PERSISTENCE, pseudoseed('blaine'))
@@ -570,7 +590,7 @@ local function correct_attention_text(major, delay, offset_y, sound)
 		delay = (delay or 0),
 		func = function()
 			attention_text {
-				text = localize('pkrm_gym_blaine_quizzes_ex_right'),
+				text = localize('ex_right', 'blaine_quizzes'),
 				backdrop_colour = G.C.GREEN,
 				backdrop_scale = 1.2,
 				scale = 1,
@@ -597,7 +617,7 @@ local function wrong_attention_text(major, delay, offset_y)
 		delay = (delay or 0),
 		func = function()
 			attention_text {
-				text = localize('pkrm_gym_blaine_quizzes_ex_wrong'),
+				text = localize('ex_wrong', 'blaine_quizzes'),
 				backdrop_colour = G.C.RED,
 				backdrop_scale = 1.2,
 				scale = 1,
@@ -727,7 +747,7 @@ SMODS.Blind {
 		pseudoshuffle(all_answers, pseudoseed('blaine'))
 
 		quiz_table.answers = all_answers
-		quiz_table.type_loc = G.localization.misc.dictionary.pkrm_gym_blaine_quizzes_type_loc[quiz_table.type]
+		quiz_table.type_loc = G.localization.misc.blaine_quizzes.quiz_types[quiz_table.type]
 
 		G.GAME.BL_EXTRA.temp_table = quiz_table
 
@@ -752,16 +772,16 @@ SMODS.Blind {
 					if not selected then
 						if is_yes_no and type(card.ability.extra.answer_key) ~= 'string' then
 							G.hand:remove_from_highlighted(card)
-							bad_answer_attention_text(localize('pkrm_gym_blaine_quizzes_warn_yesno'), card)
+							bad_answer_attention_text(localize('warn_yesno', 'blaine_quizzes'), card)
 						elseif not is_yes_no and type(card.ability.extra.answer_key) ~= 'number' then
 							G.hand:remove_from_highlighted(card)
-							bad_answer_attention_text(localize('pkrm_gym_blaine_quizzes_warn_number'), card)
+							bad_answer_attention_text(localize('warn_number', 'blaine_quizzes'), card)
 						else
 							selected = true
 						end
 					else
 						G.hand:remove_from_highlighted(card)
-						bad_answer_attention_text(localize('pkrm_gym_blaine_quizzes_warn_single'), card)
+						bad_answer_attention_text(localize('warn_single', 'blaine_quizzes'), card)
 					end
 				end
 			end
@@ -772,7 +792,7 @@ SMODS.Blind {
 					and type(card.ability.extra.answer_key) ~= 'number'
 				then
 					G.hand:remove_from_highlighted(card)
-					bad_answer_attention_text(localize('pkrm_gym_blaine_quizzes_warn_number'), card)
+					bad_answer_attention_text(localize('warn_number', 'blaine_quizzes'), card)
 				end
 			end
 		end
@@ -833,13 +853,13 @@ SMODS.Blind {
 
 					-- Not all correct
 					if not all_correct then
-						bad_answer_attention_text(localize('pkrm_gym_blaine_quizzes_ex_not_all_answer'), G.play, 1)
+						bad_answer_attention_text(localize('ex_not_all_answer', 'blaine_quizzes'), G.play, 1)
 						return true
 					end
 
 					-- Missing answer
 					for _, answer in pairs(right_answers_set) do
-						bad_answer_attention_text(localize('pkrm_gym_blaine_quizzes_ex_missing_answer'), G.play, 1)
+						bad_answer_attention_text(localize('ex_missing_answer', 'blaine_quizzes'), G.play, 1)
 						return true
 					end
 
@@ -848,7 +868,7 @@ SMODS.Blind {
 					return true
 				end
 
-				bad_answer_attention_text(localize('pkrm_gym_blaine_quizzes_ex_no_answer'), G.play, 1)
+				bad_answer_attention_text(localize('ex_no_answer', 'blaine_quizzes'), G.play, 1)
 				return true
 			end,
 		})
@@ -958,7 +978,6 @@ SMODS.Blind {
 	end,
 }
 
-
 SMODS.Blind {
 	key = 'e4_lorelei',
 	atlas = 'blinds_kanto',
@@ -981,14 +1000,10 @@ SMODS.Blind {
 		if context.before or context.pre_discard then
 			local cards_left = 0
 			for _, card in pairs(G.hand.cards) do
-				if not card.highlighted then
-					cards_left = cards_left + 1
-				end
+				if not card.highlighted then cards_left = cards_left + 1 end
 			end
 
-			if cards_left > self.config.cards_left_to_draw then
-				blind.no_draw = true
-			end
+			if cards_left > self.config.cards_left_to_draw then blind.no_draw = true end
 		end
 
 		if context.drawing_cards then
@@ -1012,8 +1027,9 @@ SMODS.Sticker {
 	rate = 0,
 
 	calculate = function(self, card, context)
-		if context.playing_card_end_of_round then -- Works even without a card in hand because G.deck is enabled
+		if context.discard then return { remove = true } end
 
+		if context.playing_card_end_of_round then -- Works even without a card in hand because G.deck is enabled
 			if not singleton_destroying then -- Destroy all, including in discard
 				singleton_destroying = true
 
@@ -1034,23 +1050,19 @@ SMODS.Sticker {
 }
 
 local function move_card_to(to, percent, dir, card, mute, vol)
-    percent = percent or 50
-    if dir == 'down' then 
-        percent = 1-percent
-    end
+	percent = percent or 50
+	if dir == 'down' then percent = 1 - percent end
 
 	local stay_flipped = G.GAME and G.GAME.blind and G.GAME.blind:stay_flipped(to, card)
 	if (to == G.hand) and G.GAME.modifiers.flipped_cards then
-		if pseudorandom(pseudoseed('flipped_card')) < 1/G.GAME.modifiers.flipped_cards then
-			stay_flipped = true
-		end
+		if pseudorandom(pseudoseed('flipped_card')) < 1 / G.GAME.modifiers.flipped_cards then stay_flipped = true end
 	end
 	to:emplace(card, nil, stay_flipped)
 
 	if not mute then
 		G.VIBRATION = G.VIBRATION + 0.6
 
-		play_sound('card1', 0.85 + percent*0.2/100, 0.6*(vol or 1))
+		play_sound('card1', 0.85 + percent * 0.2 / 100, 0.6 * (vol or 1))
 	end
 end
 
@@ -1072,7 +1084,7 @@ SMODS.Blind {
 		if not context.first_hand_drawn then return end
 
 		local stone_count = 52 - #G.playing_cards
-		local original_deck_limit = G.deck.config.card_limit 
+		local original_deck_limit = G.deck.config.card_limit
 
 		if stone_count > 0 then
 			for i = 1, stone_count do
@@ -1080,28 +1092,28 @@ SMODS.Blind {
 					trigger = 'after',
 					delay = 0.2,
 					func = function()
-						local created_stone = SMODS.create_card({
+						local created_stone = SMODS.create_card {
 							set = 'Base',
 							enhancement = 'm_stone',
 							skip_materialize = true,
 							-- stickers = { 'pkrm_gym_temporary' }
-						})
+						}
 
 						created_stone:add_sticker('pkrm_gym_temporary', true)
 
-						local angle = math.random()*2*3.14
+						local angle = math.random() * 2 * 3.14
 						local card_pos = {
-							x = (math.random()*5 + 8)*math.sin(angle) + G.ROOM.T.w/2,
-							y = (math.random()*3 + 6)*math.cos(angle) + G.ROOM.T.h/2 - 1.5	
+							x = (math.random() * 5 + 8) * math.sin(angle) + G.ROOM.T.w / 2,
+							y = (math.random() * 3 + 6) * math.cos(angle) + G.ROOM.T.h / 2 - 1.5,
 						}
 
 						created_stone:hard_set_T(card_pos.x, card_pos.y)
 						created_stone.T.r = -angle
-						created_stone:start_materialize({GYM_SHOWDOWN_CLR['bruno']})
+						created_stone:start_materialize { GYM_SHOWDOWN_CLR['bruno'] }
 
-						local delay = (stone_count - i)*0.2
+						local delay = (stone_count - i) * 0.2
 
-						G.E_MANAGER:add_event(Event({
+						G.E_MANAGER:add_event(Event {
 							trigger = 'after',
 							blocking = false,
 							delay = delay,
@@ -1118,25 +1130,25 @@ SMODS.Blind {
 								G.ROOM.jiggle = G.ROOM.jiggle + 0.2
 
 								return true
-							end
-						}))
+							end,
+						})
 
 						if stone_count == i then
 							-- Reshuffle after all is shoved into deck
-							G.E_MANAGER:add_event(Event({
+							G.E_MANAGER:add_event(Event {
 								trigger = 'after',
 								delay = stone_count * 0.2 + 0.5,
 								func = function()
-									G.deck:shuffle('nr'..G.GAME.round_resets.ante)
+									G.deck:shuffle('nr' .. G.GAME.round_resets.ante)
 									blind:wiggle()
 									blind.triggered = true
 									return true
-								end
-							}))
+								end,
+							})
 						end
 
 						return true
-					end
+					end,
 				})
 			end
 		end
@@ -1145,7 +1157,7 @@ SMODS.Blind {
 	disable = function(self)
 		for _, card in pairs(G.playing_cards) do
 			if card.ability['pkrm_gym_temporary'] and SMODS.has_enhancement(card, 'm_stone') then
-				card:start_dissolve({GYM_SHOWDOWN_CLR['bruno']})
+				card:start_dissolve { GYM_SHOWDOWN_CLR['bruno'] }
 			end
 		end
 	end,
@@ -1243,5 +1255,11 @@ SMODS.Blind {
 
 	modify_hand = function(self, cards, poker_hands, text, mult, hand_chips)
 		return mult, 0, true
+	end,
+
+	disable = function(self)
+		G.GAME.blind.disabled = false
+
+		champion_no_disable_attention_text()
 	end,
 }

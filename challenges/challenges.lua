@@ -83,8 +83,9 @@ SMODS.Booster {
 	weight = 0,
 	draw_hand = false,
 	unlocked = true,
-	discovered = true,
+	discovered = false,
 	no_collection = false,
+	
 	in_pool = function(self)
 		return false
 	end,
@@ -175,24 +176,34 @@ SMODS.Gradient {
 SMODS.Gradient {
 	key = 'GSC',
 	colours = {
-		G.C.MULT,
-		G.C.CHIPS,
 		G.C.GOLD,
+		G.C.GREY,
+		G.C.BLUE,
 	}
 }
 
-local available_challenges = {
-	kanto = true,
-	johto = true,
-	hoenn = true,
+SMODS.Gradient {
+	key = 'RSE',
+	colours = {
+		HEX('D13B26'),
+		HEX('0077BF'),
+		HEX('408962'),
+	}
+}
+
+
+local all_challenges = {
+	kanto = { available = true, colour = SMODS.Gradients.pkrm_gym_RBY },
+	johto = { available = true, colour = SMODS.Gradients.pkrm_gym_GSC },
+	hoenn = { available = true, colour = SMODS.Gradients.pkrm_gym_RSE },
 }
 
 local function normalize_string(str)
 	return str:sub(1, 1):upper() .. str:sub(2):lower()
 end
 
-for region_id, available in pairs(available_challenges) do
-	if available then
+for region_id, challenge in pairs(all_challenges) do
+	if challenge.available then
 		SMODS.Challenge {
 			key = region_id,
 			rules = {
@@ -204,7 +215,7 @@ for region_id, available in pairs(available_challenges) do
 			consumeables = {
 				{ id = 'p_pkrm_gym_starter_pack' },
 			},
-			button_colour = SMODS.Gradients.pkrm_gym_RBY
+			button_colour = challenge.colour
 		}
 	end
 end

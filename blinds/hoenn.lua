@@ -50,7 +50,7 @@ SMODS.Blind {
 						card.ability.bonus = 0
 
 						pkrm_gym_attention_text {
-							text = localize('pkrm_gym_stone_ex'),
+							text = localize('stone', 'pkrm_gym_ex'),
 							backdrop_colour = TYPE_CLR['rock'],
 							major = card,
 						}
@@ -256,7 +256,7 @@ SMODS.Blind {
 					play_sound('card1', 1, 0.6)
 
 					pkrm_gym_attention_text {
-						text = localize('pkrm_gym_dynamo_ex'),
+						text = localize('dynamo', 'pkrm_gym_ex'),
 						backdrop_colour = TYPE_CLR['electric'],
 						major = hand_swap,
 					}
@@ -321,7 +321,7 @@ SMODS.Blind {
 					end
 
 					pkrm_gym_attention_text {
-						text = highest_card.base.value .. ' ' .. localize('pkrm_gym_heat_ex'),
+						text = highest_card.base.value .. ' ' .. localize('heat', 'pkrm_gym_ex'),
 						backdrop_colour = TYPE_CLR['fire'],
 						major = G.play,
 						hold = 2,
@@ -438,7 +438,7 @@ SMODS.Blind {
 				end
 
 				pkrm_gym_attention_text {
-					text = localize('pkrm_gym_feather_ex'),
+					text = localize('feather', 'pkrm_gym_ex'),
 					backdrop_colour = TYPE_CLR['flying'],
 					major = G.play,
 				}
@@ -592,8 +592,8 @@ SMODS.Blind {
 
 		if #G.deck.cards > 0 then G.deck.cards[1]:juice_up() end
 
-		local display_text = localize('pkrm_gym_e4_sidney_ex_1')
-		if pseudorandom(pseudoseed('sidney')) < 0.25 then display_text = localize('pkrm_gym_e4_sidney_ex_2') end
+		local display_text = localize('e4_sidney_1', 'pkrm_gym_ex')
+		if pseudorandom(pseudoseed('sidney')) < 0.25 then display_text = localize('e4_sidney_2', 'pkrm_gym_ex') end
 
 		pkrm_gym_attention_text {
 			text = display_text,
@@ -712,6 +712,55 @@ SMODS.Blind {
 	boss = { min = 8, max = 10, showdown = true },
 	config = {},
 	vars = {},
+
+	press_play = function(self)
+		local _, _, _, scoring_hand = G.FUNCS.get_poker_hand_info(G.hand.highlighted)
+
+		local card_list = filter_with_rank_only(scoring_hand)
+
+		if #card_list < 1 then return end
+
+		local lowest_cards = { card_list[1] }
+
+		for i = 2, #card_list do
+			local card = card_list[i]
+			local current_rank = card:get_id()
+			local lowest_rank = lowest_cards[1]:get_id()
+
+			if current_rank <= lowest_rank then
+				if current_rank < lowest_rank then lowest_cards = {} end
+				table.insert(lowest_cards, card)
+			end
+		end
+
+		G.E_MANAGER:add_event(Event {
+			trigger = 'after',
+			delay = 0.5,
+			func = function()
+				for k, card in pairs(lowest_cards) do
+					SMODS.debuff_card(card, true, 'e4_drake_debuff')
+					card:juice_up()
+				end
+
+				G.GAME.blind:wiggle()
+
+				pkrm_gym_attention_text {
+					text = localize('e4_drake', 'pkrm_gym_ex'),
+					backdrop_colour = TYPE_CLR['dragon'],
+					major = G.play,
+				}
+
+				return true
+			end,
+		})
+	end,
+
+	disable = function(self)
+		remove_debuff_all_playing_cards('e4_drake_debuff')
+	end,
+	defeat = function(self)
+		remove_debuff_all_playing_cards('e4_drake_debuff')
+	end,
 }
 
 SMODS.Blind {
@@ -765,6 +814,12 @@ SMODS.Blind {
 			end
 		end
 	end,
+
+	disable = function(self)
+		G.GAME.blind.disabled = false
+
+		champion_no_disable_attention_text()
+	end,
 }
 
 SMODS.Blind {
@@ -779,4 +834,10 @@ SMODS.Blind {
 	boss = { min = 10, max = 10, showdown = true },
 	config = {},
 	vars = {},
+
+	disable = function(self)
+		G.GAME.blind.disabled = false
+
+		champion_no_disable_attention_text()
+	end,
 }

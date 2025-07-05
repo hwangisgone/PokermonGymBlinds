@@ -114,14 +114,18 @@ function pkrm_gym_attention_text(args)
 	args.scale = args.scale or 0.75
 	args.hold = args.hold or 1.4
 	args.align = args.align or 'tm'
+	args.offset_x = args.offset_x or 0
 
-	local offset_y
-	if args.major == G.play then
-		offset_y = -0.1
-	elseif args.major == G.hand then
-		offset_y = -0.3
-	else
-		offset_y = -0.1
+	local offset_y = args.offset_y
+
+	if not offset_y then
+		if args.major == G.play then
+			offset_y = -0.1 * G.CARD_H
+		elseif args.major == G.hand then
+			offset_y = -0.3 * G.CARD_H
+		else
+			offset_y = -0.1 * G.CARD_H
+		end
 	end
 
 	attention_text {
@@ -131,7 +135,7 @@ function pkrm_gym_attention_text(args)
 		backdrop_colour = args.backdrop_colour,
 		align = args.align,
 		major = args.major,
-		offset = { x = 0, y = offset_y * G.CARD_H },
+		offset = { x = args.offset_x, y = offset_y },
 	}
 end
 
@@ -292,6 +296,8 @@ function get_league_pool()
 		local shuffled_e4 = copy_table(all_e4)
 		local shuffled_champions = copy_table(all_champions)
 
+		-- If not only gym, add here
+
 		pseudoshuffle(shuffled_gyms, seed)
 		pseudoshuffle(shuffled_e4, seed)
 		pseudoshuffle(shuffled_champions, seed)
@@ -337,6 +343,7 @@ function get_league_pool()
 
 		pool = { selected_region }
 	else
+		-- No random, normal league
 		pool = copy_table(all_leagues)
 		pseudoshuffle(pool, seed)
 

@@ -232,6 +232,40 @@ Balatest.TestPlay {
 	end,
 }
 
+local function get_balatest_card_base_code(card)
+	local value = card.base.value
+	local rank = (value == '10') and value or value:sub(1, 1)
+	local suit = card.base.suit:sub(1, 1)
+	return rank..suit
+end
+
+Balatest.TestPlay {
+	name = 'temporary_destroyed_only_in_discard',
+	category = { 'kanto', 'sticker' },
+
+	execute = function()
+		local discard_pack = {}
+		
+		for _, card in pairs(G.playing_cards) do
+			if card:is_suit('Spades') then 
+				SMODS.Stickers['pkrm_gym_temporary']:apply(card, true)
+
+				table.insert(discard_pack, get_balatest_card_base_code(card))
+
+				if #discard_pack == 5 then
+					Balatest.discard(copy_table(discard_pack))
+					discard_pack = {}
+				end
+			end
+		end
+
+		Balatest.discard(discard_pack)
+	end,
+	assert = function()
+		Balatest.assert_eq(#G.playing_cards, 39) -- 1 suit gone
+	end,
+}
+
 Balatest.TestPlay {
 	name = 'e4_bruno_effect',
 	category = { 'kanto', 'blind' },
@@ -409,5 +443,42 @@ Balatest.TestPlay {
 		-- Foil Beedrill x (2 Pair + Lucky + Mult + 2 Holo)
 		Balatest.assert_chips((50 + 80) * (2 + 20 + 4 + 10 + 10))
 		Balatest.assert_eq(G.GAME.dollars, 20)
+	end,
+}
+
+Balatest.TestPlay {
+	name = 'champion_kanto_disable_chicot',
+	category = { 'kanto', 'blind', 'disable', 'champ_blue' },
+
+	blind = 'bl_pkrm_gym_champion_kanto',
+	jokers = { 'j_chicot' },
+
+	execute = function()
+		Balatest.play_hand { '2S', '2C', '4S', '4C' } -- 2 Pair
+		Balatest.play_hand { '10S', 'JS', 'QS', 'KS', 'AS' } -- Royal Flush
+	end,
+	assert = function()
+		-- Works normally, can't disable
+		Balatest.assert_chips(0)
+	end,
+}
+
+Balatest.TestPlay {
+	name = 'champion_kanto_disable_weezing',
+	category = { 'kanto', 'blind', 'disable', 'champ_blue' },
+
+	blind = 'bl_pkrm_gym_champion_kanto',
+	jokers = { 'j_poke_weezing' },
+
+	execute = function()
+		Balatest.q(function()
+			G.jokers.cards[1]:sell_card()
+		end)
+		Balatest.play_hand { '2S', '2C', '4S', '4C' } -- 2 Pair
+		Balatest.play_hand { '10S', 'JS', 'QS', 'KS', 'AS' } -- Royal Flush
+	end,
+	assert = function()
+		-- Works normally, can't disable
+		Balatest.assert_chips(0)
 	end,
 }

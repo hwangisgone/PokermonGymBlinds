@@ -95,7 +95,7 @@ SMODS.Blind {
 				end,
 				blind_juice_func = function()
 					pkrm_gym_attention_text {
-						text = localize('pkrm_gym_zephyr_ex'),
+						text = localize('zephyr', 'pkrm_gym_ex'),
 						backdrop_colour = TYPE_CLR['flying'],
 						major = G.play,
 					}
@@ -271,9 +271,10 @@ SMODS.Blind {
 	end,
 
 	recalc_debuff = function(self, card, from_blind)
-		if card:is_suit(self.config.suits[self.config.index]) then
+		if card:is_suit(self.config.suits[self.config.index], true) then
 			SMODS.debuff_card(card, true, 'chuck_storm_debuff')
 			card:juice_up()
+			return true
 		else
 			SMODS.debuff_card(card, false, 'chuck_storm_debuff')
 		end
@@ -317,9 +318,9 @@ SMODS.Blind {
 					has_steel_or_stone = true
 
 					if has_steel then
-						flavor_text = localize('pkrm_gym_mineral_ex_steel')
+						flavor_text = localize('mineral_steel', 'pkrm_gym_ex')
 					else
-						flavor_text = localize('pkrm_gym_mineral_ex_stone')
+						flavor_text = localize('mineral_stone', 'pkrm_gym_ex')
 					end
 
 					break
@@ -493,7 +494,7 @@ SMODS.Blind {
 				trigger = 'immediate',
 				func = function()
 					pkrm_gym_attention_text {
-						text = localize('pkrm_gym_e4_koga_ex'),
+						text = localize('e4_koga', 'pkrm_gym_ex'),
 						backdrop_colour = TYPE_CLR['poison'],
 						major = G.hand,
 						hold = 0.75,
@@ -600,16 +601,9 @@ SMODS.Blind {
 			if context.scoring_name == most_played_hand_currently then
 				for _, card in pairs(G.hand.cards) do
 					if card.debuff then
-						G.E_MANAGER:add_event(Event {
-							trigger = 'after',
-							delay = 0.1,
-							func = function()
-								SMODS.debuff_card(card, false, 'e4_karen_debuff')
-								play_sound('tarot1', 0.5)
-								card:juice_up(0.1, 0.1)
-								return true
-							end,
-						})
+						SMODS.debuff_card(card, false, 'e4_karen_debuff')
+						play_sound('tarot1', 0.5)
+						card:juice_up(0.1, 0.1)
 					end
 				end
 			end

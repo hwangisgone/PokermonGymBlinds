@@ -21,7 +21,7 @@ end
 
 Balatest.TestPlay {
 	name = 'fog_effect',
-	category = { 'johto', 'blind' },
+	category = { 'johto', 'blind', 'fog' },
 
 	blind = 'bl_pkrm_gym_fog',
 
@@ -36,7 +36,7 @@ Balatest.TestPlay {
 
 Balatest.TestPlay {
 	name = 'fog_disable_chicot',
-	category = { 'johto', 'blind', 'disable' },
+	category = { 'johto', 'blind', 'disable', 'fog' },
 
 	blind = 'bl_pkrm_gym_fog',
 	jokers = { 'j_chicot' },
@@ -52,7 +52,7 @@ Balatest.TestPlay {
 
 Balatest.TestPlay {
 	name = 'fog_disable_weezing',
-	category = { 'johto', 'blind', 'disable' },
+	category = { 'johto', 'blind', 'disable', 'fog' },
 
 	blind = 'bl_pkrm_gym_fog',
 	jokers = { 'j_poke_weezing' },
@@ -71,10 +71,98 @@ Balatest.TestPlay {
 	end,
 }
 
+-- The Mineral
+local function mineral_setup_leftmost_card(enhancement, rank, suit)
+	rank = rank or '2'
+	suit = suit or 'Spades'
+
+	local editing_card = G.hand.cards[1]
+	if editing_card.base.value == rank and editing_card:is_suit(suit) then
+		editing_card = G.hand.cards[2]
+	end
+	editing_card:set_ability(G.P_CENTERS[enhancement], nil, false)
+end
+Balatest.TestPlay {
+	name = 'mineral_effect_steel',
+	category = { 'johto', 'blind', 'mineral' },
+
+	blind = 'bl_pkrm_gym_mineral',
+
+	hand_size = 51,
+
+	execute = function()
+		mineral_setup_leftmost_card('m_steel')
+
+		Balatest.play_hand { '2S' }
+	end,
+	assert = function()
+		Balatest.assert(#G.hand.cards, 0)
+	end,
+}
+
+Balatest.TestPlay {
+	name = 'mineral_effect_stone',
+	category = { 'johto', 'blind', 'mineral' },
+
+	blind = 'bl_pkrm_gym_mineral',
+
+	hand_size = 51,
+
+	execute = function()
+		mineral_setup_leftmost_card('m_stone')
+
+		Balatest.play_hand { '2S' }
+	end,
+	assert = function()
+		Balatest.assert(#G.hand.cards, 0)
+	end,
+}
+
+Balatest.TestPlay {
+	name = 'mineral_disable_chicot',
+	category = { 'johto', 'blind', 'disable', 'mineral' },
+
+	blind = 'bl_pkrm_gym_mineral',
+	jokers = { 'j_chicot' },
+
+	hand_size = 51,
+
+	execute = function()
+		mineral_setup_leftmost_card('m_steel')
+
+		Balatest.play_hand { '2S' }
+	end,
+	assert = function()
+		Balatest.assert_eq(#G.hand.cards, G.hand.config.card_limit)
+	end,
+}
+
+Balatest.TestPlay {
+	name = 'mineral_disable_weezing',
+	category = { 'johto', 'blind', 'disable', 'mineral' },
+
+	blind = 'bl_pkrm_gym_mineral',
+	jokers = { 'j_poke_weezing' },
+
+	hand_size = 51,
+
+	execute = function()
+		mineral_setup_leftmost_card('m_stone')
+		
+		Balatest.q(function()
+			G.jokers.cards[1]:sell_card()
+		end)
+		Balatest.play_hand { '2S' }
+	end,
+	assert = function()
+		Balatest.assert_eq(#G.hand.cards, G.hand.config.card_limit)
+	end,
+}
+
 -- The Glacier
 Balatest.TestPlay {
 	name = 'glacier_effect_play',
-	category = { 'johto', 'blind' },
+	category = { 'johto', 'blind', 'glacier' },
 
 	blind = 'bl_pkrm_gym_glacier',
 
@@ -104,7 +192,7 @@ Balatest.TestPlay {
 
 Balatest.TestPlay {
 	name = 'glacier_effect_discard',
-	category = { 'johto', 'blind' },
+	category = { 'johto', 'blind', 'glacier' },
 
 	blind = 'bl_pkrm_gym_glacier',
 
@@ -135,7 +223,7 @@ Balatest.TestPlay {
 
 Balatest.TestPlay {
 	name = 'glacier_disable_chicot',
-	category = { 'johto', 'blind', 'disable' },
+	category = { 'johto', 'blind', 'disable', 'glacier' },
 
 	blind = 'bl_pkrm_gym_glacier',
 	jokers = { 'j_chicot' },
@@ -166,7 +254,7 @@ Balatest.TestPlay {
 
 Balatest.TestPlay {
 	name = 'glacier_disable_weezing',
-	category = { 'johto', 'blind', 'disable' },
+	category = { 'johto', 'blind', 'disable', 'glacier' },
 
 	blind = 'bl_pkrm_gym_glacier',
 	jokers = { 'j_poke_weezing' },
@@ -202,7 +290,7 @@ Balatest.TestPlay {
 -- Magenta Mask
 Balatest.TestPlay {
 	name = 'e4_will_effect_right',
-	category = { 'johto', 'blind' },
+	category = { 'johto', 'blind', 'e4_will' },
 
 	blind = 'bl_pkrm_gym_e4_will',
 
@@ -232,7 +320,7 @@ Balatest.TestPlay {
 
 Balatest.TestPlay {
 	name = 'e4_will_disable_chicot',
-	category = { 'johto', 'blind', 'disable' },
+	category = { 'johto', 'blind', 'disable', 'e4_will' },
 
 	blind = 'bl_pkrm_gym_e4_will',
 	jokers = { 'j_chicot' },
@@ -247,7 +335,7 @@ Balatest.TestPlay {
 
 Balatest.TestPlay {
 	name = 'e4_will_disable_weezing',
-	category = { 'johto', 'blind', 'disable' },
+	category = { 'johto', 'blind', 'disable', 'e4_will' },
 
 	blind = 'bl_pkrm_gym_e4_will',
 	jokers = { 'j_poke_weezing' },
@@ -293,7 +381,7 @@ Balatest.TestPlay {
 
 Balatest.TestPlay {
 	name = 'e4_will_panpour_stone_and_wrong',
-	category = { 'johto', 'blind' },
+	category = { 'johto', 'blind', 'e4_will' },
 
 	blind = 'bl_pkrm_gym_e4_will',
 	jokers = { 'j_poke_panpour' },

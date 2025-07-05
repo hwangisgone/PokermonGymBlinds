@@ -3,7 +3,7 @@ return {
 		Blind = {
 			-- Kanto
 			bl_pkrm_gym_boulder = {name = 'The Boulder', text = {"{X:lightning,C:white}Lightning{} and {X:fire,C:white}Fire{}","Jokers are debuffed"}},
-			bl_pkrm_gym_cascade = {name = 'The Cascade', text = {"-20 chips","#1# in #2# chance to repeat"}}, -- 8!!
+			bl_pkrm_gym_cascade = {name = 'The Cascade', text = {"-#1# chips#2#.","50% chance to", "do it again"}}, -- 8!!
 			bl_pkrm_gym_thunder = {name = 'The Thunder', text = {"Lose $#1# when Discard", "without #2#"}},
 			bl_pkrm_gym_rainbow = {name = 'The Rainbow', text = {"Wild and Polychrome cards", "are debuffed"}},
 			bl_pkrm_gym_soul    = {name = 'The Soul'   , text = {"After Play or Discard,", "flip cards held in hand"}},
@@ -42,10 +42,10 @@ return {
 			bl_pkrm_gym_rain_juan = {name = 'The Rain'   ,text = {"Mult is capped by Chips"}},
 			bl_pkrm_gym_e4_sidney = {name = 'Slick Scythe'    ,text = {"After each Draw,", "debuff two random ranks", "in deck"}},
 			bl_pkrm_gym_e4_phoebe = {name = 'Pale Petal'      ,text = {"Elite Four - 2"}}, -- 1!!
-			-- Hollow Hibiscus (Her flowe) | Lost Lantern (Dusclop)
+			-- Hollow Hibiscus (Her flower) | Lost Lantern (Dusclop)
 			bl_pkrm_gym_e4_glacia = {name = 'Glistening Gown' ,text = {"Lose $#1#.", "-1 hand size per {C:red}-$#2#{}", "in current debt"}},
-			bl_pkrm_gym_e4_drake  = {name = 'Midnight Mast'   ,text = {"Elite Four - 4"}}, -- 2!!
-			bl_pkrm_gym_champion_hoenn = {name = 'The Platinum Pin',text = {"Each unique rank", "held in hand", "gives X#1# Mult"}}, -- 3!!
+			bl_pkrm_gym_e4_drake  = {name = 'Azure Anchor'   ,text = {"Debuff the lowest rank", "in scoring"}}, -- 2!!
+			bl_pkrm_gym_champion_hoenn = {name = 'The Platinum Pin',text = {"Each unique rank", "held in hand", "gives X#1# Mult"}},
 			-- maybe i should name him Platinum Pot lmao (poker ref)
 			-- Alternative names:
 			-- Platinum Pendant
@@ -85,8 +85,9 @@ return {
 			pkrm_gym_temporary = {
 				name = "Temporary",
 				text = { 
-					"Destroyed at",
-					"end of round"
+					"{S:1.1,C:red,E:2}Self destructs{}",
+					"when discarded",
+					"or at end of round"
 				},
 			},
 			p_pkrm_gym_starter_pack = {
@@ -102,8 +103,27 @@ return {
 		challenge_names = {
             c_pkrm_gym_kanto = "Red, Blue & Yellow",
 			c_pkrm_gym_johto = "Gold, Silver & Crystal",
-			c_pkrm_gym_hoenn = "Ruby, Sapphire & Emerald",
+			c_pkrm_gym_hoenn = "{C:red}Ruby{}, Sapphire & Emerald",
         },
+		dictionary = {
+			k_pkrm_gym_starter_pack = "Starter Pack",
+
+			pkrm_gym_setting_only_gym             = "Only gym boss blinds",
+			pkrm_gym_setting_random_gym           = "Randomize gym boss blinds",
+			pkrm_gym_setting_pokermon_league      = "Pokermon League (Ante 9, 10)",
+			pkrm_gym_setting_random_elite4_order  = "Randomize Elite Four order",
+			pkrm_gym_setting_reduce_scaling       = "Reduce scaling at Ante 9, 10",
+
+			pkrm_gym_champion_no_disable = "Champion Blind cannot be disabled",
+
+			bl_pkrm_gym_e4_bruno_debuff_text_initial = "Discarded poker hand will no longer score",
+			bl_pkrm_gym_balance_debuff_text_initial = "No poker hand discarded yet",
+
+			-- Notes in collection
+			pkrm_gym_cascade_collection_note = " (ante x 10)",
+			pkrm_gym_thunder_collection_note = "(2 random ranks)",
+			pkrm_gym_e4_glacia_collection_note = "(ante x 4)",
+		},
 		tooltips = {
 			pkrm_gym_setting_only_gym = {
 				"Allows only Gym Blinds",
@@ -124,52 +144,37 @@ return {
 				"with 7 gyms (normal blinds) and 1 {C:enhanced}Elite Four{} (showdown blind)",
 			},
 		},
-		dictionary = {
-			k_pkrm_gym_starter_pack = "Starter Pack",
+		pkrm_gym_ex = {
+			poke_reverse_energized = "Lose energy!",
+			zephyr = "Gust",
+			mineral_steel = "Magnet Pull",
+			mineral_stone = "Iron Tail",
+			e4_koga = "Toxic",
 
-			pkrm_gym_setting_only_gym             = "Only gym boss blinds",
-			pkrm_gym_setting_random_gym           = "Randomize gym boss blinds",
-			pkrm_gym_setting_pokermon_league      = "Pokermon League (Ante 9, 10)",
-			pkrm_gym_setting_random_elite4_order  = "Randomize Elite Four order",
-			pkrm_gym_setting_reduce_scaling       = "Reduce scaling at Ante 9, 10",
-
-			poke_reverse_energized_ex = "Lose energy!",
-			pkrm_gym_zephyr_ex = "Gust",
-			pkrm_gym_mineral_ex_steel = "Magnet Pull",
-			pkrm_gym_mineral_ex_stone = "Iron Tail",
-			pkrm_gym_e4_koga_ex = "Toxic",
-
-			pkrm_gym_stone_ex = "Rock Tomb",
-			pkrm_gym_dynamo_ex = "Volt Switch",
-			pkrm_gym_heat_ex = "Overheated!",
-			pkrm_gym_feather_ex = "Cloud Nine",
-			pkrm_gym_e4_sidney_ex_1 = "Night Slash",
-			pkrm_gym_e4_sidney_ex_2 = "Crunch",
-
-			pkrm_gym_champion_no_disable = "Champion Blind cannot be disabled",
-
-			bl_pkrm_gym_e4_bruno_debuff_text_initial = "Discarded poker hand will no longer score",
-			bl_pkrm_gym_balance_debuff_text_initial = "No poker hand discarded yet",
-
-			-- Notes in collection
-			pkrm_gym_thunder_collection_note = "(2 random ranks)",
-			pkrm_gym_e4_glacia_collection_note = "(ante x 4)",
-
-			pkrm_gym_blaine_quizzes_ex_right = "Correct!",
-			pkrm_gym_blaine_quizzes_ex_wrong = "Incorrect!",
-			pkrm_gym_blaine_quizzes_warn_single = "One answer only!",
-			pkrm_gym_blaine_quizzes_warn_number = "Number only!",
-			pkrm_gym_blaine_quizzes_warn_yesno = "Yes/No only!",
+			stone = "Rock Tomb",
+			dynamo = "Volt Switch",
+			heat = "Overheated!",
+			feather = "Cloud Nine",
+			e4_sidney_1 = "Night Slash",
+			e4_sidney_2 = "Crunch",
+			e4_drake = "Dragon Claw",
+		},
+		blaine_quizzes = {
+			ex_right = "Correct!",
+			ex_wrong = "Incorrect!",
+			warn_single = "One answer only!",
+			warn_number = "Number only!",
+			warn_yesno = "Yes/No only!",
 			
-			pkrm_gym_blaine_quizzes_ex_no_answer = "No answer!",
-			pkrm_gym_blaine_quizzes_ex_missing_answer = "Missing answer!",
-			pkrm_gym_blaine_quizzes_ex_not_all_answer = "Not all correct!",
+			ex_no_answer = "No answer!",
+			ex_missing_answer = "Missing answer!",
+			ex_not_all_answer = "Not all correct!",
 
-			pkrm_gym_blaine_quizzes_type_loc = {
+			quiz_types = {
 				single = "Choose one answer",
 				multiple = "Choose ALL correct answers",
 			},
-			pkrm_gym_blaine_quizzes = {
+			all_quizzes = {
 				-- Jokers knowledge
 				{
 					type = "single",
@@ -209,8 +214,8 @@ return {
 				},
 				{
 					type = "single",
-					quiz = {"What can Omastar always create?"},
-					wrong_answers = {"a Tag", "a Spectral card", "a Playing card"},
+					quiz = {"What can Omastar create multiple times per round?"},
+					wrong_answers = {"Tags", "Spectral cards", "Playing cards"},
 					right_answers = {"$4"}
 				},
 				{
@@ -320,6 +325,7 @@ return {
 				}
 			}
 		},
+
 		labels = {
 			pkrm_gym_temporary = "Temporary"
 		},

@@ -411,7 +411,7 @@ local johto_pokedex = {
 	pupitar = true,
 	tyranitar = true,
 	lugia = true,
-	['ho-oh'] = true,
+	ho_oh = true,
 	-- Not native: Cerulean Cave
 	-- mewtwo = true,
 	mew = true,
