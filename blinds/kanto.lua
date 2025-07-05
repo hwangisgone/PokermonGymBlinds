@@ -77,10 +77,10 @@ SMODS.Blind {
 
 			repeat -- Do at least once
 				local count_msg = count > 1 and ' (x' .. count .. ')' or ''
-				local offset_y = count
+				local i = count
 
-				hand_chips = mod_chips(hand_chips - amount)
-				update_hand_text({ delay = 0 }, { chips = math.max(hand_chips, 0) })
+				hand_chips = math.max(mod_chips(hand_chips - amount), 0)
+				update_hand_text({ delay = 0 }, { chips = hand_chips })
 
 				G.E_MANAGER:add_event(Event {
 					trigger = 'before',
@@ -88,14 +88,17 @@ SMODS.Blind {
 					func = function()
 						blind.triggered = true
 						blind:wiggle()
-						play_sound('chips1', math.random() * 0.1 + 0.55, 0.12)
+						play_sound('chips2', math.random() * 0.1 + 0.55, 0.12)
 
-						pkrm_gym_attention_text {
+						attention_text {
 							text = '-' .. amount .. count_msg,
+							scale = 1,
+							hold = 0.4 * (count - i + 1),
 							backdrop_colour = TYPE_CLR['water'],
+							backdrop_scale = 0.75 + (i * 0.2),
+							align = 'bm',
 							major = G.jokers,
-							offset_x = -2,
-							offset_y = offset_y + 0.5,
+							offset = { x = -4, y = i - 1 },
 						}
 
 						return true
@@ -107,10 +110,10 @@ SMODS.Blind {
 
 			G.E_MANAGER:add_event(Event {
 				trigger = 'before',
-				delay = 2.5,
+				delay = 3,
 				func = function()
-					G.GAME.blind:wiggle()
-					play_sound('cancel')
+					-- G.GAME.blind:wiggle()
+					-- play_sound('cancel')
 
 					return true
 				end,
