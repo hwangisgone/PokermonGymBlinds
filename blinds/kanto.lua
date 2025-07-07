@@ -84,7 +84,7 @@ SMODS.Blind {
 
 				G.E_MANAGER:add_event(Event {
 					trigger = 'before',
-					delay = 0.5,
+					delay = math.max(0.5, 1.2 - i * 0.2), -- E.g. 1, 0.8, 0.6, 0.5 (slowly ramp up)
 					func = function()
 						blind.triggered = true
 						blind:wiggle()
@@ -98,7 +98,7 @@ SMODS.Blind {
 							backdrop_scale = 0.75 + (i * 0.2),
 							align = 'bm',
 							major = G.jokers,
-							offset = { x = -4, y = i - 1 },
+							offset = { x = -2 * G.CARD_W, y = i - 1 },
 						}
 
 						return true
@@ -1170,6 +1170,29 @@ SMODS.Blind {
 	end,
 }
 
+function can_reduce_energy(card)
+	if type(card.ability.extra) == 'table' then
+		for name, _ in pairs(energy_values) do
+			if type(card.ability.extra[name]) == 'number' then return true end
+		end
+	elseif type(card.ability.extra) == 'number' then
+		return true
+	elseif
+		(card.ability.mult and card.ability.mult > 0)
+		or (card.ability.t_mult and card.ability.t_mult > 0)
+		or (card.ability.t_chips and card.ability.t_chips > 0)
+		or (card.ability.x_mult and card.ability.x_mult > 1)
+	then
+		return true
+	end
+	return false
+end
+
+local negative_energy_values = {}
+for k, v in pairs(energy_values) do
+	negative_energy_values[k] = -v
+end
+
 SMODS.Blind {
 	key = 'e4_agatha',
 	atlas = 'blinds_kanto',
@@ -1182,6 +1205,55 @@ SMODS.Blind {
 	boss = { min = 8, max = 10, showdown = true },
 	config = {},
 	vars = {},
+
+	press_play = function(self)
+		local with_energy_list = {}
+
+		-- Filter jokers with energy only
+		for _, card in pairs(G.jokers.cards) do
+			if can_reduce_energy(card) then table.insert(with_energy_list, card) end
+		end
+
+		-- Note: currently can reduce energy to negative
+		if #with_energy_list > 0 then
+			local chosen_joker = pseudorandom_element(with_energy_list, pseudoseed('e4_agatha'))
+
+			if type(chosen_joker.ability.extra) == 'table' then
+				local original_escale = chosen_joker.ability.extra.escale
+				chosen_joker.ability.extra.energy_count = (chosen_joker.ability.extra.energy_count or 0) - 1
+				chosen_joker.ability.extra.escale = -1
+				energize(chosen_joker, false, nil, true) -- energize(card, etype, evolving, silent)
+				chosen_joker.ability.extra.escale = original_escale
+			else
+				local normal_energy_values = copy_table(energy_values)
+				energy_values = negative_energy_values
+
+				energize(chosen_joker, false, nil, true)
+
+				energy_values = normal_energy_values
+			end
+
+			pkrm_gym_attention_text {
+				text = localize('e4_agatha', 'pkrm_gym_ex'),
+				backdrop_colour = TYPE_CLR['ghost'],
+				major = chosen_joker,
+				align = 'bm',
+				offset_y = 0,
+			}
+
+			-- card_eval_status_text(chosen_joker, 'extra', nil, nil, nil, {
+			-- 	message = localize('poke_reverse_energized_ex', 'pkrm_gym_ex'),
+			-- 	colour = TYPE_CLR['ghost'],
+			-- })
+
+			G.GAME.blind:wiggle()
+			play_sound('whoosh1', 0.55, 0.62)
+			chosen_joker:juice_up()
+		else
+			G.GAME.blind:wiggle()
+			play_sound('cancel')
+		end
+	end,
 }
 
 SMODS.Blind {

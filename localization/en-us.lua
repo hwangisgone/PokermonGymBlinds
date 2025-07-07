@@ -2,7 +2,7 @@ return {
 	descriptions = {
 		Blind = {
 			-- Kanto
-			bl_pkrm_gym_boulder = {name = 'The Boulder', text = {"{X:lightning,C:white}Lightning{} and {X:fire,C:white}Fire{}","Jokers are debuffed"}},
+			bl_pkrm_gym_boulder = {name = 'The Boulder', text = {"{X:lightning,C:white}Lightning{} and {X:fire,C:white}Fire{}","Jokers are disabled"}},
 			bl_pkrm_gym_cascade = {name = 'The Cascade', text = {"-#1# chips#2#.","50% chance to", "do it again"}}, -- 8!!
 			bl_pkrm_gym_thunder = {name = 'The Thunder', text = {"Lose $#1# when Discard", "without #2#"}},
 			bl_pkrm_gym_rainbow = {name = 'The Rainbow', text = {"Wild and Polychrome cards", "are debuffed"}},
@@ -14,7 +14,7 @@ return {
 			bl_pkrm_gym_earth   = {name = 'The Earth'  , text = {"Very big blind.", "-1X in size for every {C:gold}$#1#{}","earned this round"}},
 			bl_pkrm_gym_e4_lorelei = {name = 'Frozen Flow' , text = {"Only draw cards when", "hand has #1# or fewer cards"}},
 			bl_pkrm_gym_e4_bruno   = {name = 'Slate Shackles', text = {"Add a temporary Stone card", "per card below 52", "in full deck"}},
-			bl_pkrm_gym_e4_agatha  = {name = 'Cursed Cane'    , text = {"???"}}, -- 5!!
+			bl_pkrm_gym_e4_agatha  = {name = 'Cursed Cane'    , text = {"One random Joker", "has its Energy drained", "every hand"}}, -- 5!!
 			bl_pkrm_gym_e4_lance   = {name = 'Sunset Scale'  , text = {"Debuff one rightmost","scoring card", "for each remaining hand"}},
 			bl_pkrm_gym_champion_kanto = {name = 'The Blue Chip', text = {"0 Base Chip.", "All cards score no chip"}},
 			-- Johto
@@ -29,7 +29,7 @@ return {
 			bl_pkrm_gym_e4_will  = {name = 'Magenta Mask'  , text = {"Must play at least", "2 different face cards"}},
 			bl_pkrm_gym_e4_koga  = {name = 'Fuchsia Fume', text = {"Draw all cards face down.", "After Play, flip cards", "held in hand"}},
 			bl_pkrm_gym_e4_karen = {name = 'Saffron Star'    , text = {"Drawn cards are debuffed", "until #1# is played"}},
-			bl_pkrm_gym_champion_johto = {name = 'The Scarlet Scale', text = {"Debuff one rightmost Joker", "for each remaining hand"}},
+			bl_pkrm_gym_champion_johto = {name = 'The Scarlet Scale', text = {"Disable one rightmost Joker", "for each remaining hand"}},
 			-- Hoenn
 			bl_pkrm_gym_stone   = {name = 'The Stone'  ,text = {"Played face cards", "become Stone cards", "and give no chip"}},
 			bl_pkrm_gym_knuckle = {name = 'The Knuckle',text = {"Selecting a card discards", "leftmost cards in hand"}},
@@ -41,7 +41,7 @@ return {
 			bl_pkrm_gym_rain    = {name = 'The Rain'   ,text = {"Must play", "more ranks than suits"}},
 			bl_pkrm_gym_rain_juan = {name = 'The Rain'   ,text = {"Mult is capped by Chips"}},
 			bl_pkrm_gym_e4_sidney = {name = 'Slick Scythe'    ,text = {"After each Draw,", "debuff two random ranks", "in deck"}},
-			bl_pkrm_gym_e4_phoebe = {name = 'Pale Petal'      ,text = {"Elite Four - 2"}}, -- 1!!
+			bl_pkrm_gym_e4_phoebe = {name = 'Pale Petal'      ,text = {"Jokers with no energy", "are disabled"}}, -- 1!!
 			-- Hollow Hibiscus (Her flower) | Lost Lantern (Dusclop)
 			bl_pkrm_gym_e4_glacia = {name = 'Glistening Gown' ,text = {"Lose $#1#.", "-1 hand size per {C:red}-$#2#{}", "in current debt"}},
 			bl_pkrm_gym_e4_drake  = {name = 'Azure Anchor'   ,text = {"Debuff the lowest rank", "in scoring"}}, -- 2!!
@@ -97,6 +97,12 @@ return {
                     "{C:attention}#2#{C:joker} Starter Pokermons{}",
                 },
             },
+			energy_drained = {
+                name = "Energy Drained",
+                text = {
+                    "{C:attention}#1#{}/#2#",
+                }
+            },
 		},
 	},
 	misc = {
@@ -146,6 +152,8 @@ return {
 		},
 		pkrm_gym_ex = {
 			poke_reverse_energized = "Lose energy!",
+			e4_agatha = "Dream Eater",
+
 			zephyr = "Gust",
 			mineral_steel = "Magnet Pull",
 			mineral_stone = "Iron Tail",

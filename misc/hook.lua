@@ -183,6 +183,9 @@ function get_current_pool(_type, _rarity, legendary, key_append)
 	return _pool, _pool_key
 end
 
+-- HOOKING POKERMON FUNCTIONS
+
+
 -- Function pokemon_in_pool also sets the .in_pool of that pokemon
 -- Modify for Pokeballs, Egg and the like
 local basegame_pokermon_pokemon_in_pool = pokemon_in_pool
@@ -197,4 +200,16 @@ function pokemon_in_pool(self)
 	end
 
 	return basegame_pokermon_pokemon_in_pool(self)
+end
+
+-- Tooltip for when Agatha drains energy so hard it goes to negative
+local basegame_pokermon_type_tooltip = type_tooltip
+type_tooltip = function(self, info_queue, center)
+	basegame_pokermon_type_tooltip(self, info_queue, center)
+
+	if (center.ability and center.ability.extra and type(center.ability.extra) == "table" and ((center.ability.extra.energy_count or 0) + (center.ability.extra.c_energy_count or 0) < 0)) then
+		info_queue[#info_queue+1] = {set = 'Other', key = "energy_drained", vars = {(center.ability.extra.energy_count or 0) + (center.ability.extra.c_energy_count or 0), energy_max + (G.GAME.energy_plus or 0)}}
+	elseif (center.ability and ((center.ability.energy_count or 0) + (center.ability.c_energy_count or 0) < 0)) then
+		info_queue[#info_queue+1] = {set = 'Other', key = "energy_drained", vars = {(center.ability.energy_count or 0) + (center.ability.c_energy_count or 0), energy_max + (G.GAME.energy_plus or 0)}}
+	end
 end

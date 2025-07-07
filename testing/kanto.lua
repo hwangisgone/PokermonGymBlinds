@@ -176,7 +176,7 @@ Balatest.TestPlay {
 	end,
 }
 
--- Saffron Shackles
+-- Slate Shackles
 Balatest.TestPlay {
 	name = 'temporary_destroyed',
 	category = { 'kanto', 'sticker' },
@@ -206,7 +206,7 @@ Balatest.TestPlay {
 
 	execute = function()
 		for _, card in pairs(G.playing_cards) do
-			if card:is_suit('Spades') then 
+			if card:is_suit('Spades') then
 				SMODS.Stickers['pkrm_gym_temporary']:apply(card, true)
 				if card.area == G.hand then
 					G.hand:remove_card(card)
@@ -220,7 +220,7 @@ Balatest.TestPlay {
 			area = G.hand,
 			skip_materialize = true,
 			rank = '2',
-			suit = 'C'
+			suit = 'C',
 		}
 		G.hand:emplace(new_card, nil, true)
 
@@ -236,7 +236,7 @@ local function get_balatest_card_base_code(card)
 	local value = card.base.value
 	local rank = (value == '10') and value or value:sub(1, 1)
 	local suit = card.base.suit:sub(1, 1)
-	return rank..suit
+	return rank .. suit
 end
 
 Balatest.TestPlay {
@@ -245,9 +245,9 @@ Balatest.TestPlay {
 
 	execute = function()
 		local discard_pack = {}
-		
+
 		for _, card in pairs(G.playing_cards) do
-			if card:is_suit('Spades') then 
+			if card:is_suit('Spades') then
 				SMODS.Stickers['pkrm_gym_temporary']:apply(card, true)
 
 				table.insert(discard_pack, get_balatest_card_base_code(card))
@@ -270,7 +270,7 @@ Balatest.TestPlay {
 
 Balatest.TestPlay {
 	name = 'e4_bruno_effect',
-	category = { 'kanto', 'blind' },
+	category = { 'kanto', 'blind', 'e4_bruno' },
 
 	blind = 'bl_pkrm_gym_e4_bruno',
 
@@ -316,7 +316,7 @@ Balatest.TestPlay {
 
 Balatest.TestPlay {
 	name = 'e4_bruno_disable_chicot',
-	category = { 'kanto', 'blind', 'disable' },
+	category = { 'kanto', 'blind', 'disable', 'e4_bruno' },
 
 	blind = 'bl_pkrm_gym_e4_bruno',
 	jokers = { 'j_chicot' },
@@ -344,7 +344,7 @@ Balatest.TestPlay {
 
 Balatest.TestPlay {
 	name = 'e4_bruno_disable_weezing',
-	category = { 'kanto', 'blind', 'disable' },
+	category = { 'kanto', 'blind', 'disable', 'e4_bruno' },
 
 	blind = 'bl_pkrm_gym_e4_bruno',
 	jokers = { 'j_poke_weezing' },
@@ -373,6 +373,162 @@ Balatest.TestPlay {
 	end,
 	assert = function()
 		Balatest.assert_eq(#G.playing_cards, 8)
+	end,
+}
+
+-- Cursed Cane
+Balatest.TestPlay {
+	name = 'e4_agatha_effect_no_joker',
+	category = { 'kanto', 'blind', 'e4_agatha' },
+
+	blind = 'bl_pkrm_gym_e4_agatha',
+
+	execute = function()
+		Balatest.play_hand { '5S' }
+	end,
+	assert = function()
+		Balatest.assert_chips(10)
+	end,
+}
+
+Balatest.TestPlay {
+	name = 'e4_agatha_effect_no_energizable_joker',
+	category = { 'kanto', 'blind', 'e4_agatha' },
+
+	blind = 'bl_pkrm_gym_e4_agatha',
+
+	jokers = { 'j_poke_gengar' },
+
+	execute = function()
+		Balatest.play_hand { '5S' }
+	end,
+	assert = function()
+		Balatest.assert_chips(10)
+	end,
+}
+
+Balatest.TestPlay {
+	name = 'e4_agatha_effect',
+	category = { 'kanto', 'blind', 'e4_agatha' },
+
+	blind = 'bl_pkrm_gym_e4_agatha',
+
+	jokers = { 'j_poke_beedrill' },
+	consumeables = { 'c_poke_grass_energy', 'c_poke_grass_energy' },
+
+	execute = function()
+		-- Energize twice
+		Balatest.use(G.consumeables.cards[1])
+		Balatest.use(G.consumeables.cards[2])
+		Balatest.play_hand { '5S' }
+		Balatest.play_hand { '5C' }
+	end,
+	assert = function()
+		Balatest.assert_eq(G.jokers.cards[1].ability.extra.energy_count, 0)
+		Balatest.assert_chips((10 + 80 + 24) + (10 + 80)) -- With 1 energy + 0 energy
+	end,
+}
+
+Balatest.TestPlay {
+	name = 'e4_agatha_effect_joker_not_energized',
+	category = { 'kanto', 'blind', 'e4_agatha' },
+
+	blind = 'bl_pkrm_gym_e4_agatha',
+
+	jokers = { 'j_poke_beedrill' },
+
+	execute = function()
+		Balatest.play_hand { '5S' }
+	end,
+	assert = function()
+		Balatest.assert_eq(G.jokers.cards[1].ability.extra.energy_count, -1)
+		Balatest.assert_chips(10 + 80 - 24) -- With -1 energy
+	end,
+}
+
+Balatest.TestPlay {
+	name = 'e4_agatha_effect_joker_not_energized_evolving',
+	category = { 'kanto', 'blind', 'e4_agatha' },
+
+	blind = 'bl_pkrm_gym_e4_agatha',
+
+	jokers = { 'j_poke_weedle' },
+	consumeables = { 'c_poke_transformation' },
+
+	execute = function()
+		Balatest.play_hand { '5S' }
+		Balatest.play_hand { '5H' }
+
+		Balatest.q(function()
+			G.jokers.cards[1]:click()
+		end)
+		Balatest.use(G.consumeables.cards[1])
+
+		Balatest.play_hand { '5C' }
+	end,
+	assert = function()
+		Balatest.assert_eq(G.jokers.cards[1].ability.extra.energy_count, -2)
+		Balatest.assert_chips((10 + 20 - 6) + (10 + 20 - 6 * 2) + (10 + 80 - 24 * 2)) 
+		-- With -1 energy (weedle)
+		-- and -2 energy (weedle)
+		-- and -2 energy (beedril after energized by transformation)
+	end,
+}
+
+Balatest.TestPlay {
+	name = 'e4_agatha_effect_non_pokermon',
+	category = { 'kanto', 'blind', 'e4_agatha' },
+
+	blind = 'bl_pkrm_gym_e4_agatha',
+
+	jokers = { 'j_sly' }, -- Pair
+
+	execute = function()
+		Balatest.play_hand { '5S', '5C' }
+	end,
+	assert = function()
+		Balatest.assert_chips((20 + 50 * (1 - 0.3)) * 2) -- With -1 energy
+	end,
+}
+
+Balatest.TestPlay {
+	name = 'e4_agatha_disable_chicot',
+	category = { 'kanto', 'blind', 'disable', 'e4_agatha' },
+
+	blind = 'bl_pkrm_gym_e4_agatha',
+
+	jokers = { 'j_poke_beedrill', 'j_chicot' },
+	consumeables = { 'c_poke_grass_energy' },
+
+	execute = function()
+		Balatest.use(G.consumeables.cards[1])
+		Balatest.play_hand { '5S' }
+	end,
+	assert = function()
+		Balatest.assert_eq(G.jokers.cards[1].ability.extra.energy_count, 1)
+		Balatest.assert_chips(10 + 80 + 24) -- With 1 energy
+	end,
+}
+
+Balatest.TestPlay {
+	name = 'e4_agatha_disable_weezing',
+	category = { 'kanto', 'blind', 'disable', 'e4_agatha' },
+
+	blind = 'bl_pkrm_gym_e4_agatha',
+
+	jokers = { 'j_poke_weezing', 'j_poke_beedrill' },
+	consumeables = { 'c_poke_grass_energy' },
+
+	execute = function()
+		Balatest.q(function()
+			G.jokers.cards[1]:sell_card()
+		end)
+		Balatest.use(G.consumeables.cards[1])
+		Balatest.play_hand { '5S' }
+	end,
+	assert = function()
+		Balatest.assert_eq(G.jokers.cards[1].ability.extra.energy_count, 1)
+		Balatest.assert_chips(10 + 80 + 24) -- With 1 energy
 	end,
 }
 
