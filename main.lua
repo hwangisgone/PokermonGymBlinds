@@ -23,6 +23,7 @@ GYM_SHOWDOWN_CLR = {
 	bruno = HEX('636068'), -- Slate
 	blue = G.C.UI_CHIPS,
 	will = HEX('BC2649'), -- Viva Magenta
+	koga = HEX('D712A7'), -- Pinkish Fuchsia
 	lance = HEX('AC3C26'),
 	-- 'steven'
 }

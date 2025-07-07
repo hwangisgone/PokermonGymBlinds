@@ -1030,7 +1030,11 @@ SMODS.Sticker {
 	rate = 0,
 
 	calculate = function(self, card, context)
-		if context.discard then return { remove = true } end
+		if context.discard then
+			if context.other_card.ability and context.other_card.ability['pkrm_gym_temporary'] then
+				return { remove = true }
+			end
+		end
 
 		if context.playing_card_end_of_round then -- Works even without a card in hand because G.deck is enabled
 			if not singleton_destroying then -- Destroy all, including in discard

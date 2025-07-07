@@ -471,7 +471,7 @@ SMODS.Blind {
 	key = 'e4_koga',
 	atlas = 'blinds_johto',
 	pos = { x = 0, y = 9 },
-	boss_colour = TYPE_CLR['poison'],
+	boss_colour = GYM_SHOWDOWN_CLR['koga'],
 
 	discovered = false,
 	dollars = 8,

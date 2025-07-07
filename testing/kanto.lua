@@ -260,6 +260,8 @@ Balatest.TestPlay {
 		end
 
 		Balatest.discard(discard_pack)
+		Balatest.discard { '10C', 'JC', 'QC', 'KC', 'AC' }
+		Balatest.next_round()
 	end,
 	assert = function()
 		Balatest.assert_eq(#G.playing_cards, 39) -- 1 suit gone
