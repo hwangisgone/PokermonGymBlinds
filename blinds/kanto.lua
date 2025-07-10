@@ -19,7 +19,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = { min = 1, max = 10 },
+	boss = { min = 1 },
 	config = {},
 	vars = {},
 
@@ -55,7 +55,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = { min = 1, max = 10 },
+	boss = { min = 1 },
 	config = { ante_reduced_chips = 10 },
 	vars = {},
 
@@ -132,7 +132,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = { min = 1, max = 10 },
+	boss = { min = 1 },
 	config = {},
 	vars = {},
 	config = { lose = 5, need_ranks = nil },
@@ -186,7 +186,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = { min = 1, max = 10 },
+	boss = { min = 1 },
 	config = {},
 	vars = {},
 	recalc_debuff = function(self, card, from_blind)
@@ -217,7 +217,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = { min = 1, max = 10 },
+	boss = { min = 1 },
 	config = {},
 	vars = {},
 
@@ -272,7 +272,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = { min = 1, max = 10 },
+	boss = { min = 5 },
 	config = { extra = { used_consumable = false } },
 	vars = {},
 
@@ -720,7 +720,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 3,
-	boss = { min = 1, max = 10 },
+	boss = { min = 1 },
 	config = {},
 	vars = {},
 	set_blind = function(self)
@@ -954,7 +954,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 8,
 	mult = 8,
-	boss = { min = 1, max = 10 },
+	boss = { min = 1 },
 	config = { every_earned = 5 },
 	vars = {},
 
@@ -990,7 +990,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 8,
 	mult = 2,
-	boss = { min = 8, max = 10, showdown = true },
+	boss = { min = 8, showdown = true },
 	config = { cards_left_to_draw = 2 },
 	vars = { 2 },
 	loc_vars = function(self)
@@ -1082,7 +1082,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 8,
 	mult = 2,
-	boss = { min = 8, max = 10, showdown = true },
+	boss = { min = 8, showdown = true },
 	config = {},
 	vars = {},
 
@@ -1202,7 +1202,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 8,
 	mult = 2,
-	boss = { min = 8, max = 10, showdown = true },
+	boss = { min = 8, showdown = true },
 	config = {},
 	vars = {},
 
@@ -1265,7 +1265,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 8,
 	mult = 2,
-	boss = { min = 8, max = 10, showdown = true },
+	boss = { min = 8, showdown = true },
 	config = {},
 	vars = {},
 
@@ -1328,7 +1328,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 12,
 	mult = 4,
-	boss = { min = 10, max = 10, showdown = true },
+	boss = { min = 10, showdown = true },
 	config = { blue_penalty_chips = 12 },
 	vars = { 12 },
 

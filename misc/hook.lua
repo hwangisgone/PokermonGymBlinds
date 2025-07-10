@@ -1,51 +1,71 @@
+-- Loading pool-related functions
+local chunk, load_error = SMODS.load_file('misc/blind_pool.lua')
+if load_error then
+	sendDebugMessage('The error is: ' .. load_error)
+else
+	chunk()
+end
+
 local league_length = 10
 
 local basegame_get_new_boss = get_new_boss
 function get_new_boss(blind)
 	-- TODO: Special blind for ante < 1?
-	if
-		(not pkrm_gym_config.setting_only_gym and not G.GAME.modifiers.pkrm_gym_forced_region) -- Not challenge
-		or G.GAME.round_resets.ante < 1
-	then
+	if G.GAME.round_resets.ante < 1 then
 		return basegame_get_new_boss()
 	end
 
-	local league_index = 1
-	local gym_index = (G.GAME.round_resets.ante - 1) % league_length + 1
-
-	-- Initialize league and set up winning ante
-	if not G.GAME.pkrm_league_pool then
-		G.GAME.pkrm_league_pool = get_league_pool()
-		G.GAME.win_ante = 10
-	else
-		league_index = math.floor((G.GAME.round_resets.ante - 1) / league_length) % #G.GAME.pkrm_league_pool + 1
-
-		if league_index == 1 and gym_index == 1 then G.GAME.pkrm_league_pool = get_league_pool() end
-	end
-
-	local current_league = G.GAME.pkrm_league_pool[league_index]
-
-	if gym_index == 9 then
-		-- Elite four
-		if blind == 'big' then
-			selected_boss = current_league.e4[1]
+	-- Setting or Challenge
+	if pkrm_gym_config.setting_pokermon_league or G.GAME.modifiers.pkrm_gym_forced_region then
+		local league_index = 1
+		local gym_index = (G.GAME.round_resets.ante - 1) % league_length + 1
+	
+		-- Initialize league and set up winning ante
+		if not G.GAME.pkrm_league_pool then
+			G.GAME.pkrm_league_pool = get_league_pool()
+			G.GAME.win_ante = 10
 		else
-			selected_boss = current_league.e4[2]
+			league_index = math.floor((G.GAME.round_resets.ante - 1) / league_length) % #G.GAME.pkrm_league_pool + 1
+	
+			if league_index == 1 and gym_index == 1 then G.GAME.pkrm_league_pool = get_league_pool() end
 		end
-	elseif gym_index == 10 then
-		-- Elite four & Champion
-		if blind == 'small' then
-			selected_boss = current_league.e4[3]
-		elseif blind == 'big' then
-			selected_boss = current_league.e4[4]
-		else
-			selected_boss = current_league.champion
-		end
-	else
-		selected_boss = current_league.gym[gym_index]
-	end
+	
+		local current_league = G.GAME.pkrm_league_pool[league_index]
+	
+		local selected_boss
 
-	return selected_boss
+		if gym_index == 9 then
+			-- Elite Four
+			if blind == 'big' then
+				selected_boss = current_league.e4[1]
+			else
+				selected_boss = current_league.e4[2]
+			end
+		elseif gym_index == 10 then
+			-- Elite Four & Champion
+			if blind == 'small' then
+				selected_boss = current_league.e4[3]
+			elseif blind == 'big' then
+				selected_boss = current_league.e4[4]
+			else
+				selected_boss = current_league.champion
+			end
+		else
+			selected_boss = current_league.gym[gym_index]
+		end
+
+		return selected_boss
+	else
+		if pkrm_gym_config.setting_only_gym then
+			for k, v in pairs(G.P_BLINDS) do
+				if not pkrm_gym.TRAINER_CLASS[k] and not G.GAME.banned_keys[k] then
+					G.GAME.banned_keys[k] = true
+				end
+			end
+		end
+
+		return basegame_get_new_boss()
+	end
 end
 
 -- Override for Elite Four blinds at ante 9 and 10
@@ -57,7 +77,7 @@ function reset_blinds()
 
 	if not boss_defeated then return end
 
-	if pkrm_gym_config.setting_only_gym then
+	if pkrm_gym_config.setting_pokermon_league then
 		local gym_index = (G.GAME.round_resets.ante - 1) % league_length + 1
 
 		if gym_index == 9 then
@@ -158,45 +178,73 @@ end
 
 -- Challenge Pool modification
 
-local all_regional_pokedexes = {}
-local load_pokedex, load_error = SMODS.load_file('challenges/pokedex.lua')
-if load_error then
-	sendDebugMessage('The error is: ' .. load_error)
-else
-	all_regional_pokedexes = load_pokedex()
-end
-
+-- Modify default spawn (when out of things to generate)
 local basegame_get_current_pool = get_current_pool
 function get_current_pool(_type, _rarity, legendary, key_append)
 	local _pool, _pool_key = basegame_get_current_pool(_type, _rarity, legendary, key_append)
 
-	if G.GAME.modifiers.pkrm_gym_forced_region then
-		if _type == 'Joker' then
-			-- Spawn Magikarp when out of things to generate
-			if #_pool == 1 then
-				_pool = EMPTY(G.ARGS.TEMP_POOL)
-				_pool[#_pool + 1] = 'j_poke_magikarp'
-			end
+	if _type == 'Joker' and #_pool == 1 then
+		if G.GAME.modifiers.pkrm_gym_forced_region then
+			-- Magikarp in regional challenges
+			_pool = EMPTY(G.ARGS.TEMP_POOL)
+			_pool[#_pool + 1] = 'j_poke_magikarp'
+		elseif G.GAME.modifiers.pkrm_gym_bug_catching_contest then
+			-- Caterpie in Bug Catching Contest
+			_pool = EMPTY(G.ARGS.TEMP_POOL)
+			_pool[#_pool + 1] = 'j_poke_caterpie'
 		end
 	end
 
 	return _pool, _pool_key
 end
 
--- HOOKING POKERMON FUNCTIONS
+local all_regional_pokedexes = {}
+local load_pokedex, load_error = SMODS.load_file('challenges/regional_pokedex.lua')
+if load_error then
+	sendDebugMessage('The error is: ' .. load_error)
+else
+	all_regional_pokedexes = load_pokedex()
+end
 
+local all_pokedexes = {}
+local load_pokedex, load_error = SMODS.load_file('challenges/pokedex.lua')
+if load_error then
+	sendDebugMessage('The error is: ' .. load_error)
+else
+	all_pokedexes = load_pokedex()
+end
+
+function SMODS.current_mod.reset_game_globals(run_start)
+	if run_start then
+		if G.GAME.modifiers.pkrm_gym_forced_region then
+			G.GAME.ALLOWED_POKE_POOLS = {
+				all_regional_pokedexes[G.GAME.modifiers.pkrm_gym_forced_region],
+				all_pokedexes.other,
+			}
+		elseif G.GAME.modifiers.pkrm_gym_bug_catching_contest then
+			G.GAME.ALLOWED_POKE_POOLS = {
+				all_pokedexes.bug_contest,
+				all_pokedexes.other,
+			}
+		end
+	end
+end
+
+-- HOOKING POKERMON FUNCTIONS
 
 -- Function pokemon_in_pool also sets the .in_pool of that pokemon
 -- Modify for Pokeballs, Egg and the like
 local basegame_pokermon_pokemon_in_pool = pokemon_in_pool
 function pokemon_in_pool(self)
-	if G.GAME.modifiers.pkrm_gym_forced_region then
-		if
-			not all_regional_pokedexes[G.GAME.modifiers.pkrm_gym_forced_region:lower()][self.name]
-			and not all_regional_pokedexes.other[self.name]
-		then
-			return false
+	local allowed_pools = G.GAME.ALLOWED_POKE_POOLS
+
+	if type(allowed_pools) == 'table' then
+		for _, pool in pairs(allowed_pools) do
+			if pool[self.name] then return basegame_pokermon_pokemon_in_pool(self) end
 		end
+
+		-- Return false if not in any pool
+		return false
 	end
 
 	return basegame_pokermon_pokemon_in_pool(self)
@@ -207,9 +255,28 @@ local basegame_pokermon_type_tooltip = type_tooltip
 type_tooltip = function(self, info_queue, center)
 	basegame_pokermon_type_tooltip(self, info_queue, center)
 
-	if (center.ability and center.ability.extra and type(center.ability.extra) == "table" and ((center.ability.extra.energy_count or 0) + (center.ability.extra.c_energy_count or 0) < 0)) then
-		info_queue[#info_queue+1] = {set = 'Other', key = "energy_drained", vars = {(center.ability.extra.energy_count or 0) + (center.ability.extra.c_energy_count or 0), energy_max + (G.GAME.energy_plus or 0)}}
-	elseif (center.ability and ((center.ability.energy_count or 0) + (center.ability.c_energy_count or 0) < 0)) then
-		info_queue[#info_queue+1] = {set = 'Other', key = "energy_drained", vars = {(center.ability.energy_count or 0) + (center.ability.c_energy_count or 0), energy_max + (G.GAME.energy_plus or 0)}}
+	if
+		center.ability
+		and center.ability.extra
+		and type(center.ability.extra) == 'table'
+		and ((center.ability.extra.energy_count or 0) + (center.ability.extra.c_energy_count or 0) < 0)
+	then
+		info_queue[#info_queue + 1] = {
+			set = 'Other',
+			key = 'energy_drained',
+			vars = {
+				(center.ability.extra.energy_count or 0) + (center.ability.extra.c_energy_count or 0),
+				energy_max + (G.GAME.energy_plus or 0),
+			},
+		}
+	elseif center.ability and ((center.ability.energy_count or 0) + (center.ability.c_energy_count or 0) < 0) then
+		info_queue[#info_queue + 1] = {
+			set = 'Other',
+			key = 'energy_drained',
+			vars = {
+				(center.ability.energy_count or 0) + (center.ability.c_energy_count or 0),
+				energy_max + (G.GAME.energy_plus or 0),
+			},
+		}
 	end
 end

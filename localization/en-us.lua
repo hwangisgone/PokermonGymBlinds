@@ -109,13 +109,13 @@ return {
 		challenge_names = {
             c_pkrm_gym_kanto = "Red, Blue & Yellow",
 			c_pkrm_gym_johto = "Gold, Silver & Crystal",
-			c_pkrm_gym_hoenn = "{C:red}Ruby{}, Sapphire & Emerald",
+			c_pkrm_gym_hoenn = "Ruby, Sapphire & Emerald",
         },
 		dictionary = {
 			k_pkrm_gym_starter_pack = "Starter Pack",
 
 			pkrm_gym_setting_only_gym             = "Only gym boss blinds",
-			pkrm_gym_setting_random_gym           = "Randomize gym boss blinds",
+			pkrm_gym_setting_ordered_gym          = "Ordered gym blinds",
 			pkrm_gym_setting_pokermon_league      = "Pokermon League (Ante 9, 10)",
 			pkrm_gym_setting_random_elite4_order  = "Randomize Elite Four order",
 			pkrm_gym_setting_reduce_scaling       = "Reduce scaling at Ante 9, 10",
@@ -138,16 +138,20 @@ return {
 				"and all blinds spawn in {C:attention}random{} order.",
 				"Showdown blinds are considered {C:enhanced}Elite Four{}",
 			},
-			pkrm_gym_setting_random_gym = {
-				"Randomizes gyms across all regions.",
+			pkrm_gym_setting_ordered_gym = {
+				"Beat Gym Blinds in the same order in",
+				"official Pokemon games or anime",
+				"{br:3}---",
+				"Disabling this randomizes gyms across all regions.",
 				"Also randomizes {C:enhanced}Elite Four{} and {C:legendary}Champion{} if League is enabled.",
 			},
 			pkrm_gym_setting_pokermon_league = {
-				"{C:attention}+2{} Ante win requirement",
-				"Enables {C:enhanced}Elite Four{} & {C:legendary}Champion{} blinds in Ante 9 and 10",
+				"Win the game at {C:attention}Ante 10{}",
+				"Enables {C:enhanced}Elite Four{} & {C:legendary}Champion{} blinds at Ante 9 and 10",
+				"{C:inactive}(2 boss blinds at Ante 9, and 3 at Ante 10){}",
 				"{br:3}---",
 				"Disabling this reverts to normal Balatro behavior,",
-				"with 7 gyms (normal blinds) and 1 {C:enhanced}Elite Four{} (showdown blind)",
+				"{C:inactive}(7 normal blinds as gyms and 1 showdown blind as Elite Four){}",
 			},
 		},
 		pkrm_gym_ex = {
@@ -341,8 +345,8 @@ return {
 			bl_pkrm_gym_balance_debuff_text = "Must play the last discarded hand (#1#)",
 		},
 		v_text = {
-			ch_c_pkrm_gym_forced_regional_jokers = { "Only Pokermon Jokers in {C:attention}#1#{} appear" },
-            ch_c_pkrm_gym_forced_region = { "Become the Pokermon Champion in {C:attention}#1#{}!" },
+			ch_c_pkrm_gym_text_only_forced_regional_jokers = { "Only Pokermon Jokers in {C:attention}#1#{} appear" },
+            ch_c_pkrm_gym_text_only_forced_region = { "Become the Pokermon Champion in {C:attention}#1#{}!" },
 		},
 	}
 }

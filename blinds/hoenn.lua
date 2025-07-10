@@ -32,7 +32,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = { min = 1, max = 10 },
+	boss = { min = 1 },
 	config = {},
 	vars = {},
 
@@ -95,7 +95,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = { min = 1, max = 10 },
+	boss = { min = 1 },
 	config = {},
 	vars = {},
 }
@@ -211,7 +211,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = { min = 1, max = 10 },
+	boss = { min = 1 },
 	config = {},
 	vars = {},
 
@@ -282,7 +282,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = { min = 1, max = 10 },
+	boss = { min = 1 },
 	config = {},
 	vars = {},
 
@@ -351,7 +351,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = { min = 5, max = 10 },
+	boss = { min = 5 },
 	config = {},
 	vars = {},
 
@@ -397,7 +397,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = { min = 1, max = 10 },
+	boss = { min = 1 },
 	config = { lose = 2 },
 	vars = {},
 
@@ -480,7 +480,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = { min = 1, max = 10 },
+	boss = { min = 1 },
 	config = {},
 	vars = {},
 
@@ -511,7 +511,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = { min = 1, max = 10 },
+	boss = { min = 1 },
 	config = {},
 	vars = {},
 
@@ -557,7 +557,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 8,
 	mult = 2,
-	boss = { min = 8, max = 10, showdown = true },
+	boss = { min = 8, showdown = true },
 	config = {},
 	vars = {},
 
@@ -623,9 +623,29 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 8,
 	mult = 2,
-	boss = { min = 8, max = 10, showdown = true },
+	boss = { min = 8, showdown = true },
 	config = {},
 	vars = {},
+
+	drawn_to_hand = function(self)
+		if G.GAME.blind.prepped then
+			for k, card in pairs(G.jokers.cards) do
+				if not card.ability or get_total_energy(card) < 1 then
+					SMODS.debuff_card(card, true, 'e4_phoebe_debuff')
+					card:juice_up()
+				end
+			end
+
+			G.GAME.blind:wiggle()
+		end
+	end,
+
+	disable = function(self)
+		remove_debuff_all_jokers('e4_phoebe_debuff')
+	end,
+	defeat = function(self)
+		remove_debuff_all_jokers('e4_phoebe_debuff')
+	end,
 }
 
 BL_FUNCTION_TABLE['e4_glacia_ease_dollars'] = function()
@@ -663,7 +683,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 8,
 	mult = 2,
-	boss = { min = 8, max = 10, showdown = true },
+	boss = { min = 8, showdown = true },
 	config = { lose = 40, every_debt = 5 },
 	vars = {},
 
@@ -709,7 +729,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 8,
 	mult = 2,
-	boss = { min = 8, max = 10, showdown = true },
+	boss = { min = 8, showdown = true },
 	config = {},
 	vars = {},
 
@@ -772,7 +792,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 12,
 	mult = 4,
-	boss = { min = 10, max = 10, showdown = true },
+	boss = { min = 10, showdown = true },
 	config = { lower_xmult = 0.75 },
 	vars = {},
 
@@ -822,22 +842,22 @@ SMODS.Blind {
 	end,
 }
 
-SMODS.Blind {
-	key = 'champion_hoenn_wallace',
-	atlas = 'blinds_hoenn',
-	pos = { x = 0, y = 12 },
-	boss_colour = TYPE_CLR['water'],
+-- SMODS.Blind {
+-- 	key = 'champion_hoenn_wallace',
+-- 	atlas = 'blinds_hoenn',
+-- 	pos = { x = 0, y = 12 },
+-- 	boss_colour = TYPE_CLR['water'],
 
-	discovered = false,
-	dollars = 12,
-	mult = 4,
-	boss = { min = 10, max = 10, showdown = true },
-	config = {},
-	vars = {},
+-- 	discovered = false,
+-- 	dollars = 12,
+-- 	mult = 4,
+-- 	boss = { min = 10, showdown = true },
+-- 	config = {},
+-- 	vars = {},
 
-	disable = function(self)
-		G.GAME.blind.disabled = false
+-- 	disable = function(self)
+-- 		G.GAME.blind.disabled = false
 
-		champion_no_disable_attention_text()
-	end,
-}
+-- 		champion_no_disable_attention_text()
+-- 	end,
+-- }

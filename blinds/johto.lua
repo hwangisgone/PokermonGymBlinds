@@ -10,6 +10,15 @@ SMODS.Atlas {
 	frames = 21,
 }
 
+SMODS.Atlas {
+	key = 'blinds_johto_big',
+	atlas_table = 'ANIMATION_ATLAS',
+	path = 'blinds_johto_big.png',
+	px = 34,
+	py = 34,
+	frames = 21,
+}
+
 function rescore_hand(scoring_hand, config)
 	local new_scoring_hand = {}
 	local non_scoring_cards = {}
@@ -62,14 +71,14 @@ end
 
 SMODS.Blind {
 	key = 'zephyr',
-	atlas = 'blinds_johto',
+	atlas = 'blinds_johto_big',
 	pos = { x = 0, y = 0 },
 	boss_colour = TYPE_CLR['flying'],
 
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = { min = 1, max = 10 },
+	boss = { min = 1 },
 	config = {},
 	vars = {},
 
@@ -122,7 +131,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = { min = 1, max = 10 },
+	boss = { min = 1 },
 	config = {},
 	vars = {},
 
@@ -177,7 +186,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = { min = 1, max = 10 },
+	boss = { min = 1 },
 	config = { rollout = 150 },
 	vars = {},
 
@@ -208,7 +217,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = { min = 1, max = 10 },
+	boss = { min = 1 },
 	config = {},
 	vars = {},
 
@@ -234,7 +243,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = { min = 1, max = 10 },
+	boss = { min = 1 },
 	config = { suits = { 'Spades', 'Hearts', 'Clubs', 'Diamonds' }, index = 1 },
 	vars = {},
 
@@ -299,7 +308,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = { min = 1, max = 10 },
+	boss = { min = 1 },
 	config = {},
 	vars = {},
 
@@ -361,14 +370,14 @@ SMODS.Blind {
 
 SMODS.Blind {
 	key = 'glacier',
-	atlas = 'blinds_johto',
-	pos = { x = 0, y = 6 },
+	atlas = 'blinds_johto_big',
+	pos = { x = 0, y = 2 },
 	boss_colour = TYPE_CLR['ice'],
 
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = { min = 1, max = 10 },
+	boss = { min = 1 },
 	config = {},
 	vars = {},
 
@@ -397,7 +406,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = { min = 1, max = 10 },
+	boss = { min = 1 },
 	config = {},
 	vars = {},
 
@@ -440,7 +449,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 8,
 	mult = 2,
-	boss = { min = 8, max = 10, showdown = true },
+	boss = { min = 8, showdown = true },
 	config = {},
 	vars = {},
 
@@ -476,7 +485,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 8,
 	mult = 2,
-	boss = { min = 8, max = 10, showdown = true },
+	boss = { min = 8, showdown = true },
 	config = {},
 	vars = {},
 
@@ -556,7 +565,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 8,
 	mult = 2,
-	boss = { min = 8, max = 10, showdown = true },
+	boss = { min = 8, showdown = true },
 	config = {},
 	vars = {},
 	loc_vars = function(self)
@@ -654,7 +663,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 12,
 	mult = 4,
-	boss = { min = 10, max = 10, showdown = true },
+	boss = { min = 10, showdown = true },
 	config = {},
 	vars = {},
 

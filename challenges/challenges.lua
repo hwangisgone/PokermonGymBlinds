@@ -35,6 +35,7 @@ local all_starters = {
 		'j_poke_rowlet',
 		'j_poke_litten',
 		'j_poke_popplio',
+		-- Alolan Meowth?
 	},
 	galar = {
 		'j_poke_grookey',
@@ -50,7 +51,7 @@ local all_starters = {
 
 local function get_starter_cards()
 	if G.GAME.modifiers.pkrm_gym_forced_region then
-		local starters = all_starters[G.GAME.modifiers.pkrm_gym_forced_region:lower()]
+		local starters = all_starters[G.GAME.modifiers.pkrm_gym_forced_region]
 
 		if starters then return starters end
 	end
@@ -208,8 +209,9 @@ for region_id, challenge in pairs(all_challenges) do
 			key = region_id,
 			rules = {
 				custom = {
-					{ id = 'pkrm_gym_forced_regional_jokers', value = normalize_string(region_id) },
-					{ id = 'pkrm_gym_forced_region', value = normalize_string(region_id) },
+					{ id = 'pkrm_gym_text_only_forced_regional_jokers', value = normalize_string(region_id) },
+					{ id = 'pkrm_gym_text_only_forced_region', value = normalize_string(region_id) },
+					{ id = 'pkrm_gym_forced_region', value = region_id },
 				},
 			},
 			consumeables = {
