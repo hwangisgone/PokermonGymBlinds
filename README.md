@@ -1,2 +1,2 @@
 # PokermonGymBlinds
- Add Gym Blinds to Balatro's Pokermon mod
+ Add Gym Blinds to [Pokermon mod](https://github.com/InertSteak/Pokermon) in Balatro
