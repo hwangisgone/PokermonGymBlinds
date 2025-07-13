@@ -406,36 +406,32 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = { min = 1 },
+	boss = { min = 5 },
 	config = {},
 	vars = {},
 
-	calculate = function(self, blind, context)
-		if blind.disabled then return end
+	press_play = function(self)
+		for i = 1, #G.hand.highlighted do
+			local this_card = G.hand.highlighted[i]
+			local percent_pitch = 0.8 + i * 0.05
+			local percent_vol = 0.3 + i * 0.05
 
-		if context.before then
-			for i = 1, #context.scoring_hand do
-				local this_card = context.scoring_hand[i]
-				local percent_pitch = 0.8 + i * 0.05
-				local percent_vol = 0.3 + i * 0.05
+			G.E_MANAGER:add_event(Event {
+				trigger = 'after',
+				delay = 0.4,
+				func = function()
+					play_sound('highlight2', percent_pitch, percent_vol)
+					this_card:juice_up(0.5, 0.2)
 
-				G.E_MANAGER:add_event(Event {
-					trigger = 'after',
-					delay = 0.4,
-					func = function()
-						play_sound('highlight2', percent_pitch, percent_vol)
-						this_card:juice_up(0.5, 0.2)
+					this_card:flip()
+					poke_vary_rank(this_card, false, nil, true)
+					this_card:flip()
 
-						this_card:flip()
-						poke_vary_rank(this_card, false, nil, true)
-						this_card:flip()
-
-						SMODS.juice_up_blind()
-						blind.triggered = true
-						return true
-					end,
-				})
-			end
+					SMODS.juice_up_blind()
+					G.GAME.blind.triggered = true
+					return true
+				end,
+			})
 		end
 	end,
 }

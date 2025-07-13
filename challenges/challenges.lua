@@ -86,7 +86,7 @@ SMODS.Booster {
 	unlocked = true,
 	discovered = false,
 	no_collection = false,
-	
+
 	in_pool = function(self)
 		return false
 	end,
@@ -171,7 +171,7 @@ SMODS.Gradient {
 		G.C.MULT,
 		G.C.CHIPS,
 		G.C.FILTER, -- attention / hand_size color
-	}
+	},
 }
 
 SMODS.Gradient {
@@ -180,7 +180,7 @@ SMODS.Gradient {
 		G.C.GOLD,
 		G.C.GREY,
 		G.C.BLUE,
-	}
+	},
 }
 
 SMODS.Gradient {
@@ -189,9 +189,8 @@ SMODS.Gradient {
 		HEX('D13B26'),
 		HEX('0077BF'),
 		HEX('408962'),
-	}
+	},
 }
-
 
 local all_challenges = {
 	kanto = { available = true, colour = SMODS.Gradients.pkrm_gym_RBY },
@@ -217,7 +216,7 @@ for region_id, challenge in pairs(all_challenges) do
 			consumeables = {
 				{ id = 'p_pkrm_gym_starter_pack' },
 			},
-			button_colour = challenge.colour
+			button_colour = challenge.colour,
 		}
 	end
 end

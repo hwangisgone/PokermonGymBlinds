@@ -953,7 +953,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 8,
 	mult = 8,
-	boss = { min = 1 },
+	boss = { min = 7 },
 	config = { every_earned = 5 },
 	vars = {},
 

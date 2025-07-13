@@ -165,9 +165,6 @@ function get_gym_boss(gym_type, gym_index)
 				and (math.floor((G.GAME.round_resets.ante - 1) / G.GAME.win_ante) % #G.GAME.pkrm_league_pool + 1)
 			or 1
 
-		print('league_index ' .. league_index)
-		print('gym_index ' .. gym_type .. ' ' .. (gym_index or 'nil'))
-
 		if not G.GAME.pkrm_league_pool or (league_index == 1 and gym_type == 'gym' and gym_index == 1) then -- Reset
 			G.GAME.pkrm_league_pool = {}
 
@@ -180,11 +177,9 @@ function get_gym_boss(gym_type, gym_index)
 			end
 
 			pseudoshuffle(G.GAME.pkrm_league_pool, seed)
-			print(G.GAME.pkrm_league_pool[league_index])
 		end
 
 		local current_league = G.GAME.pkrm_league_pool[league_index]
-
 
 		if gym_type == 'champion' then
 			return current_league.champion
@@ -210,8 +205,8 @@ function get_gym_boss(gym_type, gym_index)
 				if v.boss then
 					local trainer_class = pkrm_gym.TRAINER_CLASS[k]
 					if trainer_class then
-						G.GAME.pkrm_league_all_pool[trainer_class][k] = { 
-							used = false, 
+						G.GAME.pkrm_league_all_pool[trainer_class][k] = {
+							used = false,
 							min = v.boss.min or 1,
 							max = v.boss.max,
 						}
@@ -219,7 +214,7 @@ function get_gym_boss(gym_type, gym_index)
 						-- Case 3: Only add vanilla + other modded blinds if only gym is disabled
 						if not pkrm_gym_config.setting_only_gym then
 							local category = v.boss.showdown and 'e4' or 'gym'
-							G.GAME.pkrm_league_all_pool[category][k] = { 
+							G.GAME.pkrm_league_all_pool[category][k] = {
 								used = false,
 								min = v.boss.min or 1,
 								max = v.boss.max,
@@ -235,33 +230,28 @@ function get_gym_boss(gym_type, gym_index)
 		local current_ante = math.max(1, G.GAME.round_resets.ante)
 
 		local available_bosses = {}
-		local unused_count = 0 
+		local unused_count = 0
 
 		for k, boss in pairs(pool) do
 			if not boss.used then
 				unused_count = unused_count + 1
 
-				if boss.min <= current_ante then
-					available_bosses[k] = true
-				end
+				if boss.min <= current_ante then available_bosses[k] = true end
 			end
 		end
 
 		if unused_count == 0 then
-			print("Resetting pool")
+			-- print('Resetting pool')
 
 			for k, boss in pairs(pool) do
 				boss.used = false
 
-				if boss.min <= current_ante then
-					available_bosses[k] = true
-				end
+				if boss.min <= current_ante then available_bosses[k] = true end
 			end
 		end
 
 		local _, chosen_boss = pseudorandom_element(available_bosses, pseudoseed('boss'))
-		
-		print(chosen_boss)
+		G.GAME.pkrm_league_all_pool[pool_type][chosen_boss].used = true
 
 		return chosen_boss
 	end

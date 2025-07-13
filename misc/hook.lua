@@ -56,8 +56,6 @@ function get_new_boss(blind)
 	-- TODO: Special blind for ante < 1?
 	if G.GAME.round_resets.ante < 1 then return basegame_get_new_boss() end
 
-	print(pkrm_gym_config.setting_pokermon_league)
-
 	-- Setting or Challenge
 	if pkrm_gym_config.setting_pokermon_league or G.GAME.modifiers.pkrm_gym_forced_region then
 		local win_ante = G.GAME.win_ante
@@ -242,9 +240,7 @@ end
 
 function SMODS.current_mod.reset_game_globals(run_start)
 	if run_start then
-		if pkrm_gym_config.setting_pokermon_league and G.GAME.win_ante < 10 then
-			G.GAME.win_ante = 10
-		end
+		if pkrm_gym_config.setting_pokermon_league and G.GAME.win_ante < 10 then G.GAME.win_ante = 10 end
 
 		if G.GAME.modifiers.pkrm_gym_forced_region then
 			G.GAME.ALLOWED_POKE_POOLS = {
