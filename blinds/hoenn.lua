@@ -10,7 +10,6 @@ SMODS.Atlas {
 	frames = 21,
 }
 -- TODO:
--- knuckle: Make it smaller
 -- feather: Make it smaller
 
 local basegame_card_set_ability = Card.set_ability
@@ -511,7 +510,7 @@ SMODS.Blind {
 	discovered = false,
 	dollars = 5,
 	mult = 2,
-	boss = { min = 1 },
+	boss = { min = 5 },
 	config = {},
 	vars = {},
 

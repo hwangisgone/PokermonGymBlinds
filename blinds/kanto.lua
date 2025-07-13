@@ -157,7 +157,6 @@ SMODS.Blind {
 	calculate = function(self, blind, context)
 		if blind.disabled then return end
 
-		-- TODO: just context.pre_discard Might be buggy??
 		if context.pre_discard then
 			local rank1 = self.config.need_ranks[1].id
 			local rank2 = self.config.need_ranks[2].id

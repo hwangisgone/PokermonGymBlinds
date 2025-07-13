@@ -46,8 +46,6 @@ SMODS.current_mod.optional_features = function()
 	return { cardareas = { deck = true } }
 end
 
--- TODO:
-
 -- Utilities:
 function get_current_dollars()
 	if (SMODS.Mods['Talisman'] or {}).can_load then
@@ -169,7 +167,6 @@ for k, file_path in pairs(files_to_load) do
 	end
 end
 
-
 -- UI Config stuff
 local modtag = 'pkrm_gym'
 pkrm_gym_config = SMODS.current_mod.config
@@ -188,7 +185,7 @@ local create_menu_checkbox = function(ref_value, tooltip, can_display)
 		config = { align = 'cl', tooltip = tooltip_obj },
 		nodes = {
 			-- Padding
-			{n = G.UIT.C, config = { minw = extra_indent } },
+			{ n = G.UIT.C, config = { minw = extra_indent } },
 
 			create_toggle {
 				label = localize(modtag .. '_' .. ref_value),
@@ -204,19 +201,23 @@ local create_menu_checkbox = function(ref_value, tooltip, can_display)
 end
 
 SMODS.current_mod.config_tab = function()
-	return { n = G.UIT.ROOT, config = { colour = G.C.UI.TEXT_DARK }, nodes = {
-		{
-			n = G.UIT.C,
-			config = { align = 'cl', padding = 0.1 },
-			nodes = {
-				create_menu_checkbox('setting_only_gym', true),
-				create_menu_checkbox('setting_ordered_gym', true, pkrm_gym_config.setting_only_gym),
-				create_menu_checkbox('setting_pokermon_league', true),
-				create_menu_checkbox('setting_random_elite4_order', nil, pkrm_gym_config.setting_pokermon_league),
-				create_menu_checkbox('setting_reduce_scaling', nil, pkrm_gym_config.setting_pokermon_league),
+	return {
+		n = G.UIT.ROOT,
+		config = { colour = G.C.UI.TEXT_DARK },
+		nodes = {
+			{
+				n = G.UIT.C,
+				config = { align = 'cl', padding = 0.1 },
+				nodes = {
+					create_menu_checkbox('setting_only_gym', true),
+					create_menu_checkbox('setting_ordered_gym', true, pkrm_gym_config.setting_only_gym),
+					create_menu_checkbox('setting_pokermon_league', true),
+					create_menu_checkbox('setting_random_elite4_order', nil, pkrm_gym_config.setting_pokermon_league),
+					create_menu_checkbox('setting_reduce_scaling', nil, pkrm_gym_config.setting_pokermon_league),
+				},
 			},
 		},
-	}}
+	}
 end
 
 -- Loading hooks
@@ -242,7 +243,6 @@ SMODS.Atlas {
 	py = 34,
 	path = 'modicon.png',
 }
--- TODO: Edit this icon, make it bigger and remove outline (because outline blends with bg)
 
 local DEBUG = true
 if DEBUG then

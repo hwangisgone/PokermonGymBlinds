@@ -8,59 +8,80 @@ end
 
 local league_length = 10
 
+-- Boss configuration table for each win ante cases
+local boss_configs = {
+	-- Default, win_ante = 10
+	[10] = {
+		[9] = {
+			big = { 'e4', 1 },
+			boss = { 'e4', 2 },
+		},
+		[10] = {
+			small = { 'e4', 3 },
+			big = { 'e4', 4 },
+			boss = { 'champion' },
+		},
+	},
+	[11] = {
+		[9] = {
+			big = { 'e4', 1 },
+			boss = { 'e4', 2 },
+		},
+		[10] = {
+			big = { 'e4', 3 },
+			boss = { 'e4', 4 },
+		},
+		[11] = { boss = { 'champion' } },
+	},
+	[12] = {
+		[9] = { boss = { 'e4', 1 } },
+		[10] = { boss = { 'e4', 2 } },
+		[11] = { boss = { 'e4', 3 } },
+		[12] = {
+			big = { 'e4', 4 },
+			boss = { 'champion' },
+		},
+	},
+	[13] = {
+		[9] = { boss = { 'e4', 1 } },
+		[10] = { boss = { 'e4', 2 } },
+		[11] = { boss = { 'e4', 3 } },
+		[12] = { boss = { 'e4', 4 } },
+		[13] = { boss = { 'champion' } },
+	},
+}
+
 local basegame_get_new_boss = get_new_boss
 function get_new_boss(blind)
 	-- TODO: Special blind for ante < 1?
-	if G.GAME.round_resets.ante < 1 then
-		return basegame_get_new_boss()
-	end
+	if G.GAME.round_resets.ante < 1 then return basegame_get_new_boss() end
+
+	print(pkrm_gym_config.setting_pokermon_league)
 
 	-- Setting or Challenge
 	if pkrm_gym_config.setting_pokermon_league or G.GAME.modifiers.pkrm_gym_forced_region then
-		local league_index = 1
-		local gym_index = (G.GAME.round_resets.ante - 1) % league_length + 1
-	
-		-- Initialize league and set up winning ante
-		if not G.GAME.pkrm_league_pool then
-			G.GAME.pkrm_league_pool = get_league_pool()
-			G.GAME.win_ante = 10
-		else
-			league_index = math.floor((G.GAME.round_resets.ante - 1) / league_length) % #G.GAME.pkrm_league_pool + 1
-	
-			if league_index == 1 and gym_index == 1 then G.GAME.pkrm_league_pool = get_league_pool() end
-		end
-	
-		local current_league = G.GAME.pkrm_league_pool[league_index]
-	
+		local win_ante = G.GAME.win_ante
+		local gym_index = (G.GAME.round_resets.ante - 1) % win_ante + 1
+
 		local selected_boss
 
-		if gym_index == 9 then
-			-- Elite Four
-			if blind == 'big' then
-				selected_boss = current_league.e4[1]
-			else
-				selected_boss = current_league.e4[2]
-			end
-		elseif gym_index == 10 then
+		if gym_index >= 9 then
 			-- Elite Four & Champion
-			if blind == 'small' then
-				selected_boss = current_league.e4[3]
-			elseif blind == 'big' then
-				selected_boss = current_league.e4[4]
-			else
-				selected_boss = current_league.champion
-			end
+			local ante_config = boss_configs[win_ante][gym_index] or boss_configs[10][gym_index]
+			local current_boss_config = ante_config[blind] or ante_config.boss
+
+			selected_boss = get_gym_boss(current_boss_config[1], current_boss_config[2])
 		else
-			selected_boss = current_league.gym[gym_index]
+			selected_boss = get_gym_boss('gym', gym_index)
 		end
+
+		G.GAME.bosses_used[selected_boss] = G.GAME.bosses_used[selected_boss] + 1
 
 		return selected_boss
 	else
 		if pkrm_gym_config.setting_only_gym then
 			for k, v in pairs(G.P_BLINDS) do
-				if not pkrm_gym.TRAINER_CLASS[k] and not G.GAME.banned_keys[k] then
-					G.GAME.banned_keys[k] = true
-				end
+				if not pkrm_gym.TRAINER_CLASS[k] and not G.GAME.banned_keys[k] then G.GAME.banned_keys[k] = true end
 			end
 		end
 
@@ -78,21 +99,26 @@ function reset_blinds()
 	if not boss_defeated then return end
 
 	if pkrm_gym_config.setting_pokermon_league then
-		local gym_index = (G.GAME.round_resets.ante - 1) % league_length + 1
+		local win_ante = G.GAME.win_ante
+		local gym_index = (G.GAME.round_resets.ante - 1) % win_ante + 1
 
-		if gym_index == 9 then
-			G.GAME.round_resets.blind_type_override = { Big = true }
+		if gym_index >= 9 then
+			-- Handle generating bosses in place of Small, Big Blinds
+			local ante_config = boss_configs[win_ante][gym_index] or boss_configs[10][gym_index]
 
-			G.GAME.round_resets.blind_tags.Big = nil
-			G.GAME.round_resets.blind_choices.Big = get_new_boss('big')
-		elseif gym_index == 10 then
-			G.GAME.round_resets.blind_type_override = { Big = true, Small = true }
+			G.GAME.round_resets.blind_type_override = {}
 
-			G.GAME.round_resets.blind_tags.Small = nil
-			G.GAME.round_resets.blind_choices.Small = get_new_boss('small')
+			if ante_config.big then
+				G.GAME.round_resets.blind_type_override.Big = true
+				G.GAME.round_resets.blind_tags.Big = nil
+				G.GAME.round_resets.blind_choices.Big = get_new_boss('big')
+			end
 
-			G.GAME.round_resets.blind_tags.Big = nil
-			G.GAME.round_resets.blind_choices.Big = get_new_boss('big')
+			if ante_config.small then
+				G.GAME.round_resets.blind_type_override.Small = true
+				G.GAME.round_resets.blind_tags.Small = nil
+				G.GAME.round_resets.blind_choices.Small = get_new_boss('small')
+			end
 		else
 			-- Reset to normal
 			G.GAME.round_resets.blind_type_override = nil
@@ -216,11 +242,17 @@ end
 
 function SMODS.current_mod.reset_game_globals(run_start)
 	if run_start then
+		if pkrm_gym_config.setting_pokermon_league and G.GAME.win_ante < 10 then
+			G.GAME.win_ante = 10
+		end
+
 		if G.GAME.modifiers.pkrm_gym_forced_region then
 			G.GAME.ALLOWED_POKE_POOLS = {
 				all_regional_pokedexes[G.GAME.modifiers.pkrm_gym_forced_region],
 				all_pokedexes.other,
 			}
+
+			G.GAME.win_ante = 10
 		elseif G.GAME.modifiers.pkrm_gym_bug_catching_contest then
 			G.GAME.ALLOWED_POKE_POOLS = {
 				all_pokedexes.bug_contest,

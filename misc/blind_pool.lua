@@ -59,9 +59,9 @@ local hoenn_league = {
 }
 
 local all_leagues = {
-	kanto_league,
-	johto_league,
-	hoenn_league,
+	kanto = kanto_league,
+	johto = johto_league,
+	hoenn = hoenn_league,
 }
 
 -- I'm too lazy to add that to strings so here's automation for that
@@ -77,9 +77,6 @@ for k, league in pairs(all_leagues) do
 	all_leagues[k].champion = blind_prefix .. league.champion
 end
 
-
-print(G.P_BLINDS)
-
 -- API Used for randomization. Can be used to add your own blinds to the league here.
 pkrm_gym = {}
 pkrm_gym.ALL_LEAGUES = all_leagues
@@ -90,16 +87,16 @@ pkrm_gym.TRAINER_CLASS = {}
 
 for _, league in pairs(all_leagues) do
 	for _, gym in pairs(league.gym) do
-        table.insert(pkrm_gym.ALL_GYMS, gym)
-        pkrm_gym.TRAINER_CLASS[gym] = 'gym'
+		table.insert(pkrm_gym.ALL_GYMS, gym)
+		pkrm_gym.TRAINER_CLASS[gym] = 'gym'
 	end
 	for _, e4 in pairs(league.e4) do
-        if not pkrm_gym.TRAINER_CLASS[e4] then -- Deduplicate for Bruno
-            table.insert(pkrm_gym.ALL_E4, e4)
-            pkrm_gym.TRAINER_CLASS[e4] = 'e4'
-        end
+		if not pkrm_gym.TRAINER_CLASS[e4] then -- Deduplicate for Bruno
+			table.insert(pkrm_gym.ALL_E4, e4)
+			pkrm_gym.TRAINER_CLASS[e4] = 'e4'
+		end
 	end
-    pkrm_gym.TRAINER_CLASS[league.champion] = 'champion'
+	pkrm_gym.TRAINER_CLASS[league.champion] = 'champion'
 	table.insert(pkrm_gym.ALL_CHAMPIONS, league.champion)
 end
 
@@ -140,98 +137,134 @@ end
 -- Generating pool
 local mod_id = SMODS.current_mod.id
 
-function get_league_pool()
-	local pool = {}
+function get_gym_boss(gym_type, gym_index)
 	local seed = pseudoseed('pokermon_league')
 
 	if G.GAME.modifiers.pkrm_gym_forced_region then
 		-- Challenge only
-		local region_map = {
-			kanto = kanto_league,
-			johto = johto_league,
-			hoenn = hoenn_league,
-		}
+		local region = G.GAME.modifiers.pkrm_gym_forced_region
 
-		local selected_region = region_map[G.GAME.modifiers.pkrm_gym_forced_region]
+		local selected_league = all_leagues[region]
 
-		if not selected_region then
-			sendErrorMessage('Region not defined: ' .. G.GAME.modifiers.pkrm_gym_forced_region, 'Gym Blinds')
-			select_region = copy_table(kanto_league)
+		if not selected_league then
+			sendErrorMessage('Region not defined: ' .. region, 'Gym Blinds')
+			selected_league = kanto_league
 		end
 
-		pool = { selected_region }
-	elseif pkrm_gym_config.setting_only_gym and pkrm_gym_config.setting_ordered_gym then 
-        -- Case 1: Gym, Ordered
+		if gym_type == 'champion' then
+			return selected_league.champion
+		elseif gym_type == 'e4' then
+			return selected_league.e4[gym_index]
+		else
+			return selected_league.gym[gym_index]
+		end
+	elseif pkrm_gym_config.setting_only_gym and pkrm_gym_config.setting_ordered_gym then
+		-- Case 1: Gym, Ordered
 
-		pool = copy_table(all_leagues)
-		pseudoshuffle(pool, seed)
+		local league_index = G.GAME.pkrm_league_pool
+				and (math.floor((G.GAME.round_resets.ante - 1) / G.GAME.win_ante) % #G.GAME.pkrm_league_pool + 1)
+			or 1
 
-		if pkrm_gym_config.setting_random_elite4_order then
-			for _, league in ipairs(pool) do
-				pseudoshuffle(league.e4, seed)
+		print('league_index ' .. league_index)
+		print('gym_index ' .. gym_type .. ' ' .. (gym_index or 'nil'))
+
+		if not G.GAME.pkrm_league_pool or (league_index == 1 and gym_type == 'gym' and gym_index == 1) then -- Reset
+			G.GAME.pkrm_league_pool = {}
+
+			for _, league in pairs(all_leagues) do
+				local added_league = copy_table(league)
+
+				if pkrm_gym_config.setting_random_elite4_order then pseudoshuffle(added_league.e4, seed) end
+
+				table.insert(G.GAME.pkrm_league_pool, added_league)
 			end
+
+			pseudoshuffle(G.GAME.pkrm_league_pool, seed)
+			print(G.GAME.pkrm_league_pool[league_index])
 		end
-    else
-        -- Case 2: Gym, Random
-        -- Case 3: No Gym, Ordered (Random all)
-        -- Case 3: No Gym, Random  (Random all) (same as above)
 
-		-- setting_pokermon_league
-		local shuffled_gyms = copy_table(pkrm_gym.ALL_GYMS)
-		local shuffled_e4 = copy_table(pkrm_gym.ALL_E4)
-		local shuffled_champions = copy_table(pkrm_gym.ALL_CHAMPIONS)
+		local current_league = G.GAME.pkrm_league_pool[league_index]
 
-		-- Case 3: Add all other blinds (vanilla & modded)
-        if not pkrm_gym_config.setting_only_gym then
-            for k, v in pairs(G.P_BLINDS) do
-                if not pkrm_gym.TRAINER_CLASS[k] then
-                    if v.boss then
-                        if v.boss.showdown then
-                            table.insert(shuffled_e4, k)
-                        else
-                            table.insert(shuffled_gyms, k)
-                        end
-                    end
-                end
-            end
-        end
 
-        -- TODO: Min, Max of each boss Doesn't work
+		if gym_type == 'champion' then
+			return current_league.champion
+		elseif gym_type == 'e4' then
+			return current_league.e4[gym_index]
+		else
+			return current_league.gym[gym_index]
+		end
+	else
+		-- Case 2: Gym, Random
+		-- Case 3: No Gym, Ordered (Random all)
+		-- Case 3: No Gym, Random  (Random all) (same as above)
 
-		pseudoshuffle(shuffled_gyms, seed)
-		pseudoshuffle(shuffled_e4, seed)
-		pseudoshuffle(shuffled_champions, seed)
-
-        -- We have 3 leagues and some blind are duplicated
-        -- so -1 to not end up with missing blind
-		local count = #all_leagues - 1
-		for i = 1, count do
-			local league = {
-				gym = { -- 8 gyms
-					table.remove(shuffled_gyms),
-					table.remove(shuffled_gyms),
-					table.remove(shuffled_gyms),
-					table.remove(shuffled_gyms),
-					table.remove(shuffled_gyms),
-					table.remove(shuffled_gyms),
-					table.remove(shuffled_gyms),
-					table.remove(shuffled_gyms),
-				},
-				e4 = { -- elite four
-					table.remove(shuffled_e4),
-					table.remove(shuffled_e4),
-					table.remove(shuffled_e4),
-					table.remove(shuffled_e4),
-				},
-				champion = table.remove(shuffled_champions),
+		if not G.GAME.pkrm_league_all_pool then
+			G.GAME.pkrm_league_all_pool = {
+				gym = {},
+				e4 = {},
+				champion = {},
 			}
 
-			table.insert(pool, league)
+			-- Populate pools based on boss blinds
+			for k, v in pairs(G.P_BLINDS) do
+				if v.boss then
+					local trainer_class = pkrm_gym.TRAINER_CLASS[k]
+					if trainer_class then
+						G.GAME.pkrm_league_all_pool[trainer_class][k] = { 
+							used = false, 
+							min = v.boss.min or 1,
+							max = v.boss.max,
+						}
+					else
+						-- Case 3: Only add vanilla + other modded blinds if only gym is disabled
+						if not pkrm_gym_config.setting_only_gym then
+							local category = v.boss.showdown and 'e4' or 'gym'
+							G.GAME.pkrm_league_all_pool[category][k] = { 
+								used = false,
+								min = v.boss.min or 1,
+								max = v.boss.max,
+							}
+						end
+					end
+				end
+			end
 		end
+
+		local pool_type = gym_type == 'champion' and 'champion' or (gym_type == 'e4' and 'e4' or 'gym')
+		local pool = G.GAME.pkrm_league_all_pool[pool_type]
+		local current_ante = math.max(1, G.GAME.round_resets.ante)
+
+		local available_bosses = {}
+		local unused_count = 0 
+
+		for k, boss in pairs(pool) do
+			if not boss.used then
+				unused_count = unused_count + 1
+
+				if boss.min <= current_ante then
+					available_bosses[k] = true
+				end
+			end
+		end
+
+		if unused_count == 0 then
+			print("Resetting pool")
+
+			for k, boss in pairs(pool) do
+				boss.used = false
+
+				if boss.min <= current_ante then
+					available_bosses[k] = true
+				end
+			end
+		end
+
+		local _, chosen_boss = pseudorandom_element(available_bosses, pseudoseed('boss'))
+		
+		print(chosen_boss)
+
+		return chosen_boss
 	end
-
-	return pool
 end
-
 
 -- TODO: Make reroll work in random mode
