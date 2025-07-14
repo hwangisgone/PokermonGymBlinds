@@ -528,16 +528,26 @@ local function blaine_get_quiz()
 end
 
 local answer_cards_config = {
-	H_T = 1,
-	H_9 = 2,
-	H_8 = 3,
-	H_7 = 4,
-	H_K = 'Yes',
-	H_Q = 'No',
+	H_T = { answer = 1, sprite_pos_x = 0 },
+	H_9 = { answer = 2, sprite_pos_x = 1 },
+	H_8 = { answer = 3, sprite_pos_x = 2 },
+	H_7 = { answer = 4, sprite_pos_x = 3 },
+	H_K = { answer = 'Yes', sprite_pos_x = 4 },
+	H_Q = { answer = 'No', sprite_pos_x = 5 },
+}
+
+SMODS.Atlas {
+	key = 'answer_cards',
+	path = 'answer_cards.png',
+	px = 71,
+	py = 95,
 }
 
 SMODS.Enhancement {
 	key = 'answer_card',
+	atlas = 'answer_cards',
+	pos = { x = 0, y = 0 },
+
 	no_collection = true,
 	no_rank = true,
 	no_suit = true,
@@ -561,12 +571,25 @@ SMODS.Enhancement {
 
 			for k, v in pairs(G.P_CARDS) do
 				if card.config.card == v then
-					card.ability.extra.answer_key = answer_cards_config[k]
+					card.ability.extra.answer_key = answer_cards_config[k].answer
+					card.children.center:set_sprite_pos({
+						x = answer_cards_config[k].sprite_pos_x,
+						y = 0,
+					})
 					return
 				end
 			end
 
 			card.ability.extra.answer_key = 1
+		end
+	end,
+
+	set_sprites = function(self, card, front)
+		if card.config.card_key then
+			card.children.center:set_sprite_pos({
+				x = answer_cards_config[card.config.card_key].sprite_pos_x,
+				y = 0,
+			})
 		end
 	end,
 
@@ -819,7 +842,14 @@ SMODS.Blind {
 							if is_yes_no then
 								correct = v.ability.extra.answer_key == quiz_table.right_answers[1]
 							else
-								correct = quiz_table.answers[v.ability.extra.answer_key] == quiz_table.right_answers[1]
+								local my_answer = quiz_table.answers[v.ability.extra.answer_key]
+								-- Single question may have multiple correct answers, any is equally correct
+								for i, right in ipairs(quiz_table.right_answers) do
+									if my_answer == right then
+										correct = true
+										break
+									end
+								end
 							end
 
 							if correct then

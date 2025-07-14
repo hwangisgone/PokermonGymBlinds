@@ -209,8 +209,8 @@ return {
 				{
 					type = "single",
 					quiz = {"What does Raticate Joker have?"},
-					wrong_answers = {"Safari rarity", "Retrigger effect"},
-					right_answers = {"insane synergy", "Normal type"}
+					wrong_answers = {"Safari rarity", "Normal type"},
+					right_answers = {"insane synergy", "Retrigger effect"}
 				},
 				{
 					type = "single",
