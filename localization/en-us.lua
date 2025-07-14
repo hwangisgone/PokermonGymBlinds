@@ -343,6 +343,11 @@ return {
 		},
 		v_dictionary = {
 			bl_pkrm_gym_balance_debuff_text = "Must play the last discarded hand (#1#)",
+			bl_pkrm_gym_rain_debuff_text = "Must play more ranks than suits (#1#, #2#)",
+			rank_count_singular = "#1# rank",
+			rank_count_plural = "#1# ranks",
+			suit_count_singular = "#1# suit",
+			suit_count_plural = "#1# suits",
 		},
 		v_text = {
 			ch_c_pkrm_gym_text_only_forced_regional_jokers = { "Only Pokermon Jokers in {C:attention}#1#{} appear" },

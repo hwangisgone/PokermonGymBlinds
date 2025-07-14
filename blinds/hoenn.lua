@@ -421,7 +421,25 @@ SMODS.Blind {
 		if #not_released_nines < 1 then return end
 
 		G.E_MANAGER:add_event(Event {
-			trigger = 'after',
+			trigger = 'before',
+			delay = 1,
+			func = function()
+				pkrm_gym_attention_text {
+					text = localize('feather', 'pkrm_gym_ex'),
+					backdrop_colour = TYPE_CLR['flying'],
+					major = G.play,
+					offset_y = -0.4 * G.CARD_H,
+				}
+
+				G.GAME.blind:wiggle()
+				G.VIBRATION = G.VIBRATION + 0.6
+
+				return true
+			end
+		})
+
+		G.E_MANAGER:add_event(Event {
+			trigger = 'before',
 			delay = 0.5,
 			func = function()
 				for k, card in pairs(not_released_nines) do
@@ -436,15 +454,16 @@ SMODS.Blind {
 					end
 				end
 
+				local total_loss = -#not_released_nines * self.config.lose
+
 				pkrm_gym_attention_text {
-					text = localize('feather', 'pkrm_gym_ex'),
+					text = total_loss .. localize('$'),
 					backdrop_colour = TYPE_CLR['flying'],
 					major = G.play,
 				}
 
-				ease_dollars(-#not_released_nines * self.config.lose)
+				ease_dollars(total_loss)
 				G.VIBRATION = G.VIBRATION + 0.6
-				G.GAME.blind:wiggle()
 
 				return true
 			end,
@@ -501,6 +520,29 @@ SMODS.Blind {
 	end,
 }
 
+local function get_rank_suit_count(cards)
+	local all_suits = {}
+	local all_ranks = {}
+
+	for i, card in ipairs(cards) do
+		if not SMODS.has_no_rank(card) then all_ranks[card:get_id()] = true end
+
+		if not SMODS.has_no_suit(card) then all_suits[card.base.suit] = true end
+	end
+
+	local rank_count = 0
+	for _ in pairs(all_ranks) do
+		rank_count = rank_count + 1
+	end
+
+	local suit_count = 0
+	for _ in pairs(all_suits) do
+		suit_count = suit_count + 1
+	end
+
+	return rank_count, suit_count
+end
+
 SMODS.Blind {
 	key = 'rain',
 	atlas = 'blinds_hoenn',
@@ -515,26 +557,37 @@ SMODS.Blind {
 	vars = {},
 
 	debuff_hand = function(self, cards, hand, handname, check)
-		local all_suits = {}
-		local all_ranks = {}
-
-		for i, card in ipairs(cards) do
-			if not SMODS.has_no_rank(card) then all_ranks[card:get_id()] = true end
-
-			if not SMODS.has_no_suit(card) then all_suits[card.base.suit] = true end
-		end
-
-		local rank_count = 0
-		for _ in pairs(all_ranks) do
-			rank_count = rank_count + 1
-		end
-
-		local suit_count = 0
-		for _ in pairs(all_suits) do
-			suit_count = suit_count + 1
-		end
+		local rank_count, suit_count = get_rank_suit_count(cards)
 
 		return rank_count <= suit_count
+	end,
+
+	get_loc_debuff_text = function(self)
+		if #G.hand.highlighted < 1 then
+			return G.GAME.blind.loc_debuff_text
+		end
+
+		local rank_count, suit_count = get_rank_suit_count(G.hand.highlighted)
+
+		if rank_count <= suit_count then
+			local rank_loc = localize{
+				type = 'variable',
+				key = rank_count > 1 and 'rank_count_plural' or 'rank_count_singular',
+				vars = { rank_count }
+			}
+
+			local suit_loc = localize{
+				type = 'variable',
+				key = suit_count > 1 and 'suit_count_plural' or 'suit_count_singular',
+				vars = { suit_count }
+			}
+
+			return localize {
+				type = 'variable',
+				key = 'bl_pkrm_gym_rain_debuff_text',
+				vars = { rank_loc, suit_loc },
+			}
+		end
 	end,
 }
 
