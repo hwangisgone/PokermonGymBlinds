@@ -272,14 +272,15 @@ SMODS.Blind {
 	dollars = 5,
 	mult = 2,
 	boss = { min = 5 },
-	config = { extra = { used_consumable = false } },
+	config = {},
 	vars = {},
 
 	calculate = function(self, blind, context)
 		if G.GAME.blind.disabled then return end
 
 		if context.using_consumeable then
-			self.config.extra.used_consumable = true
+			blind.used_consumable = true
+			blind.no_debuff_cards = {}
 
 			-- Recalculate debuffs
 			for _, v in ipairs(G.hand.cards) do
@@ -289,7 +290,7 @@ SMODS.Blind {
 						delay = 0.1,
 						func = function()
 							SMODS.recalc_debuff(v)
-							v.ability.sabrina_marsh_debuff = true
+							blind.no_debuff_cards[v.ID] = true
 							play_sound('tarot1', 1)
 							v:juice_up(0.1, 0.1)
 							return true
@@ -302,7 +303,7 @@ SMODS.Blind {
 				trigger = 'after',
 				delay = 0.1,
 				func = function()
-					self.config.extra.used_consumable = false
+					blind.used_consumable = false
 					return true
 				end,
 			})
@@ -310,10 +311,11 @@ SMODS.Blind {
 	end,
 
 	recalc_debuff = function(self, card, from_blind)
+		local no_debuff_card_list = G.GAME.blind.no_debuff_cards or {}
 		if
 			card.ability.set ~= 'Joker'
-			and not self.config.extra.used_consumable
-			and not card.ability.sabrina_marsh_debuff
+			and not G.GAME.blind.used_consumable
+			and not no_debuff_card_list[card.ID]
 		then
 			-- Ability is to prevent purified cards from being debuffed again
 			return true
@@ -321,6 +323,10 @@ SMODS.Blind {
 			return false
 		end
 	end,
+
+	defeat = function(self)
+		G.GAME.blind.no_debuff_cards = nil
+	end
 }
 
 local function isYesNo(quiz_table)

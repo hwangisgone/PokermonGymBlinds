@@ -860,6 +860,7 @@ SMODS.Blind {
 
 		if context.before then
 			local rank_counts = {}
+			blind.unique_rank_cards = {}
 
 			for _, card in pairs(G.hand.cards) do
 				if not SMODS.has_no_rank(card) then rank_counts[card.base.id] = (rank_counts[card.base.id] or 0) + 1 end
@@ -867,23 +868,21 @@ SMODS.Blind {
 
 			for _, card in pairs(G.hand.cards) do
 				if SMODS.has_no_rank(card) then
-					if SMODS.has_enhancement(card, 'm_stone') then card.rank_is_unique = true end
+					if SMODS.has_enhancement(card, 'm_stone') then
+						blind.unique_rank_cards[card.ID] = true
+					end
 				else
-					if rank_counts[card.base.id] and rank_counts[card.base.id] < 2 then card.rank_is_unique = true end
+					if rank_counts[card.base.id] and rank_counts[card.base.id] < 2 then 
+						blind.unique_rank_cards[card.ID] = true
+					end
 				end
 			end
 		end
 
 		if context.individual then
-			if context.other_card.rank_is_unique then return {
+			if blind.unique_rank_cards[context.other_card.ID] then return {
 				xmult = self.config.lower_xmult,
 			} end
-		end
-
-		if context.after then
-			for _, card in pairs(G.hand.cards) do
-				if card.rank_is_unique then card.rank_is_unique = nil end
-			end
 		end
 	end,
 

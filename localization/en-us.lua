@@ -46,7 +46,8 @@ return {
 			bl_pkrm_gym_e4_glacia = {name = 'Glistening Gown' ,text = {"Lose $#1#.", "-1 hand size per {C:red}-$#2#{}", "in current debt"}},
 			bl_pkrm_gym_e4_drake  = {name = 'Azure Anchor'   ,text = {"Debuff the lowest rank", "in scoring"}}, -- 2!!
 			bl_pkrm_gym_champion_hoenn = {name = 'The Platinum Pin',text = {"Each unique rank", "held in hand", "gives X#1# Mult"}},
-			-- maybe i should name him Platinum Pot lmao (poker ref)
+			-- bl_pkrm_gym_champion_hoenn = {name = 'The Platinum Pin',text = {"Every held card with", "same rank as cards in play", "gives X#1# Mult"}},
+			-- maybe i should name him Platinum Pot lol (poker ref)
 			-- Alternative names:
 			-- Platinum Pendant
 			-- Azure Amulet
