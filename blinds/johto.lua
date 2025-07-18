@@ -424,7 +424,7 @@ SMODS.Blind {
 					this_card:juice_up(0.5, 0.2)
 
 					this_card:flip()
-					poke_vary_rank(this_card, false, nil, true)
+					SMODS.modify_rank(this_card, 1)
 					this_card:flip()
 
 					SMODS.juice_up_blind()

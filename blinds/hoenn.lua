@@ -14,9 +14,10 @@ SMODS.Atlas {
 
 local basegame_card_set_ability = Card.set_ability
 function Card:set_ability(center, initial, delay_sprites)
-	if self.ability and self.ability.roxanne_stone_transform and SMODS.has_enhancement(self, 'm_stone') then
+	if self.ability and self.ability.roxanne_stone_affected and SMODS.has_enhancement(self, 'm_stone') then
 		-- Reset Roxanne Stone card bonus (if not reset, the card will have -50 extra bonus)
 		self.ability.bonus = self.config.center.config.bonus
+		self.ability.roxanne_stone_affected = nil
 	end
 
 	basegame_card_set_ability(self, center, initial, delay_sprites)
@@ -36,9 +37,10 @@ SMODS.Blind {
 	vars = {},
 
 	press_play = function(self)
-		for i, card in ipairs(G.hand.highlighted) do
+		for _, card in ipairs(G.hand.highlighted) do
 			if card:is_face() and not SMODS.has_enhancement(card, 'm_stone') then
-				card.ability.roxanne_stone_transform = card.config.center
+				card.ability.roxanne_stone_prev_enhancement = card.config.center.key
+				card.ability.roxanne_stone_affected = true
 
 				G.E_MANAGER:add_event(Event {
 					trigger = 'after',
@@ -68,9 +70,9 @@ SMODS.Blind {
 
 	disable = function(self)
 		for _, card in ipairs(G.playing_cards) do
-			if card.ability.roxanne_stone_transform and not card.ability.roxanne_stone_no_turn_back then
-				local prev_enhancement = card.ability.roxanne_stone_transform
-				card:set_ability(prev_enhancement, nil, false)
+			if card.ability.roxanne_stone_prev_enhancement then
+				local prev_enhancement = card.ability.roxanne_stone_prev_enhancement
+				card:set_ability(G.P_CENTERS[prev_enhancement], nil, false)
 				card:juice_up()
 			end
 		end
@@ -80,7 +82,7 @@ SMODS.Blind {
 	defeat = function(self)
 		-- So future encounter when disabled, won't revert changes in previous antes
 		for _, card in pairs(G.playing_cards) do
-			card.ability.roxanne_stone_no_turn_back = true
+			card.ability.roxanne_stone_prev_enhancement = nil
 		end
 	end,
 }
@@ -435,7 +437,7 @@ SMODS.Blind {
 				G.VIBRATION = G.VIBRATION + 0.6
 
 				return true
-			end
+			end,
 		})
 
 		G.E_MANAGER:add_event(Event {
@@ -563,23 +565,21 @@ SMODS.Blind {
 	end,
 
 	get_loc_debuff_text = function(self)
-		if #G.hand.highlighted < 1 then
-			return G.GAME.blind.loc_debuff_text
-		end
+		if #G.hand.highlighted < 1 then return G.GAME.blind.loc_debuff_text end
 
 		local rank_count, suit_count = get_rank_suit_count(G.hand.highlighted)
 
 		if rank_count <= suit_count then
-			local rank_loc = localize{
+			local rank_loc = localize {
 				type = 'variable',
 				key = rank_count > 1 and 'rank_count_plural' or 'rank_count_singular',
-				vars = { rank_count }
+				vars = { rank_count },
 			}
 
-			local suit_loc = localize{
+			local suit_loc = localize {
 				type = 'variable',
 				key = suit_count > 1 and 'suit_count_plural' or 'suit_count_singular',
-				vars = { suit_count }
+				vars = { suit_count },
 			}
 
 			return localize {
@@ -868,11 +868,9 @@ SMODS.Blind {
 
 			for _, card in pairs(G.hand.cards) do
 				if SMODS.has_no_rank(card) then
-					if SMODS.has_enhancement(card, 'm_stone') then
-						blind.unique_rank_cards[card.ID] = true
-					end
+					if SMODS.has_enhancement(card, 'm_stone') then blind.unique_rank_cards[card.ID] = true end
 				else
-					if rank_counts[card.base.id] and rank_counts[card.base.id] < 2 then 
+					if rank_counts[card.base.id] and rank_counts[card.base.id] < 2 then
 						blind.unique_rank_cards[card.ID] = true
 					end
 				end
@@ -880,9 +878,11 @@ SMODS.Blind {
 		end
 
 		if context.individual then
-			if blind.unique_rank_cards[context.other_card.ID] then return {
-				xmult = self.config.lower_xmult,
-			} end
+			if blind.unique_rank_cards[context.other_card.ID] then
+				return {
+					xmult = self.config.lower_xmult,
+				}
+			end
 		end
 	end,
 

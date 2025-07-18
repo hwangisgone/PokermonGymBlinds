@@ -244,11 +244,12 @@ SMODS.Atlas {
 	path = 'modicon.png',
 }
 
-local DEBUG = true
+local DEBUG = false
 if DEBUG then
 	if Balatest then
 		assert(SMODS.load_file('testing/kanto.lua'))()
 		assert(SMODS.load_file('testing/johto.lua'))()
+		assert(SMODS.load_file('testing/hoenn.lua'))()
 	end
 
 	local chunk, load_error = SMODS.load_file('testing/temp/test.lua')

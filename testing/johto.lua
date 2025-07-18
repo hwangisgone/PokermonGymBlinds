@@ -2,7 +2,7 @@
 -- Test with destroy jokers
 
 -- The Fog
-function fog_check_flip(hd_flip, sc_flip)
+local function fog_check_flip(hd_flip, sc_flip)
 	local all_hd_flipped_correctly = true
 	local all_sc_flipped_correctly = true
 
@@ -304,7 +304,7 @@ Balatest.TestPlay {
 
 Balatest.TestPlay {
 	name = 'e4_will_effect_wrong',
-	category = { 'johto', 'blind' },
+	category = { 'johto', 'blind', 'e4_will' },
 
 	blind = 'bl_pkrm_gym_e4_will',
 
@@ -354,7 +354,7 @@ Balatest.TestPlay {
 
 Balatest.TestPlay {
 	name = 'e4_will_panpour_stone_and_right',
-	category = { 'johto', 'blind' },
+	category = { 'johto', 'blind', 'e4_will' },
 
 	blind = 'bl_pkrm_gym_e4_will',
 	jokers = { 'j_poke_panpour' },
